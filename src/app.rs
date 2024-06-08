@@ -1,4 +1,5 @@
-use std::time::{Duration, Instant};
+// TODO: time not supported for wasm, find som alternative
+//use std::time::{Duration, Instant};
 use bevy::{
     input::mouse::MouseWheel, log::tracing_subscriber::field::display, prelude::*, reflect::TypePath, render::{render_asset::RenderAssetUsages, render_resource::{self, AsBindGroup, Extent3d, ShaderRef, TextureDimension}, texture::{ImageSampler, ImageSamplerDescriptor}}, sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle}, utils::hashbrown::Equivalent, window::PrimaryWindow
 };
@@ -131,7 +132,7 @@ fn update(
     windows: Query<&Window, With<PrimaryWindow>>,
     time: Res<Time>,
 ) {
-    let start = Instant::now();
+    //let start = Instant::now();
     let mut globals = globals_query.single_mut();
     let image = images.get_mut(globals.render_image.clone()).unwrap();
     let window = windows.single();
@@ -202,7 +203,7 @@ fn update(
     }
     material.color_texture = Some(globals.render_image.clone());
         
-    let duration = start.elapsed();
+    //let duration = start.elapsed();
     //println!("update took: {:?}", duration);
 
     globals.frame_num += 1;
