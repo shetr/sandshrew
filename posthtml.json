@@ -1,0 +1,11 @@
+{
+    "input": "www/*.html",
+    "output": "dist",
+    "plugins": {
+        "posthtml-modules": {
+            "root": "./www",
+            "initial": true
+        },
+        "htmlnano": {}
+    }
+}
