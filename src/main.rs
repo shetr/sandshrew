@@ -1,3 +1,5 @@
+use sandshrew::*;
+
 fn main() {
-    println!("Hello, world!");
+    run_sandshrew_app();
 }
