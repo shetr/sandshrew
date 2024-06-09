@@ -151,7 +151,7 @@ fn update(
     }
 
     for event in mouse_wheel_events.read() {
-        let dir = event.y as i32;
+        let dir = clamp(event.y as i32, -3, 3);
         globals.brush_radius += dir;
         if globals.brush_radius < 0 {
             globals.brush_radius = 0;

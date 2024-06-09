@@ -26,6 +26,17 @@ pub trait ArgMax {
     fn argmax(&self) -> usize;
 }
 
+pub fn clamp<T: PartialOrd>(input: T, min: T, max: T) -> T
+{
+    if input < min {
+        return min;
+    }
+    if input > max {
+        return max;
+    }
+    return input;
+}
+
 impl ArgMin for Vec3 {
 
     fn argmin(&self) -> usize {

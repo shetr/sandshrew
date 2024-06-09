@@ -11,7 +11,8 @@
     "build:assets": "copyfiles assets/** dist",
     "build:js": "npm run wasm && npm run wasm-bindgen && npm run wasm-opt && webpack --mode=production",
     "build:html": "posthtml -c posthtml.json",
-    "build": "run-p build:*",
+    "clean": "del-cli dist",
+    "build": "npm run clean && run-p build:*",
     "deploy": "gh-pages -d dist",
     "build-deploy": "npm run build && npm run deploy"
   },
@@ -30,6 +31,8 @@
   "homepage": "https://github.com/shetr/sandshrew#readme",
   "devDependencies": {
     "copyfiles": "^2.4.1",
+    "del": "^7.1.0",
+    "del-cli": "^5.1.0",
     "gh-pages": "^6.1.1",
     "htmlnano": "^2.1.1",
     "npm-run-all": "^4.1.5",
