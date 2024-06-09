@@ -29,7 +29,7 @@ impl GridDisplay {
                 },
                 CellType::Stone => self.stone_color.rgb_to_vec3(),
                 CellType::Sand => self.sand_color.rgb_to_vec3(),
-            } * cells[iv].color_offset).clamp(Vec3::splat(0.0), Vec3::splat(1.0)) * 255.0;
+            } * cells[iv].color_scale()).clamp(Vec3::splat(0.0), Vec3::splat(1.0)) * 255.0;
             out_image.data[i*4 + 0] = color[0] as u8;
             out_image.data[i*4 + 1] = color[1] as u8;
             out_image.data[i*4 + 2] = color[2] as u8;

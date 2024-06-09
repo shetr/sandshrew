@@ -12,8 +12,7 @@ use crate::grid_display::*;
 pub fn run_sandshrew_app() {
     App::new()
         .add_plugins((
-            DefaultPlugins,
-            /*DefaultPlugins.set(WindowPlugin {
+            DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
                     title: "Sandshrew".into(),
                     name: Some("sandshrew.app".into()),
@@ -21,7 +20,7 @@ pub fn run_sandshrew_app() {
                     ..default()
                 }),
                 ..default()
-            }),*/
+            }),
             Material2dPlugin::<CustomMaterial>::default(),
         ))
         .add_systems(Startup, setup)

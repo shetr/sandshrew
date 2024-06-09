@@ -23,7 +23,7 @@ impl CellGrid
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if self.cells.is_in_range(iv) && is_in_radius(pos, radius, iv) && (replace_solids || !self.cells[iv].is_solid()) {
-                    self.cells[iv] = Cell::new(cell_type, 255, rand_radius);
+                    self.cells[iv] = Cell::new(cell_type, CELL_MAX_AMOUNT, rand_radius);
                 }
             }
         }
@@ -210,12 +210,12 @@ impl CellGrid
             return Some(side_pos[1 - choose]);
         }
         // water flow to bottom
-        if self.cells.is_in_range(bottom_pos) && self.cells[bottom_pos].cell_type == CellType::Water && self.cells[bottom_pos].amount < 255 {
+        if self.cells.is_in_range(bottom_pos) && self.cells[bottom_pos].cell_type == CellType::Water && self.cells[bottom_pos].amount < CELL_MAX_AMOUNT {
             let total_amount = (self.cells[pos].amount as i32) + (self.cells[bottom_pos].amount as i32);
-            let overflow = total_amount - 255;
+            let overflow = total_amount - (CELL_MAX_AMOUNT as i32);
             if overflow > 0 {
                 self.cells[pos].amount = overflow as u8;
-                self.cells[bottom_pos].amount = 255u8;
+                self.cells[bottom_pos].amount = CELL_MAX_AMOUNT;
             } else {
                 self.cells[bottom_pos].amount = total_amount as u8;
                 // just air now

@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use rand::prelude::*;
 
+pub const CELL_MAX_AMOUNT: u8 = 255;
+
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CellType {
@@ -37,14 +39,14 @@ pub struct Cell
 {
     pub cell_type: CellType,
     pub amount: u8,
-    pub color_offset: f32,
+    pub color_offset: i8,
     pub moved_this_frame: bool
 }
 
 impl Cell {
 
     pub fn default_air() -> Self {
-        Cell { cell_type: CellType::Air, amount: 255, color_offset: 1.0, moved_this_frame: false }
+        Cell { cell_type: CellType::Air, amount: CELL_MAX_AMOUNT, color_offset: 0, moved_this_frame: false }
     }
 
     pub fn new(cell_type: CellType, amount: u8, rand_radius: f32) -> Self
@@ -53,8 +55,12 @@ impl Cell {
         Cell { cell_type, amount, color_offset, moved_this_frame: false }
     }
 
-    pub fn gen_color_offset(rand_radius: f32) -> f32 {
-        1.0 - rand_radius + rand::thread_rng().gen::<f32>() * rand_radius
+    pub fn gen_color_offset(rand_radius: f32) -> i8 {
+        ((rand::thread_rng().gen::<i8>() as f32) * rand_radius) as i8
+    }
+
+    pub fn color_scale(&self) -> f32 {
+        1.0 + (self.color_offset as f32) / 128.0
     }
 
     pub fn is_solid(&self) -> bool {
