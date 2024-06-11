@@ -1,5 +1,7 @@
+use std::cell;
+
 use rand::prelude::*;
-use std::iter;
+use enum_map::EnumMap;
 
 use bevy::prelude::*;
 
@@ -9,21 +11,21 @@ use crate::cell::*;
 pub struct CellGrid
 {
     pub update_top_down: bool,
-    pub cells: Vector2D<Cell>
+    pub cells: Vector2D<Cell>,
+    pub cell_properties: EnumMap<CellType, CellTypeProperties>,
 }
 
 impl CellGrid
 {
-    pub fn set_cells(&mut self, pos: IVec2, radius: i32, cell_type: CellType, offset_color: bool, replace_solids: bool)
+    pub fn set_cells(&mut self, pos: IVec2, radius: i32, cell_type: CellType, replace_solids: bool)
     {
         let start_pos = pos - radius;
         let end_pos = pos + radius + 1;
-        let rand_radius = if offset_color { 0.25 } else { 0.0 };
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if self.cells.is_in_range(iv) && is_in_radius(pos, radius, iv) && (replace_solids || !self.cells[iv].is_solid()) {
-                    self.cells[iv] = Cell::new(cell_type, CELL_MAX_AMOUNT, rand_radius);
+                    self.cells[iv] = self.new_cell(cell_type, CELL_MAX_AMOUNT);
                 }
             }
         }
@@ -64,9 +66,16 @@ impl CellGrid
         if self.cells[pos].moved_this_frame {
             return;
         }
-        match self.cells[pos].cell_type {
+        let cell_type = self.cells[pos].cell_type;
+        if rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].color_change_prob {
+            self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[cell_type].color_rand_radius);
+        }
+        match cell_type {
             CellType::Air => {},
+            CellType::Smoke => { self.update_gass(pos); },
+            CellType::FlammableGass => { self.update_gass(pos); },
             CellType::Water => { self.update_water(pos); },
+            CellType::Oil => { self.update_liquid(pos); },
             CellType::Stone => {},
             CellType::Sand => { self.update_sand(pos); },
         }
@@ -82,11 +91,23 @@ impl CellGrid
         self.cells[pos2].moved_this_frame = true;
     }
 
+    fn new_cell(&self, cell_type: CellType, amount: u8) -> Cell {
+        Cell::new(cell_type, amount, self.cell_properties[cell_type].color_rand_radius)
+    }
+
     fn update_sand(&mut self, pos: IVec2) {
+        self.update_powder(pos);
+    }
+
+    fn update_water(&mut self, pos: IVec2) {
+        self.update_liquid(pos);
+    }
+
+    fn update_powder(&mut self, pos: IVec2) {
         let bottom_pos = pos + IVec2::new(0, -1);
         if self.cells.is_in_range(bottom_pos) {
             if !self.cells[bottom_pos].is_solid() {
-                if self.cells[bottom_pos].cell_type == CellType::Air {
+                if self.cells[bottom_pos].is_gass() {
                     self.swap_cells(pos, bottom_pos);
                     return;
                 }
@@ -96,12 +117,12 @@ impl CellGrid
                 let bottom_right_pos = pos + IVec2::new(1, -1);
                 let choose = rand::thread_rng().gen_range(0..2);
                 let side_pos = [bottom_left_pos, bottom_right_pos];
-                if self.cells.is_in_range(side_pos[choose]) && self.cells[side_pos[choose]].cell_type == CellType::Air {
+                if self.cells.is_in_range(side_pos[choose]) && self.cells[side_pos[choose]].is_gass() {
                     self.swap_cells(bottom_pos, side_pos[choose]);
                     self.swap_cells(pos, bottom_pos);
                     return;
                 }
-                if self.cells.is_in_range(side_pos[1 - choose]) && self.cells[side_pos[1 - choose]].cell_type == CellType::Air {
+                if self.cells.is_in_range(side_pos[1 - choose]) && self.cells[side_pos[1 - choose]].is_gass() {
                     self.swap_cells(bottom_pos, side_pos[1 - choose]);
                     self.swap_cells(pos, bottom_pos);
                     return;
@@ -111,12 +132,12 @@ impl CellGrid
                 let right_pos = pos + IVec2::new(1, 0);
                 let choose = rand::thread_rng().gen_range(0..2);
                 let side_pos = [left_pos, right_pos];
-                if self.cells.is_in_range(side_pos[choose]) && self.cells[side_pos[choose]].cell_type == CellType::Air {
+                if self.cells.is_in_range(side_pos[choose]) && self.cells[side_pos[choose]].is_gass() {
                     self.swap_cells(bottom_pos, side_pos[choose]);
                     self.swap_cells(pos, bottom_pos);
                     return;
                 }
-                if self.cells.is_in_range(side_pos[1 - choose]) && self.cells[side_pos[1 - choose]].cell_type == CellType::Air {
+                if self.cells.is_in_range(side_pos[1 - choose]) && self.cells[side_pos[1 - choose]].is_gass() {
                     self.swap_cells(bottom_pos, side_pos[1 - choose]);
                     self.swap_cells(pos, bottom_pos);
                     return;
@@ -131,28 +152,28 @@ impl CellGrid
             let bottom_side_dir = if rand::random() { bottom_right_dir } else { bottom_left_dir };
             let bottom_side_pos = pos + bottom_side_dir;
             if self.cells.is_in_range(bottom_side_pos) && !self.cells[bottom_side_pos].is_solid() {
-                if self.cells[bottom_side_pos].cell_type == CellType::Air {
+                if self.cells[bottom_side_pos].is_gass() {
                     self.swap_cells(pos, bottom_side_pos);
                     return;
                 }
                 self.cells[bottom_side_pos].moved_this_frame = true;
                 // push to side
                 let to_side_pos = bottom_side_pos + bottom_side_dir + IVec2::new(0, 1);
-                if self.cells.is_in_range(to_side_pos) && self.cells[to_side_pos].cell_type == CellType::Air {
+                if self.cells.is_in_range(to_side_pos) && self.cells[to_side_pos].is_gass() {
                     self.swap_cells(bottom_side_pos, to_side_pos);
                     self.swap_cells(pos, bottom_side_pos);
                     return;
                 }
                 // push diagonaly
                 let to_side_diag_pos = to_side_pos + IVec2::new(0, 1);
-                if self.cells.is_in_range(to_side_diag_pos) && self.cells[to_side_diag_pos].cell_type == CellType::Air {
+                if self.cells.is_in_range(to_side_diag_pos) && self.cells[to_side_diag_pos].is_gass() {
                     self.swap_cells(bottom_side_pos, to_side_diag_pos);
                     self.swap_cells(pos, bottom_side_pos);
                     return;
                 }
                 // push up
                 let up_pos = bottom_side_pos + IVec2::new(0, 1);
-                if self.cells.is_in_range(up_pos) && self.cells[up_pos].cell_type == CellType::Air {
+                if self.cells.is_in_range(up_pos) && self.cells[up_pos].is_gass() {
                     self.swap_cells(bottom_side_pos, up_pos);
                     self.swap_cells(pos, bottom_side_pos);
                     return;
@@ -166,12 +187,9 @@ impl CellGrid
         return;
     }
 
-    fn update_water(&mut self, pos: IVec2)
+    fn update_liquid(&mut self, pos: IVec2)
     {
-        if rand::thread_rng().gen::<f32>() < 0.01 {
-            self.cells[pos].color_offset = Cell::gen_color_offset(0.25);
-        }
-
+        let liquid_type = self.cells[pos].cell_type;
         // botom
         let bottom_pos = pos + IVec2::new(0, -1);
         if self.cells.is_in_range(bottom_pos) && self.cells[bottom_pos].is_gass() {
@@ -191,7 +209,7 @@ impl CellGrid
             return;
         }
         // water flow to bottom
-        if self.cells.is_in_range(bottom_pos) && self.cells[bottom_pos].cell_type == CellType::Water && self.cells[bottom_pos].amount < CELL_MAX_AMOUNT {
+        if self.cells.is_in_range(bottom_pos) && self.cells[bottom_pos].cell_type == liquid_type && self.cells[bottom_pos].amount < CELL_MAX_AMOUNT {
             let total_amount = (self.cells[pos].amount as i32) + (self.cells[bottom_pos].amount as i32);
             let overflow = total_amount - (CELL_MAX_AMOUNT as i32);
             
@@ -216,10 +234,10 @@ impl CellGrid
         if self.cells.is_in_range(left_pos) {
             if self.cells[left_pos].cell_type == CellType::Air {
                 // TODO: change color + create constructors for cells and specific cell types
-                self.cells[left_pos] = Cell::new(CellType::Water, 0, 0.25);
+                self.cells[left_pos] = self.new_cell(liquid_type, 0);
                 self.cells[left_pos].moved_this_frame = true;
             }
-            if self.cells[left_pos].cell_type == CellType::Water {
+            if self.cells[left_pos].cell_type == liquid_type {
                 water_locs[pos_count as usize] = left_pos;
                 pos_count += 1;
             }
@@ -227,10 +245,10 @@ impl CellGrid
         if self.cells.is_in_range(right_pos) {
             if self.cells[right_pos].cell_type == CellType::Air {
                 // TODO: change color + create constructors for cells and specific cell types
-                self.cells[right_pos] = Cell::new(CellType::Water, 0, 0.25);
+                self.cells[right_pos] = self.new_cell(liquid_type, 0);
                 self.cells[right_pos].moved_this_frame = true;
             }
-            if self.cells[right_pos].cell_type == CellType::Water {
+            if self.cells[right_pos].cell_type == liquid_type {
                 water_locs[pos_count as usize] = right_pos;
                 pos_count += 1;
             }
@@ -255,5 +273,13 @@ impl CellGrid
             }
         }
         return;
+    }
+
+    fn update_gass(&mut self, pos: IVec2) {
+        
+    }
+
+    fn update_fire(&mut self, pos: IVec2) {
+        
     }
 }

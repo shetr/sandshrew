@@ -9,6 +9,8 @@ use crate::cell::*;
 use crate::cell_grid::*;
 use crate::grid_display::*;
 
+use enum_map::{enum_map, EnumMap};
+
 pub fn run_sandshrew_app() {
     App::new()
         .add_plugins((
@@ -93,16 +95,56 @@ fn setup(
         cells: Vector2D::<Cell>::new(
             IVec2 { x: img_size as i32, y: img_size  as i32 },
             Cell::default_air(),
-        )
+        ),
+        cell_properties: enum_map! {
+            CellType::Air => CellTypeProperties {
+                density: 0.1,
+                color: Color::rgb_u8(34, 51, 81),
+                color_rand_radius: 0.0,
+                color_change_prob: 0.0
+            },
+            CellType::Smoke => CellTypeProperties {
+                density: 0.2,
+                color: Color::rgba(0.3, 0.3, 0.3, 0.5),
+                color_rand_radius: 0.25,
+                color_change_prob: 0.02
+            },
+            CellType::FlammableGass => CellTypeProperties {
+                density: 0.3,
+                color: Color::rgba(0.3, 0.6, 0.3, 0.5),
+                color_rand_radius: 0.25,
+                color_change_prob: 0.03
+            },
+            CellType::Water => CellTypeProperties {
+                density: 1.0,
+                color: Color::rgb_u8(18, 35, 90),
+                color_rand_radius: 0.25,
+                color_change_prob: 0.01
+            },
+            CellType::Oil => CellTypeProperties {
+                density: 2.0,
+                color: Color::rgb_u8(10, 10, 10),
+                color_rand_radius: 0.25,
+                color_change_prob: 0.003
+            },
+            CellType::Stone => CellTypeProperties {
+                density: 10.0,
+                color: Color::rgb_u8(32, 32, 32),
+                color_rand_radius: 0.25,
+                color_change_prob: 0.0
+            },
+            CellType::Sand => CellTypeProperties {
+                density: 10.0,
+                color: Color::rgb_u8(83, 69, 28),
+                color_rand_radius: 0.25,
+                color_change_prob: 0.0
+            },
+        }
     };
 
     let display = GridDisplay {
-        air_color: Color::rgb_u8(34, 51, 81),
-        water_color: Color::rgb_u8(18, 35, 90),
         //shallow_water_color: Color::rgb_u8(27, 52, 135),
         shallow_water_color: Color::rgb_u8(31, 61, 157),
-        stone_color: Color::rgb_u8(32, 32, 32),
-        sand_color: Color::rgb_u8(83, 69, 28),
         brush_edge_color: Color::rgba(1.0, 1.0, 1.0, 0.1),
     };
 
@@ -142,11 +184,20 @@ fn update(
     if keyboard_input.pressed(KeyCode::Digit1) {
         globals.place_cell_type = CellType::Sand;
     }
-    if keyboard_input.pressed(KeyCode::Digit2) {
+    else if keyboard_input.pressed(KeyCode::Digit2) {
         globals.place_cell_type = CellType::Water;
     }
-    if keyboard_input.pressed(KeyCode::Digit3) {
+    else if keyboard_input.pressed(KeyCode::Digit3) {
         globals.place_cell_type = CellType::Stone;
+    }
+    else if keyboard_input.pressed(KeyCode::Digit4) {
+        globals.place_cell_type = CellType::Smoke;
+    }
+    else if keyboard_input.pressed(KeyCode::Digit5) {
+        globals.place_cell_type = CellType::FlammableGass;
+    }
+    else if keyboard_input.pressed(KeyCode::Digit6) {
+        globals.place_cell_type = CellType::Oil;
     }
 
     for event in mouse_wheel_events.read() {
@@ -176,12 +227,12 @@ fn update(
                 let radius = globals.brush_radius;
                 let place_cell_type = globals.place_cell_type;
                 let replace_solids = globals.replace_solids;
-                globals.grid.set_cells(cursor_pos, radius, place_cell_type, true, replace_solids);
+                globals.grid.set_cells(cursor_pos, radius, place_cell_type, replace_solids);
             }
             
             if mouse_button.pressed(MouseButton::Right) {
                 let radius = globals.brush_radius;
-                globals.grid.set_cells(cursor_pos, radius, CellType::Air, false, true);
+                globals.grid.set_cells(cursor_pos, radius, CellType::Air, true);
             }   
         }
     }
@@ -197,7 +248,7 @@ fn update(
 
     // update output image
     let material = materials.get_mut(globals.material_handle.clone()).unwrap();
-    globals.display.display(&globals.grid.cells, image);
+    globals.display.display(&globals.grid.cells, &globals.grid.cell_properties, image);
     if let Some(cursor_pos) = maybe_cursor_pos {
         globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, globals.brush_radius);
     }

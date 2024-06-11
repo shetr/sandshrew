@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 rand = "0.8.5"
 bevy = "0.13.2"
+enum-map = "2.7.3"
 
 # Enable a small amount of optimization in debug mode
 # [profile.dev]

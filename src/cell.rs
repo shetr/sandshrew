@@ -1,15 +1,20 @@
 use bevy::prelude::*;
 use rand::prelude::*;
 
+use enum_map::Enum;
+
 pub const CELL_MAX_AMOUNT: u8 = 255;
 
 #[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Enum)]
 pub enum CellType {
     // gasses
     Air = 0x00,
+    Smoke = 0x01,
+    FlammableGass = 0x02,
     // liquids
     Water = 0x40,
+    Oil = 0x41,
     // solids - stable
     Stone = 0x80,
     // solids - powders
@@ -78,4 +83,12 @@ impl Cell {
     pub fn is_powder(&self) -> bool {
         self.cell_type.is_powder()
     }
+}
+
+pub struct CellTypeProperties
+{
+    pub density: f32,
+    pub color: Color,
+    pub color_rand_radius: f32,
+    pub color_change_prob: f32,
 }
