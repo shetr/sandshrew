@@ -113,7 +113,7 @@ fn setup(
             },
             CellType::FlammableGass => CellTypeProperties {
                 density: 0.3,
-                color: Color::rgba(0.3, 0.6, 0.3, 0.5),
+                color: Color::rgba(0.3, 0.6, 0.3, 0.2),
                 color_rand_radius: 0.25,
                 color_change_prob: 0.03,
                 movement_prob: 0.15,

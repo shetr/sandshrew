@@ -14,17 +14,14 @@ impl GridDisplay {
 
     pub fn display(&self, cells: &Vector2D<Cell>, cell_properties: &EnumMap<CellType, CellTypeProperties>, out_image: &mut Image)
     {
+        let background_color = cell_properties[CellType::Air].color.rgb_to_vec3();
         for i in 0..cells.data.len() {
             let iv = cells.index_to_vec(i);
             let iv = IVec2 { x: iv.x, y: cells.sizes.y - iv.y - 1 };
             let cell_type = cells[iv].cell_type;
-            let color = (match cell_type {
-                //CellType::Water => {
-                //    let t = (cells[iv].amount as f32) / 255.0;
-                //    t * cell_properties[cell_type].color.rgb_to_vec3() + (1.0 - t) * self.shallow_water_color.rgb_to_vec3()
-                //},
-                _ => cell_properties[cell_type].color.rgb_to_vec3(),
-            } * cells[iv].color_scale()).clamp(Vec3::splat(0.0), Vec3::splat(1.0)) * 255.0;
+            let rgb = cell_properties[cell_type].color.rgb_to_vec3() * cells[iv].color_scale();
+            let a = cell_properties[cell_type].color.a();
+            let color = (a * rgb + (1.0 - a) * background_color).clamp(Vec3::splat(0.0), Vec3::splat(1.0)) * 255.0;
             out_image.data[i*4 + 0] = color[0] as u8;
             out_image.data[i*4 + 1] = color[1] as u8;
             out_image.data[i*4 + 2] = color[2] as u8;
