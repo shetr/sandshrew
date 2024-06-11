@@ -10,7 +10,7 @@ use crate::cell::*;
 
 pub struct CellGrid
 {
-    pub update_top_down: bool,
+    pub top_gass_leak: bool,
     pub cells: Vector2D<Cell>,
     pub cell_properties: EnumMap<CellType, CellTypeProperties>,
 }
@@ -39,8 +39,7 @@ impl CellGrid
                 self.cells[pos].moved_this_frame = false;
             }
         }
-        //let y_range: Box<dyn Iterator<Item=i32>> = if self.update_top_down { Box::new(0..self.cells.sizes.y)  } else { Box::new((0..self.cells.sizes.y).rev()) };
-        
+
         for y in 0..self.cells.sizes.y {
             let x_range: Box<dyn Iterator<Item=i32>> = if frame_num % 2 == 0 { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
             for x in x_range {
@@ -246,8 +245,13 @@ impl CellGrid
         }
         // up
         let up_pos = pos + IVec2::new(0, 1);
-        if self.cells.is_in_range(up_pos) && !self.cells[up_pos].is_solid() && self.left_has_greather_density(self.cells[up_pos].cell_type, gass_type) {
-            self.swap_cells(pos, up_pos);
+        if self.cells.is_in_range(up_pos) {
+            if !self.cells[up_pos].is_solid() && self.left_has_greather_density(self.cells[up_pos].cell_type, gass_type) {
+                self.swap_cells(pos, up_pos);
+                return;
+            }
+        } else if self.top_gass_leak {
+            self.cells[pos] = Cell::default_air();
             return;
         }
         // up sides

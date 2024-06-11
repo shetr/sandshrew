@@ -91,7 +91,7 @@ fn setup(
     }).id();
 
     let grid = CellGrid {
-        update_top_down: true,
+        top_gass_leak: true,
         cells: Vector2D::<Cell>::new(
             IVec2 { x: img_size as i32, y: img_size  as i32 },
             Cell::default_air(),
