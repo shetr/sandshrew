@@ -95,6 +95,10 @@ impl CellGrid
         Cell::new(cell_type, amount, self.cell_properties[cell_type].color_rand_radius)
     }
 
+    fn left_has_lower_density(&self, left: CellType, right: CellType) -> bool {
+        self.cell_properties[left].density < self.cell_properties[right].density
+    }
+
     fn update_sand(&mut self, pos: IVec2) {
         self.update_powder(pos);
     }
@@ -192,7 +196,7 @@ impl CellGrid
         let liquid_type = self.cells[pos].cell_type;
         // botom
         let bottom_pos = pos + IVec2::new(0, -1);
-        if self.cells.is_in_range(bottom_pos) && self.cells[bottom_pos].is_gass() {
+        if self.cells.is_in_range(bottom_pos) && self.left_has_lower_density(self.cells[bottom_pos].cell_type, liquid_type) {
             self.swap_cells(pos, bottom_pos);
             return;
         }
@@ -201,10 +205,10 @@ impl CellGrid
         let bottom_right_pos = pos + IVec2::new(1, -1);
         let choose = rand::thread_rng().gen_range(0..2);
         let side_pos = [bottom_left_pos, bottom_right_pos];
-        if self.cells.is_in_range(side_pos[choose]) && self.cells[side_pos[choose]].is_gass() {
+        if self.cells.is_in_range(side_pos[choose]) && self.left_has_lower_density(self.cells[side_pos[choose]].cell_type, liquid_type) {
             self.swap_cells(pos, side_pos[choose]);
             return;
-        } else if self.cells.is_in_range(side_pos[1 - choose]) && self.cells[side_pos[1 - choose]].is_gass() {
+        } else if self.cells.is_in_range(side_pos[1 - choose]) && self.left_has_lower_density(self.cells[side_pos[1 - choose]].cell_type, liquid_type) {
             self.swap_cells(pos, side_pos[1 - choose]);
             return;
         }

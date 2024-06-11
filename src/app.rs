@@ -98,7 +98,7 @@ fn setup(
         ),
         cell_properties: enum_map! {
             CellType::Air => CellTypeProperties {
-                density: 0.1,
+                density: 0.5,
                 color: Color::rgb_u8(34, 51, 81),
                 color_rand_radius: 0.0,
                 color_change_prob: 0.0
@@ -116,13 +116,13 @@ fn setup(
                 color_change_prob: 0.03
             },
             CellType::Water => CellTypeProperties {
-                density: 1.0,
+                density: 2.0,
                 color: Color::rgb_u8(18, 35, 90),
                 color_rand_radius: 0.25,
                 color_change_prob: 0.01
             },
             CellType::Oil => CellTypeProperties {
-                density: 2.0,
+                density: 1.0,
                 color: Color::rgb_u8(10, 10, 10),
                 color_rand_radius: 0.25,
                 color_change_prob: 0.003
