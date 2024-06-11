@@ -194,6 +194,9 @@ impl CellGrid
     fn update_liquid(&mut self, pos: IVec2)
     {
         let liquid_type = self.cells[pos].cell_type;
+        if rand::thread_rng().gen::<f32>() > self.cell_properties[liquid_type].movement_prob {
+            return;
+        }
         // botom
         let bottom_pos = pos + IVec2::new(0, -1);
         if self.cells.is_in_range(bottom_pos) && self.left_has_lower_density(self.cells[bottom_pos].cell_type, liquid_type) {
