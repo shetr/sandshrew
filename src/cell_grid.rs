@@ -217,34 +217,21 @@ impl CellGrid
         }
         // sides
         if self.cells[pos].amount == 255 {
-            self.cells[pos].amount = 127 + 127 * rand::thread_rng().gen_range(0..2);
+            self.cells[pos].amount = rand::thread_rng().gen_range(0..2);
         }
-        let bit_dir = (self.cells[pos].amount as i32) / 128;
-        let dir_amount = (((self.cells[pos].amount as i32) % 128) as f32) / 127.0;
-        let normal_prob = self.cell_properties[liquid_type].movement_prob;
-        let movement_prob = normal_prob * dir_amount + 0.5 * normal_prob * (1.0 - dir_amount);
-        if rand::thread_rng().gen::<f32>() > movement_prob {
-            return;
-        }
-        let side_dir = bit_dir * 2 - 1;
+        let side_dir = (self.cells[pos].amount as i32) * 2 - 1;
         let side_pos1 = pos + IVec2::new(side_dir, 0);
         let side_pos2 = pos + IVec2::new(-side_dir, 0);
         if self.cells.is_in_range(side_pos1) && self.left_has_lower_density(self.cells[side_pos1].cell_type, liquid_type) {
-            if self.cells[pos].amount != 0 && self.cells[pos].amount != 128  {
-                self.cells[pos].amount -= 1;
-            }
             self.swap_cells(pos, side_pos1);
             return;
         }
         if self.cells.is_in_range(side_pos2) && self.left_has_lower_density(self.cells[side_pos2].cell_type, liquid_type) {
-            self.cells[pos].amount = ((self.cells[pos].amount as i32) - 127 * side_dir) as u8;
-            if self.cells[pos].amount != 0 && self.cells[pos].amount != 128  {
-                self.cells[pos].amount -= 1;
-            }
+            self.cells[pos].amount = 1 - self.cells[pos].amount;
             self.swap_cells(pos, side_pos2);
             return;
         }
-        //self.cells[pos].amount = 255;
+        self.cells[pos].amount = 255;
         return;
     }
 
