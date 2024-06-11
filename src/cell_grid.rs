@@ -99,6 +99,10 @@ impl CellGrid
         self.cell_properties[left].density < self.cell_properties[right].density
     }
 
+    fn left_has_greather_density(&self, left: CellType, right: CellType) -> bool {
+        self.cell_properties[left].density > self.cell_properties[right].density
+    }
+
     fn update_sand(&mut self, pos: IVec2) {
         self.update_powder(pos);
     }
@@ -236,7 +240,46 @@ impl CellGrid
     }
 
     fn update_gass(&mut self, pos: IVec2) {
-        
+        let gass_type = self.cells[pos].cell_type;
+        if rand::thread_rng().gen::<f32>() > self.cell_properties[gass_type].movement_prob {
+            return;
+        }
+        // up
+        let up_pos = pos + IVec2::new(0, 1);
+        if self.cells.is_in_range(up_pos) && !self.cells[up_pos].is_solid() && self.left_has_greather_density(self.cells[up_pos].cell_type, gass_type) {
+            self.swap_cells(pos, up_pos);
+            return;
+        }
+        // up sides
+        let up_left_pos = pos + IVec2::new(-1, 1);
+        let up_right_pos = pos + IVec2::new(1, 1);
+        let choose = rand::thread_rng().gen_range(0..2);
+        let side_pos = [up_left_pos, up_right_pos];
+        if self.cells.is_in_range(side_pos[choose]) && !self.cells[side_pos[choose]].is_solid() && self.left_has_greather_density(self.cells[side_pos[choose]].cell_type, gass_type) {
+            self.swap_cells(pos, side_pos[choose]);
+            return;
+        } else if self.cells.is_in_range(side_pos[1 - choose]) && !self.cells[side_pos[1 - choose]].is_solid() && self.left_has_greather_density(self.cells[side_pos[1 - choose]].cell_type, gass_type) {
+            self.swap_cells(pos, side_pos[1 - choose]);
+            return;
+        }
+        // sides
+        if self.cells[pos].amount == 255 {
+            self.cells[pos].amount = rand::thread_rng().gen_range(0..2);
+        }
+        let side_dir = (self.cells[pos].amount as i32) * 2 - 1;
+        let side_pos1 = pos + IVec2::new(side_dir, 0);
+        let side_pos2 = pos + IVec2::new(-side_dir, 0);
+        if self.cells.is_in_range(side_pos1) && !self.cells[side_pos1].is_solid() && self.left_has_greather_density(self.cells[side_pos1].cell_type, gass_type) {
+            self.swap_cells(pos, side_pos1);
+            return;
+        }
+        if self.cells.is_in_range(side_pos2)&& !self.cells[side_pos2].is_solid() && self.left_has_greather_density(self.cells[side_pos2].cell_type, gass_type) {
+            self.cells[pos].amount = 1 - self.cells[pos].amount;
+            self.swap_cells(pos, side_pos2);
+            return;
+        }
+        self.cells[pos].amount = 255;
+        return;
     }
 
     fn update_fire(&mut self, pos: IVec2) {
