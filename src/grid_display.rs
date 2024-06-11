@@ -19,10 +19,10 @@ impl GridDisplay {
             let iv = IVec2 { x: iv.x, y: cells.sizes.y - iv.y - 1 };
             let cell_type = cells[iv].cell_type;
             let color = (match cell_type {
-                CellType::Water => {
-                    let t = (cells[iv].amount as f32) / 255.0;
-                    t * cell_properties[cell_type].color.rgb_to_vec3() + (1.0 - t) * self.shallow_water_color.rgb_to_vec3()
-                },
+                //CellType::Water => {
+                //    let t = (cells[iv].amount as f32) / 255.0;
+                //    t * cell_properties[cell_type].color.rgb_to_vec3() + (1.0 - t) * self.shallow_water_color.rgb_to_vec3()
+                //},
                 _ => cell_properties[cell_type].color.rgb_to_vec3(),
             } * cells[iv].color_scale()).clamp(Vec3::splat(0.0), Vec3::splat(1.0)) * 255.0;
             out_image.data[i*4 + 0] = color[0] as u8;

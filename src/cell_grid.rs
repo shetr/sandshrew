@@ -41,20 +41,20 @@ impl CellGrid
         }
         //let y_range: Box<dyn Iterator<Item=i32>> = if self.update_top_down { Box::new(0..self.cells.sizes.y)  } else { Box::new((0..self.cells.sizes.y).rev()) };
         
-        for y in (0..self.cells.sizes.y).rev() {
-            let x_range: Box<dyn Iterator<Item=i32>> = if frame_num % 2 == 0 { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
-            for x in x_range {
-                let pos = IVec2::new(x, y);
-                if self.cells[pos].is_liquid() {
-                    self.update_cell(pos);
-                }
-            }
-        }
         for y in 0..self.cells.sizes.y {
             let x_range: Box<dyn Iterator<Item=i32>> = if frame_num % 2 == 0 { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
             for x in x_range {
                 let pos = IVec2::new(x, y);
-                if !self.cells[pos].is_liquid() {
+                if !self.cells[pos].is_gass() {
+                    self.update_cell(pos);
+                }
+            }
+        }
+        for y in (0..self.cells.sizes.y).rev() {
+            let x_range: Box<dyn Iterator<Item=i32>> = if frame_num % 2 == 0 { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
+            for x in x_range {
+                let pos = IVec2::new(x, y);
+                if self.cells[pos].is_gass() {
                     self.update_cell(pos);
                 }
             }
@@ -212,70 +212,23 @@ impl CellGrid
             self.swap_cells(pos, side_pos[1 - choose]);
             return;
         }
-        // water flow to bottom
-        if self.cells.is_in_range(bottom_pos) && self.cells[bottom_pos].cell_type == liquid_type && self.cells[bottom_pos].amount < CELL_MAX_AMOUNT {
-            let total_amount = (self.cells[pos].amount as i32) + (self.cells[bottom_pos].amount as i32);
-            let overflow = total_amount - (CELL_MAX_AMOUNT as i32);
-            
-            self.cells[pos].moved_this_frame = true;
-            self.cells[bottom_pos].moved_this_frame = true;
-            if overflow > 0 {
-                self.cells[pos].amount = overflow as u8;
-                self.cells[bottom_pos].amount = CELL_MAX_AMOUNT;
-            } else {
-                self.cells[bottom_pos].amount = total_amount as u8;
-                // just air now
-                self.cells[pos] = Cell::default_air();
-                return;
-            }
+        // sides
+        if self.cells[pos].amount == 255 {
+            self.cells[pos].amount = rand::thread_rng().gen_range(0..2);
         }
-        // water flow to sides
-        let left_pos = pos + IVec2::new(-1, 0);
-        let right_pos = pos + IVec2::new(1, 0);
-        let mut water_locs = [pos, pos, pos];
-        let mut pos_count = 1i32;
-        // TODO: maybe randomize the order, because of the remainder
-        if self.cells.is_in_range(left_pos) {
-            if self.cells[left_pos].cell_type == CellType::Air {
-                // TODO: change color + create constructors for cells and specific cell types
-                self.cells[left_pos] = self.new_cell(liquid_type, 0);
-                self.cells[left_pos].moved_this_frame = true;
-            }
-            if self.cells[left_pos].cell_type == liquid_type {
-                water_locs[pos_count as usize] = left_pos;
-                pos_count += 1;
-            }
+        let side_dir = (self.cells[pos].amount as i32) * 2 - 1;
+        let side_pos1 = pos + IVec2::new(side_dir, 0);
+        let side_pos2 = pos + IVec2::new(-side_dir, 0);
+        if self.cells.is_in_range(side_pos1) && self.left_has_lower_density(self.cells[side_pos1].cell_type, liquid_type) {
+            self.swap_cells(pos, side_pos1);
+            return;
         }
-        if self.cells.is_in_range(right_pos) {
-            if self.cells[right_pos].cell_type == CellType::Air {
-                // TODO: change color + create constructors for cells and specific cell types
-                self.cells[right_pos] = self.new_cell(liquid_type, 0);
-                self.cells[right_pos].moved_this_frame = true;
-            }
-            if self.cells[right_pos].cell_type == liquid_type {
-                water_locs[pos_count as usize] = right_pos;
-                pos_count += 1;
-            }
+        if self.cells.is_in_range(side_pos2) && self.left_has_lower_density(self.cells[side_pos2].cell_type, liquid_type) {
+            self.cells[pos].amount = 1 - self.cells[pos].amount;
+            self.swap_cells(pos, side_pos2);
+            return;
         }
-        // TODO: maybe reconsider the shuffele (may result in wigling if there is 1 amount left)
-        (&mut water_locs[0 .. (pos_count as usize)]).shuffle(&mut rand::thread_rng());
-        let mut total_amount = 0;
-        for i in 0..pos_count {
-            total_amount += self.cells[water_locs[i as usize]].amount as i32;
-        }
-        let amount_spread = (total_amount / pos_count) as u8;
-        let amount_remainder = (total_amount % pos_count) as u8;
-        for i in 0..pos_count {
-            self.cells[water_locs[i as usize]].amount = amount_spread;
-        }
-        for i in 0..amount_remainder {
-            self.cells[water_locs[i as usize]].amount += 1;
-        }
-        for i in 0..pos_count {
-            if self.cells[water_locs[i as usize]].amount == 0 {
-                self.cells[water_locs[i as usize]] = Cell::default_air();
-            }
-        }
+        self.cells[pos].amount = 255;
         return;
     }
 

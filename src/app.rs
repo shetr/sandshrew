@@ -101,43 +101,50 @@ fn setup(
                 density: 0.5,
                 color: Color::rgb_u8(34, 51, 81),
                 color_rand_radius: 0.0,
-                color_change_prob: 0.0
+                color_change_prob: 0.0,
+                movement_prob: 1.0,
             },
             CellType::Smoke => CellTypeProperties {
                 density: 0.2,
                 color: Color::rgba(0.3, 0.3, 0.3, 0.5),
                 color_rand_radius: 0.25,
-                color_change_prob: 0.02
+                color_change_prob: 0.02,
+                movement_prob: 1.0,
             },
             CellType::FlammableGass => CellTypeProperties {
                 density: 0.3,
                 color: Color::rgba(0.3, 0.6, 0.3, 0.5),
                 color_rand_radius: 0.25,
-                color_change_prob: 0.03
+                color_change_prob: 0.03,
+                movement_prob: 1.0,
             },
             CellType::Water => CellTypeProperties {
                 density: 2.0,
                 color: Color::rgb_u8(18, 35, 90),
                 color_rand_radius: 0.25,
-                color_change_prob: 0.01
+                color_change_prob: 0.01,
+                movement_prob: 1.0,
             },
             CellType::Oil => CellTypeProperties {
                 density: 1.0,
                 color: Color::rgb_u8(10, 10, 10),
                 color_rand_radius: 0.25,
-                color_change_prob: 0.003
+                color_change_prob: 0.003,
+                movement_prob: 1.0,
             },
             CellType::Stone => CellTypeProperties {
                 density: 10.0,
                 color: Color::rgb_u8(32, 32, 32),
                 color_rand_radius: 0.25,
-                color_change_prob: 0.0
+                color_change_prob: 0.0,
+                movement_prob: 1.0,
             },
             CellType::Sand => CellTypeProperties {
                 density: 10.0,
                 color: Color::rgb_u8(83, 69, 28),
                 color_rand_radius: 0.25,
-                color_change_prob: 0.0
+                color_change_prob: 0.0,
+                movement_prob: 1.0,
             },
         }
     };

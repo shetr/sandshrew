@@ -91,4 +91,5 @@ pub struct CellTypeProperties
     pub color: Color,
     pub color_rand_radius: f32,
     pub color_change_prob: f32,
+    pub movement_prob: f32,
 }
