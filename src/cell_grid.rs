@@ -36,7 +36,7 @@ impl CellGrid
         for y in 0..self.cells.sizes.y {
             for x in 0..self.cells.sizes.x {
                 let pos = IVec2::new(x, y);
-                self.cells[pos].moved_this_frame = false;
+                self.cells[pos].movement = CellMovement::none();
             }
         }
 
@@ -62,7 +62,7 @@ impl CellGrid
 
     fn update_cell(&mut self, pos: IVec2)
     {
-        if self.cells[pos].moved_this_frame {
+        if self.cells[pos].has_moved() {
             return;
         }
         let cell_type = self.cells[pos].cell_type;
@@ -80,14 +80,15 @@ impl CellGrid
         }
     }
 
-    fn swap_cells(&mut self, pos1: IVec2, pos2: IVec2)
+    fn swap_cells(&mut self, from_pos: IVec2, to_pos: IVec2)
     {
-        let temp_cell = self.cells[pos1];
-        self.cells[pos1] = self.cells[pos2];
-        self.cells[pos2] = temp_cell;
+        let temp_cell = self.cells[from_pos];
+        self.cells[from_pos] = self.cells[to_pos];
+        self.cells[to_pos] = temp_cell;
 
-        self.cells[pos1].moved_this_frame = true;
-        self.cells[pos2].moved_this_frame = true;
+        let move_dir = to_pos - from_pos;
+        self.cells[from_pos].movement = CellMovement::from_ivec2(move_dir);
+        self.cells[to_pos].movement = CellMovement::from_ivec2(-move_dir);
     }
 
     fn new_cell(&self, cell_type: CellType, amount: u8) -> Cell {
@@ -118,7 +119,7 @@ impl CellGrid
                     self.swap_cells(pos, bottom_pos);
                     return;
                 }
-                self.cells[bottom_pos].moved_this_frame = true;
+                self.cells[bottom_pos].movement = CellMovement::none();
                 // push to side down
                 let bottom_left_pos = pos + IVec2::new(-1, -1);
                 let bottom_right_pos = pos + IVec2::new(1, -1);
@@ -149,7 +150,7 @@ impl CellGrid
                     self.swap_cells(pos, bottom_pos);
                     return;
                 }
-                self.cells[bottom_pos].moved_this_frame = false;
+                self.cells[bottom_pos].movement = CellMovement::none();
                 // push up
                 self.swap_cells(pos, bottom_pos);
                 return;
@@ -163,7 +164,7 @@ impl CellGrid
                     self.swap_cells(pos, bottom_side_pos);
                     return;
                 }
-                self.cells[bottom_side_pos].moved_this_frame = true;
+                self.cells[bottom_side_pos].movement = CellMovement::none();
                 // push to side
                 let to_side_pos = bottom_side_pos + bottom_side_dir + IVec2::new(0, 1);
                 if self.cells.is_in_range(to_side_pos) && self.cells[to_side_pos].is_gass() {
@@ -185,7 +186,7 @@ impl CellGrid
                     self.swap_cells(pos, bottom_side_pos);
                     return;
                 }
-                self.cells[bottom_side_pos].moved_this_frame = false;
+                self.cells[bottom_side_pos].movement = CellMovement::none();
                 // just swap
                 self.swap_cells(pos, bottom_side_pos);
                 return;
