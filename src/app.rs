@@ -303,7 +303,7 @@ fn setup(
             img_size,
             out_tex_size,
             frame_num: 0,
-            brush_radius: 2,
+            brush_radius: 6,
             grid,
             display,
             place_cell_type: CellType::Sand,
@@ -448,6 +448,7 @@ fn button_interactions(
                     border_color.0 = Color::RED;
                 } else {
                     border_color.0 = Color::BLACK;
+                    //border_color.0 = globals.grid.cell_properties[*cell_type].color;
                 }
             }
         }
