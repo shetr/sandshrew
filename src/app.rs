@@ -27,7 +27,7 @@ pub fn run_sandshrew_app() {
         ))
         .add_systems(Startup, setup)
         .add_systems(Update, update_input)
-        .add_systems(Update, update_buttons)
+        .add_systems(Update, button_interactions)
         .add_systems(Update, update_cells)
         .add_systems(Update, draw_to_out_img)
         .run();
@@ -71,7 +71,7 @@ fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, name: 
             name,
             TextStyle {
                 font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                font_size: 40.0,
+                font_size: 30.0,
                 color: Color::rgb(0.9, 0.9, 0.9),
             },
         ));
@@ -189,7 +189,7 @@ fn setup(
                                     "Material:",
                                     TextStyle {
                                         font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                        font_size: 30.0,
+                                        font_size: 40.0,
                                         ..default()
                                     },
                                 ),
@@ -414,7 +414,7 @@ fn update_input(
     }
 }
 
-fn update_buttons(
+fn button_interactions(
     mut globals_query: Query<&mut GameGlobals>,
     mut interaction_query: Query<
         (
@@ -423,7 +423,7 @@ fn update_buttons(
             &mut BorderColor,
             &CellType
         ),
-        (Changed<Interaction>, With<Button>),
+        With<Button>,
     >
 ) {
     let mut globals = globals_query.single_mut();
@@ -436,11 +436,19 @@ fn update_buttons(
             }
             Interaction::Hovered => {
                 *color = Color::rgb(0.25, 0.25, 0.25).into();
-                border_color.0 = Color::WHITE;
+                if globals.place_cell_type == *cell_type {
+                    border_color.0 = Color::RED;
+                } else {
+                    border_color.0 = Color::WHITE;
+                }
             }
             Interaction::None => {
                 *color = Color::rgb(0.15, 0.15, 0.15).into();
-                border_color.0 = Color::BLACK;
+                if globals.place_cell_type == *cell_type {
+                    border_color.0 = Color::RED;
+                } else {
+                    border_color.0 = Color::BLACK;
+                }
             }
         }
     }
