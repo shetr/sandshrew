@@ -65,11 +65,8 @@ impl CellGrid
         if self.cells[pos].has_moved() {
             return;
         }
-        let cell_type = self.cells[pos].cell_type;
-        if rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].color_change_prob {
-            self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[cell_type].color_rand_radius);
-        }
-        match cell_type {
+        self.update_color(pos);
+        match self.cells[pos].cell_type {
             CellType::Air => {},
             CellType::Smoke => { self.update_gass(pos); },
             CellType::FlammableGass => { self.update_gass(pos); },
@@ -77,6 +74,13 @@ impl CellGrid
             CellType::Oil => { self.update_liquid(pos); },
             CellType::Stone => {},
             CellType::Sand => { self.update_sand(pos); },
+        }
+    }
+
+    fn update_color(&mut self, pos: IVec2) {
+        let cell_type = self.cells[pos].cell_type;
+        if rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].color_change_prob {
+            self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[cell_type].color_rand_radius);
         }
     }
 

@@ -6,7 +6,7 @@ use enum_map::Enum;
 pub const CELL_MAX_AMOUNT: u8 = 255;
 
 #[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Enum)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Enum, Component)]
 pub enum CellType {
     // gasses
     Air = 0x00,
@@ -63,8 +63,16 @@ impl CellMovement {
         CellMovement { bits: x | (y << 2) }
     }
 
+    pub fn x(&self) -> i32 {
+        (self.bits & 0b11) as i32
+    }
+
+    pub fn y(&self) -> i32 {
+        ((self.bits & 0b1100) >> 2) as i32
+    }
+
     pub fn to_ivec2(&self) -> IVec2 {
-        IVec2::new((self.bits & 0b11) as i32, ((self.bits & 0b1100) >> 2) as i32)
+        IVec2::new(self.x(), self.y())
     }
 }
 
