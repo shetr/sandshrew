@@ -20,7 +20,10 @@ impl GridDisplay {
             let iv = IVec2 { x: iv.x, y: cells.sizes.y - iv.y - 1 };
             let cell_type = cells[iv].cell_type;
             let rgb = cell_properties[cell_type].color.rgb_to_vec3() * cells[iv].color_scale();
-            let a = cell_properties[cell_type].color.a();
+            let mut a = cell_properties[cell_type].color.a();
+            if a < 1.0 {
+                a *= cells[iv].color_scale()
+            }
             let color = (a * rgb + (1.0 - a) * background_color).clamp(Vec3::splat(0.0), Vec3::splat(1.0)) * 255.0;
             out_image.data[i*4 + 0] = color[0] as u8;
             out_image.data[i*4 + 1] = color[1] as u8;

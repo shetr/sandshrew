@@ -25,7 +25,7 @@ impl CellGrid
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if self.cells.is_in_range(iv) && is_in_radius(pos, radius, iv) && (replace_solids || !self.cells[iv].is_solid()) {
-                    self.cells[iv] = self.new_cell(cell_type, CELL_MAX_AMOUNT);
+                    self.cells[iv] = self.new_cell(cell_type, CELL_CUSTOM_DATA_INIT);
                 }
             }
         }
@@ -70,9 +70,11 @@ impl CellGrid
             CellType::Air => {},
             CellType::Smoke => { self.update_gass(pos); },
             CellType::FlammableGass => { self.update_gass(pos); },
+            CellType::Fire => { self.update_gass(pos); },
             CellType::Water => { self.update_water(pos); },
             CellType::Oil => { self.update_liquid(pos); },
             CellType::Stone => {},
+            CellType::Wood => {},
             CellType::Sand => { self.update_sand(pos); },
         }
     }
@@ -224,10 +226,10 @@ impl CellGrid
             return;
         }
         // sides
-        if self.cells[pos].amount == 255 {
-            self.cells[pos].amount = rand::thread_rng().gen_range(0..2);
+        if !self.cells[pos].does_fluid_slide() {
+            self.cells[pos].gen_fluid_slide_dir();
         }
-        let side_dir = (self.cells[pos].amount as i32) * 2 - 1;
+        let side_dir = self.cells[pos].get_fluid_slide_dir();
         let side_pos1 = pos + IVec2::new(side_dir, 0);
         let side_pos2 = pos + IVec2::new(-side_dir, 0);
         if self.cells.is_in_range(side_pos1) && self.left_has_lower_density(self.cells[side_pos1].cell_type, liquid_type) {
@@ -235,11 +237,11 @@ impl CellGrid
             return;
         }
         if self.cells.is_in_range(side_pos2) && self.left_has_lower_density(self.cells[side_pos2].cell_type, liquid_type) {
-            self.cells[pos].amount = 1 - self.cells[pos].amount;
+            self.cells[pos].reverse_fluid_slide_dir();
             self.swap_cells(pos, side_pos2);
             return;
         }
-        self.cells[pos].amount = 255;
+        self.cells[pos].stop_fluid_slide();
         return;
     }
 
@@ -272,10 +274,10 @@ impl CellGrid
             return;
         }
         // sides
-        if self.cells[pos].amount == 255 {
-            self.cells[pos].amount = rand::thread_rng().gen_range(0..2);
+        if !self.cells[pos].does_fluid_slide() {
+            self.cells[pos].gen_fluid_slide_dir();
         }
-        let side_dir = (self.cells[pos].amount as i32) * 2 - 1;
+        let side_dir = self.cells[pos].get_fluid_slide_dir();
         let side_pos1 = pos + IVec2::new(side_dir, 0);
         let side_pos2 = pos + IVec2::new(-side_dir, 0);
         if self.cells.is_in_range(side_pos1) && !self.cells[side_pos1].is_solid() && self.left_has_greather_density(self.cells[side_pos1].cell_type, gass_type) {
@@ -283,11 +285,11 @@ impl CellGrid
             return;
         }
         if self.cells.is_in_range(side_pos2)&& !self.cells[side_pos2].is_solid() && self.left_has_greather_density(self.cells[side_pos2].cell_type, gass_type) {
-            self.cells[pos].amount = 1 - self.cells[pos].amount;
+            self.cells[pos].reverse_fluid_slide_dir();
             self.swap_cells(pos, side_pos2);
             return;
         }
-        self.cells[pos].amount = 255;
+        self.cells[pos].stop_fluid_slide();
         return;
     }
 

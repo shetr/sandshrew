@@ -3,7 +3,10 @@ use rand::prelude::*;
 
 use enum_map::Enum;
 
-pub const CELL_MAX_AMOUNT: u8 = 255;
+pub const CELL_CUSTOM_DATA_INIT: u8 = 0;
+pub const CELL_FLUID_SLIDE_BITS: u8 = 0xC0;
+pub const CELL_FLUID_SLIDE_BIT: u8 = 0x80;
+pub const CELL_FLUID_SLIDE_DIR_BIT: u8 = 0x40;
 
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Enum, Component)]
@@ -12,11 +15,13 @@ pub enum CellType {
     Air = 0x00,
     Smoke = 0x01,
     FlammableGass = 0x02,
+    Fire = 0x03,
     // liquids
     Water = 0x40,
     Oil = 0x41,
     // solids - stable
     Stone = 0x80,
+    Wood = 0x81,
     // solids - powders
     Sand = 0xC0,
 }
@@ -80,7 +85,7 @@ impl CellMovement {
 pub struct Cell
 {
     pub cell_type: CellType,
-    pub amount: u8,
+    pub custom_data: u8,
     pub color_offset: i8,
     pub movement: CellMovement
 }
@@ -88,13 +93,13 @@ pub struct Cell
 impl Cell {
 
     pub fn default_air() -> Self {
-        Cell { cell_type: CellType::Air, amount: CELL_MAX_AMOUNT, color_offset: 0, movement: CellMovement::none() }
+        Cell { cell_type: CellType::Air, custom_data: CELL_CUSTOM_DATA_INIT, color_offset: 0, movement: CellMovement::none() }
     }
 
     pub fn new(cell_type: CellType, amount: u8, rand_radius: f32) -> Self
     {
         let color_offset = Self::gen_color_offset(rand_radius);
-        Cell { cell_type, amount, color_offset, movement: CellMovement::none() }
+        Cell { cell_type, custom_data: amount, color_offset, movement: CellMovement::none() }
     }
 
     pub fn gen_color_offset(rand_radius: f32) -> i8 {
@@ -124,6 +129,28 @@ impl Cell {
     pub fn has_moved(&self) -> bool {
         self.movement.has_moved()
     }
+
+    pub fn does_fluid_slide(&self) -> bool {
+        self.custom_data & CELL_FLUID_SLIDE_BIT == CELL_FLUID_SLIDE_BIT
+    }
+
+    pub fn gen_fluid_slide_dir(&mut self) {
+        let dir = rand::thread_rng().gen_range(0..2);
+        let fluid_slide = CELL_FLUID_SLIDE_BIT | (dir * CELL_FLUID_SLIDE_DIR_BIT);
+        self.custom_data = fluid_slide | (self.custom_data & !CELL_FLUID_SLIDE_BITS)
+    }
+
+    pub fn stop_fluid_slide(&mut self) {
+        self.custom_data &= !CELL_FLUID_SLIDE_BITS;
+    }
+
+    pub fn reverse_fluid_slide_dir(&mut self) {
+        self.custom_data ^= CELL_FLUID_SLIDE_DIR_BIT;
+    }
+
+    pub fn get_fluid_slide_dir(&self) -> i32 {
+        if (self.custom_data & CELL_FLUID_SLIDE_DIR_BIT) > 0 { 1 } else { -1 }
+    }
 }
 
 pub struct CellTypeProperties
@@ -133,4 +160,6 @@ pub struct CellTypeProperties
     pub color_rand_radius: f32,
     pub color_change_prob: f32,
     pub movement_prob: f32,
+    pub ignite_prob: f32,
+    pub flame_duration: u8,
 }
