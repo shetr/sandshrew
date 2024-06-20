@@ -7,6 +7,8 @@ pub const CELL_CUSTOM_DATA_INIT: u8 = 0;
 pub const CELL_FLUID_SLIDE_BITS: u8 = 0xC0;
 pub const CELL_FLUID_SLIDE_BIT: u8 = 0x80;
 pub const CELL_FLUID_SLIDE_DIR_BIT: u8 = 0x40;
+pub const CELL_ON_FIRE_BIT: u8 = 0x20;
+pub const CELL_FLAME_DURATION_BITS: u8 = 0x1F;
 
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Enum, Component)]
@@ -96,10 +98,10 @@ impl Cell {
         Cell { cell_type: CellType::Air, custom_data: CELL_CUSTOM_DATA_INIT, color_offset: 0, movement: CellMovement::none() }
     }
 
-    pub fn new(cell_type: CellType, amount: u8, rand_radius: f32) -> Self
+    pub fn new(cell_type: CellType, custom_data: u8, rand_radius: f32) -> Self
     {
         let color_offset = Self::gen_color_offset(rand_radius);
-        Cell { cell_type, custom_data: amount, color_offset, movement: CellMovement::none() }
+        Cell { cell_type, custom_data, color_offset, movement: CellMovement::none() }
     }
 
     pub fn gen_color_offset(rand_radius: f32) -> i8 {
@@ -151,6 +153,22 @@ impl Cell {
     pub fn get_fluid_slide_dir(&self) -> i32 {
         if (self.custom_data & CELL_FLUID_SLIDE_DIR_BIT) > 0 { 1 } else { -1 }
     }
+
+    pub fn is_on_fire(&self) -> bool {
+        self.custom_data & CELL_ON_FIRE_BIT == CELL_ON_FIRE_BIT
+    }
+
+    pub fn get_flame_duration(&self) -> u8 {
+        self.custom_data & CELL_FLAME_DURATION_BITS
+    }
+
+    pub fn ignite(&mut self, flame_duration: u8) {
+        self.custom_data = CELL_ON_FIRE_BIT | flame_duration | (self.custom_data & !CELL_FLAME_DURATION_BITS)
+    }
+
+    pub fn set_flame_duration(&mut self, duration: u8) {
+        self.custom_data = duration | (self.custom_data & !CELL_FLAME_DURATION_BITS)
+    }
 }
 
 pub struct CellTypeProperties
@@ -161,5 +179,6 @@ pub struct CellTypeProperties
     pub color_change_prob: f32,
     pub movement_prob: f32,
     pub ignite_prob: f32,
+    // max value 31
     pub flame_duration: u8,
 }

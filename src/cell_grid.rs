@@ -1,4 +1,5 @@
 use std::cell;
+use std::mem::swap;
 
 use rand::prelude::*;
 use enum_map::EnumMap;
@@ -99,6 +100,13 @@ impl CellGrid
 
     fn new_cell(&self, cell_type: CellType, amount: u8) -> Cell {
         Cell::new(cell_type, amount, self.cell_properties[cell_type].color_rand_radius)
+    }
+
+    fn compare_densities(&self, mut left: CellType, mut right: CellType, is_liquid: bool) -> bool {
+        if !is_liquid {
+            swap(&mut left, &mut right);
+        }
+        self.cell_properties[left].density < self.cell_properties[right].density
     }
 
     fn left_has_lower_density(&self, left: CellType, right: CellType) -> bool {
@@ -203,73 +211,40 @@ impl CellGrid
 
     fn update_liquid(&mut self, pos: IVec2)
     {
-        let liquid_type = self.cells[pos].cell_type;
-        if rand::thread_rng().gen::<f32>() > self.cell_properties[liquid_type].movement_prob {
-            return;
-        }
-        // botom
-        let bottom_pos = pos + IVec2::new(0, -1);
-        if self.cells.is_in_range(bottom_pos) && self.left_has_lower_density(self.cells[bottom_pos].cell_type, liquid_type) {
-            self.swap_cells(pos, bottom_pos);
-            return;
-        }
-        // bottom sides
-        let bottom_left_pos = pos + IVec2::new(-1, -1);
-        let bottom_right_pos = pos + IVec2::new(1, -1);
-        let choose = rand::thread_rng().gen_range(0..2);
-        let side_pos = [bottom_left_pos, bottom_right_pos];
-        if self.cells.is_in_range(side_pos[choose]) && self.left_has_lower_density(self.cells[side_pos[choose]].cell_type, liquid_type) {
-            self.swap_cells(pos, side_pos[choose]);
-            return;
-        } else if self.cells.is_in_range(side_pos[1 - choose]) && self.left_has_lower_density(self.cells[side_pos[1 - choose]].cell_type, liquid_type) {
-            self.swap_cells(pos, side_pos[1 - choose]);
-            return;
-        }
-        // sides
-        if !self.cells[pos].does_fluid_slide() {
-            self.cells[pos].gen_fluid_slide_dir();
-        }
-        let side_dir = self.cells[pos].get_fluid_slide_dir();
-        let side_pos1 = pos + IVec2::new(side_dir, 0);
-        let side_pos2 = pos + IVec2::new(-side_dir, 0);
-        if self.cells.is_in_range(side_pos1) && self.left_has_lower_density(self.cells[side_pos1].cell_type, liquid_type) {
-            self.swap_cells(pos, side_pos1);
-            return;
-        }
-        if self.cells.is_in_range(side_pos2) && self.left_has_lower_density(self.cells[side_pos2].cell_type, liquid_type) {
-            self.cells[pos].reverse_fluid_slide_dir();
-            self.swap_cells(pos, side_pos2);
-            return;
-        }
-        self.cells[pos].stop_fluid_slide();
-        return;
+        self.update_fluid(pos, true);
     }
 
     fn update_gass(&mut self, pos: IVec2) {
-        let gass_type = self.cells[pos].cell_type;
-        if rand::thread_rng().gen::<f32>() > self.cell_properties[gass_type].movement_prob {
+        self.update_fluid(pos, false);
+    }
+
+    fn update_fluid(&mut self, pos: IVec2, is_liquid: bool)
+    {
+        let fluid_type = self.cells[pos].cell_type;
+        let move_dir = if is_liquid { -1 } else { 1 };
+        if rand::thread_rng().gen::<f32>() > self.cell_properties[fluid_type].movement_prob {
             return;
         }
-        // up
-        let up_pos = pos + IVec2::new(0, 1);
-        if self.cells.is_in_range(up_pos) {
-            if !self.cells[up_pos].is_solid() && self.left_has_greather_density(self.cells[up_pos].cell_type, gass_type) {
-                self.swap_cells(pos, up_pos);
+        // vertical
+        let vert_pos = pos + IVec2::new(0, move_dir);
+        if self.cells.is_in_range(vert_pos) {
+            if !self.cells[vert_pos].is_solid() && self.compare_densities(self.cells[vert_pos].cell_type, fluid_type, is_liquid) {
+                self.swap_cells(pos, vert_pos);
                 return;
             }
-        } else if self.top_gass_leak {
+        } else if !is_liquid && self.top_gass_leak {
             self.cells[pos] = Cell::default_air();
             return;
         }
-        // up sides
-        let up_left_pos = pos + IVec2::new(-1, 1);
-        let up_right_pos = pos + IVec2::new(1, 1);
+        // diagonal
+        let diag_left_pos = pos + IVec2::new(-1, move_dir);
+        let diag_right_pos = pos + IVec2::new(1, move_dir);
         let choose = rand::thread_rng().gen_range(0..2);
-        let side_pos = [up_left_pos, up_right_pos];
-        if self.cells.is_in_range(side_pos[choose]) && !self.cells[side_pos[choose]].is_solid() && self.left_has_greather_density(self.cells[side_pos[choose]].cell_type, gass_type) {
+        let side_pos = [diag_left_pos, diag_right_pos];
+        if self.cells.is_in_range(side_pos[choose]) && !self.cells[side_pos[choose]].is_solid() && self.compare_densities(self.cells[side_pos[choose]].cell_type, fluid_type, is_liquid) {
             self.swap_cells(pos, side_pos[choose]);
             return;
-        } else if self.cells.is_in_range(side_pos[1 - choose]) && !self.cells[side_pos[1 - choose]].is_solid() && self.left_has_greather_density(self.cells[side_pos[1 - choose]].cell_type, gass_type) {
+        } else if self.cells.is_in_range(side_pos[1 - choose]) && !self.cells[side_pos[1 - choose]].is_solid() && self.compare_densities(self.cells[side_pos[1 - choose]].cell_type, fluid_type, is_liquid) {
             self.swap_cells(pos, side_pos[1 - choose]);
             return;
         }
@@ -280,11 +255,11 @@ impl CellGrid
         let side_dir = self.cells[pos].get_fluid_slide_dir();
         let side_pos1 = pos + IVec2::new(side_dir, 0);
         let side_pos2 = pos + IVec2::new(-side_dir, 0);
-        if self.cells.is_in_range(side_pos1) && !self.cells[side_pos1].is_solid() && self.left_has_greather_density(self.cells[side_pos1].cell_type, gass_type) {
+        if self.cells.is_in_range(side_pos1) && !self.cells[side_pos1].is_solid() && self.compare_densities(self.cells[side_pos1].cell_type, fluid_type, is_liquid) {
             self.swap_cells(pos, side_pos1);
             return;
         }
-        if self.cells.is_in_range(side_pos2)&& !self.cells[side_pos2].is_solid() && self.left_has_greather_density(self.cells[side_pos2].cell_type, gass_type) {
+        if self.cells.is_in_range(side_pos2)&& !self.cells[side_pos2].is_solid() && self.compare_densities(self.cells[side_pos2].cell_type, fluid_type, is_liquid) {
             self.cells[pos].reverse_fluid_slide_dir();
             self.swap_cells(pos, side_pos2);
             return;

@@ -292,7 +292,7 @@ fn setup(
                 color_change_prob: 0.003,
                 movement_prob: 0.5,
                 ignite_prob: 0.8,
-                flame_duration: 90,
+                flame_duration: 25,
             },
             CellType::Stone => CellTypeProperties {
                 density: 10.0,
@@ -310,7 +310,7 @@ fn setup(
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
                 ignite_prob: 0.3,
-                flame_duration: 120,
+                flame_duration: 31,
             },
             CellType::Sand => CellTypeProperties {
                 density: 10.0,
