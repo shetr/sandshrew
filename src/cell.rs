@@ -192,7 +192,7 @@ impl Cell {
 pub struct CellTypeProperties
 {
     pub density: f32,
-    pub color: Color,
+    pub colors: CellColors,
     pub color_rand_radius: f32,
     pub color_change_prob: f32,
     pub movement_prob: f32,
@@ -201,4 +201,36 @@ pub struct CellTypeProperties
     pub flame_duration: u8,
     pub smoke_after_burnout: bool,
     pub fire_color_prob: f32,
+}
+
+pub enum CellColors
+{
+    Centric { color: Color },
+    CentricAlpha { color: Color },
+    Gradient { from: Color, to: Color },
+}
+
+impl CellTypeProperties {
+    pub fn get_color_rgba(&self, color_scale: f32) -> Vec4
+    {
+        match self.colors {
+            CellColors::Centric { color } => {
+                let rgb = color.rgb_to_vec3() * color_scale;
+                Vec4::new(rgb.x, rgb.y, rgb.z, 1.0)
+            },
+            CellColors::CentricAlpha { color } => {
+                color.rgba_to_vec4() * color_scale
+            },
+            CellColors::Gradient { from, to } => {
+                let t = self.color_scale_to_t(color_scale);
+                from.rgba_to_vec4() * (1.0 - t) + to.rgba_to_vec4() * t
+            },
+        }
+    }
+
+    fn color_scale_to_t(&self, color_scale: f32) -> f32 {
+        let min_scale = 1.0 - self.color_rand_radius;
+        let max_scale = 1.0 + self.color_rand_radius;
+        (color_scale - min_scale) / (max_scale - min_scale)
+    }
 }

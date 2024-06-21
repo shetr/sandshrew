@@ -15,20 +15,18 @@ impl GridDisplay {
 
     pub fn display(&self, cells: &Vector2D<Cell>, cell_properties: &EnumMap<CellType, CellTypeProperties>, out_image: &mut Image)
     {
-        let background_color = cell_properties[CellType::Air].color.rgb_to_vec3();
+        let background_color = cell_properties[CellType::Air].get_color_rgba(1.0).xyz();
         for i in 0..cells.data.len() {
             let iv = cells.index_to_vec(i);
             let iv = IVec2 { x: iv.x, y: cells.sizes.y - iv.y - 1 };
             let cell_type = cells[iv].cell_type;
-            let mut color = cell_properties[cell_type].color;
+            let color_scale = cells[iv].color_scale();
+            let mut color = cell_properties[cell_type].get_color_rgba(color_scale);
             if cells[iv].is_on_fire() && cells[iv].uses_fire_color() {
-                color = cell_properties[CellType::Fire].color;
+                color = cell_properties[CellType::Fire].get_color_rgba(color_scale);
             }
-            let rgb = color.rgb_to_vec3() * cells[iv].color_scale();
-            let mut a = color.a();
-            if a < 1.0 {
-                a *= cells[iv].color_scale()
-            }
+            let rgb = color.xyz();
+            let a = color.w;
             let color = (a * rgb + (1.0 - a) * background_color).clamp(Vec3::splat(0.0), Vec3::splat(1.0)) * 255.0;
             out_image.data[i*4 + 0] = color[0] as u8;
             out_image.data[i*4 + 1] = color[1] as u8;

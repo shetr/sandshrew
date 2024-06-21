@@ -248,7 +248,7 @@ fn setup(
         cell_properties: enum_map! {
             CellType::Air => CellTypeProperties {
                 density: 0.5,
-                color: Color::rgb_u8(34, 51, 81),
+                colors: CellColors::Centric { color: Color::rgb_u8(34, 51, 81) },
                 color_rand_radius: 0.0,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -259,7 +259,7 @@ fn setup(
             },
             CellType::Smoke => CellTypeProperties {
                 density: 0.2,
-                color: Color::rgba(0.3, 0.3, 0.3, 0.35),
+                colors: CellColors::CentricAlpha { color: Color::rgba(0.3, 0.3, 0.3, 0.35) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.02,
                 movement_prob: 0.3,
@@ -270,7 +270,7 @@ fn setup(
             },
             CellType::FlammableGass => CellTypeProperties {
                 density: 0.3,
-                color: Color::rgba(0.3, 0.6, 0.3, 0.2),
+                colors: CellColors::CentricAlpha { color: Color::rgba(0.3, 0.6, 0.3, 0.2) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.03,
                 movement_prob: 0.15,
@@ -281,7 +281,7 @@ fn setup(
             },
             CellType::Fire => CellTypeProperties {
                 density: 0.1,
-                color: Color::rgb_u8(91, 34, 11),
+                colors: CellColors::Gradient { from: Color::rgb_u8(88, 56, 14), to: Color::rgb_u8(81, 24, 10) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.1,
                 movement_prob: 0.3,
@@ -292,7 +292,7 @@ fn setup(
             },
             CellType::Water => CellTypeProperties {
                 density: 2.0,
-                color: Color::rgb_u8(18, 35, 90),
+                colors: CellColors::Centric { color: Color::rgb_u8(18, 35, 90) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.01,
                 movement_prob: 0.9,
@@ -303,7 +303,7 @@ fn setup(
             },
             CellType::Oil => CellTypeProperties {
                 density: 1.0,
-                color: Color::rgb_u8(10, 10, 10),
+                colors: CellColors::Centric { color: Color::rgb_u8(10, 10, 10) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.003,
                 movement_prob: 0.5,
@@ -314,7 +314,7 @@ fn setup(
             },
             CellType::Acid => CellTypeProperties {
                 density: 1.5,
-                color: Color::rgb_u8(42, 79, 30),
+                colors: CellColors::Centric { color: Color::rgb_u8(42, 79, 30) },
                 color_rand_radius: 0.1,
                 color_change_prob: 0.1,
                 movement_prob: 0.8,
@@ -325,7 +325,7 @@ fn setup(
             },
             CellType::Stone => CellTypeProperties {
                 density: 10.0,
-                color: Color::rgb_u8(32, 32, 32),
+                colors: CellColors::Centric { color: Color::rgb_u8(32, 32, 32) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -336,7 +336,7 @@ fn setup(
             },
             CellType::Wood => CellTypeProperties {
                 density: 10.0,
-                color: Color::rgb_u8(31, 20, 5),
+                colors: CellColors::Centric { color: Color::rgb_u8(31, 20, 5) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -347,7 +347,7 @@ fn setup(
             },
             CellType::Sand => CellTypeProperties {
                 density: 10.0,
-                color: Color::rgb_u8(83, 69, 28),
+                colors: CellColors::Centric { color: Color::rgb_u8(83, 69, 28) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
