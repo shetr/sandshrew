@@ -9,16 +9,17 @@ pub const CELL_TYPE_IS_POWDER_BIT: u8 = 0x40;
 pub const CELL_TYPE_IS_DISSOLVABLE_BIT: u8 = 0x20;
 
 pub const CELL_CUSTOM_DATA_INIT: u8 = 0;
-pub const CELL_FLUID_SLIDE_BITS: u8 = 0xC0;
 pub const CELL_FLUID_SLIDE_BIT: u8 = 0x80;
 pub const CELL_FLUID_SLIDE_DIR_BIT: u8 = 0x40;
+pub const CELL_FLUID_SLIDE_BITS: u8 = CELL_FLUID_SLIDE_BIT | CELL_FLUID_SLIDE_DIR_BIT;
 pub const CELL_ON_FIRE_BIT: u8 = 0x20;
 pub const CELL_FLAME_DURATION_BITS: u8 = 0x1F;
+pub const CELL_MAX_FLAME_DURATION: u8 = CELL_FLAME_DURATION_BITS;
 
 pub const CELL_DEFAULT_UPDATE_STATE: u8 = 0;
 pub const CELL_MOVE_UPDATE_BIT: u8 = 0x01;
 pub const CELL_IGNITE_UPDATE_BIT: u8 = 0x02;
-pub const CELL_UPDATE_STATE_BITS: u8 = 0x03;
+pub const CELL_UPDATE_STATE_BITS: u8 = CELL_MOVE_UPDATE_BIT | CELL_IGNITE_UPDATE_BIT;
 pub const CELL_USE_FIRE_COLOR_BIT: u8 = 0x04;
 
 #[repr(u8)]
@@ -85,6 +86,10 @@ impl Cell {
 
     pub fn gen_color_offset(rand_radius: f32) -> i8 {
         ((rand::thread_rng().gen::<i8>() as f32) * rand_radius) as i8
+    }
+
+    pub fn gen_color_offset_shifted(rand_radius: f32, shift_by: i8) -> i8 {
+        Self::gen_color_offset(rand_radius).saturating_add(shift_by)
     }
 
     pub fn color_scale(&self) -> f32 {

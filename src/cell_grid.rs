@@ -13,6 +13,7 @@ pub struct CellGrid
 {
     pub top_gass_leak: bool,
     pub acid_reaction_prob: f32,
+    pub neutralize_acid_prob: f32,
     pub fire_decrease_prob: f32,
     pub smoke_degradation_prob: f32,
     pub fire_color_prob: f32,
@@ -285,17 +286,21 @@ impl CellGrid
         if rand::thread_rng().gen::<f32>() > self.acid_reaction_prob {
             return;
         }
-        // neutralize with water
         let down_pos = pos + IVec2::new(0, -1);
-        if self.cells.is_in_range(down_pos) && self.cells[down_pos].cell_type == CellType::Water {
-            self.cells[pos] = self.new_cell(CellType::Water);
-            return;
+        // neutralize with water
+        if rand::thread_rng().gen::<f32>() < self.neutralize_acid_prob {
+            if self.cells.is_in_range(down_pos) && self.cells[down_pos].cell_type == CellType::Water {
+                self.cells[pos] = self.new_cell(CellType::Water);
+                return;
+            }
         }
         // dissolve materials
+        let left_pos = pos + IVec2::new(-1, 0);
+        let right_pos = pos + IVec2::new(1, 0);
         let diag_left_pos = pos + IVec2::new(-1, -1);
         let diag_right_pos = pos + IVec2::new(1, -1);
-        let side_pos = [diag_left_pos, down_pos, diag_right_pos];
-        let choose_pos = side_pos[rand::thread_rng().gen_range(0..3)];
+        let side_pos = [down_pos, left_pos, right_pos, diag_left_pos, diag_right_pos];
+        let choose_pos = side_pos[rand::thread_rng().gen_range(0..side_pos.len())];
         if self.cells.is_in_range(choose_pos) && self.cells[choose_pos].is_dissolvable() {
             self.cells[pos] = self.new_cell(CellType::FlammableGass);
             self.cells[choose_pos] = Cell::default_air();
@@ -312,7 +317,8 @@ impl CellGrid
                     self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[CellType::Fire].color_rand_radius);
                 } else {
                     self.cells[pos].dont_use_fire_color();
-                    self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[cell_type].color_rand_radius);
+                    let shift = (self.cells[pos].get_flame_duration() as i8) - (CELL_MAX_FLAME_DURATION as i8);
+                    self.cells[pos].color_offset = Cell::gen_color_offset_shifted(self.cell_properties[cell_type].color_rand_radius, shift);
                 }
             }
             // ignite neigborhood
