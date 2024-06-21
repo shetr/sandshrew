@@ -19,8 +19,12 @@ impl GridDisplay {
             let iv = cells.index_to_vec(i);
             let iv = IVec2 { x: iv.x, y: cells.sizes.y - iv.y - 1 };
             let cell_type = cells[iv].cell_type;
-            let rgb = cell_properties[cell_type].color.rgb_to_vec3() * cells[iv].color_scale();
-            let mut a = cell_properties[cell_type].color.a();
+            let mut color = cell_properties[cell_type].color;
+            if cells[iv].is_on_fire() {
+                color = cell_properties[CellType::Fire].color;
+            }
+            let rgb = color.rgb_to_vec3() * cells[iv].color_scale();
+            let mut a = color.a();
             if a < 1.0 {
                 a *= cells[iv].color_scale()
             }

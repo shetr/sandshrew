@@ -15,6 +15,10 @@ pub const CELL_FLUID_SLIDE_DIR_BIT: u8 = 0x40;
 pub const CELL_ON_FIRE_BIT: u8 = 0x20;
 pub const CELL_FLAME_DURATION_BITS: u8 = 0x1F;
 
+pub const CELL_DEFAULT_UPDATE_STATE: u8 = 0;
+pub const CELL_MOVE_UPDATE_BIT: u8 = 0x01;
+pub const CELL_IGNITE_UPDATE_BIT: u8 = 0x02;
+
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Enum, Component)]
 pub enum CellType {
@@ -56,62 +60,25 @@ impl CellType {
     }
 }
 
-// using first 4 bits
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct CellMovement
-{
-    bits: i8
-}
-
-impl CellMovement {
-
-    pub fn none() -> Self {
-        CellMovement { bits: 0 }
-    }
-
-    pub fn has_moved(&self) -> bool {
-        self.bits != 0
-    }
-
-    pub fn from_ivec2(v: IVec2) -> Self {
-        let v = v.signum();
-        let x = (v.x & 0b11) as i8;
-        let y = (v.y & 0b11) as i8;
-        CellMovement { bits: x | (y << 2) }
-    }
-
-    pub fn x(&self) -> i32 {
-        (self.bits & 0b11) as i32
-    }
-
-    pub fn y(&self) -> i32 {
-        ((self.bits & 0b1100) >> 2) as i32
-    }
-
-    pub fn to_ivec2(&self) -> IVec2 {
-        IVec2::new(self.x(), self.y())
-    }
-}
-
 #[derive(Clone, Copy)]
 pub struct Cell
 {
     pub cell_type: CellType,
     pub custom_data: u8,
     pub color_offset: i8,
-    pub movement: CellMovement
+    pub update_state: u8,
 }
 
 impl Cell {
 
     pub fn default_air() -> Self {
-        Cell { cell_type: CellType::Air, custom_data: CELL_CUSTOM_DATA_INIT, color_offset: 0, movement: CellMovement::none() }
+        Cell { cell_type: CellType::Air, custom_data: CELL_CUSTOM_DATA_INIT, color_offset: 0, update_state: CELL_DEFAULT_UPDATE_STATE }
     }
 
     pub fn new(cell_type: CellType, custom_data: u8, rand_radius: f32) -> Self
     {
         let color_offset = Self::gen_color_offset(rand_radius);
-        Cell { cell_type, custom_data, color_offset, movement: CellMovement::none() }
+        Cell { cell_type, custom_data, color_offset, update_state: CELL_DEFAULT_UPDATE_STATE }
     }
 
     pub fn gen_color_offset(rand_radius: f32) -> i8 {
@@ -142,8 +109,24 @@ impl Cell {
         self.cell_type.is_dissolvable()
     }
 
-    pub fn has_moved(&self) -> bool {
-        self.movement.has_moved()
+    pub fn reset_udpate_state(&mut self) {
+        self.update_state = CELL_DEFAULT_UPDATE_STATE;
+    }
+
+    pub fn has_moved_this_frame(&self) -> bool {
+        self.update_state & CELL_MOVE_UPDATE_BIT == CELL_MOVE_UPDATE_BIT
+    }
+
+    pub fn was_ignited_this_frame(&self) -> bool {
+        self.update_state & CELL_IGNITE_UPDATE_BIT == CELL_IGNITE_UPDATE_BIT
+    }
+
+    pub fn move_update(&mut self) {
+        self.update_state |= CELL_MOVE_UPDATE_BIT;
+    }
+
+    pub fn ignite_update(&mut self) {
+        self.update_state |= CELL_IGNITE_UPDATE_BIT;
     }
 
     pub fn does_fluid_slide(&self) -> bool {
@@ -177,11 +160,12 @@ impl Cell {
     }
 
     pub fn ignite(&mut self, flame_duration: u8) {
-        self.custom_data = CELL_ON_FIRE_BIT | flame_duration | (self.custom_data & !CELL_FLAME_DURATION_BITS)
+        self.ignite_update();
+        self.custom_data = CELL_ON_FIRE_BIT | flame_duration | (self.custom_data & !CELL_FLAME_DURATION_BITS);
     }
 
     pub fn set_flame_duration(&mut self, duration: u8) {
-        self.custom_data = duration | (self.custom_data & !CELL_FLAME_DURATION_BITS)
+        self.custom_data = duration | (self.custom_data & !CELL_FLAME_DURATION_BITS);
     }
 }
 
@@ -195,4 +179,5 @@ pub struct CellTypeProperties
     pub ignite_prob: f32,
     // max value 31
     pub flame_duration: u8,
+    pub smoke_after_burnout: bool,
 }
