@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 use enum_map::EnumMap;
 
+use rand::prelude::*;
 use crate::utils::*;
 use crate::cell::*;
 
 pub struct GridDisplay
 {
     pub shallow_water_color: Color,
-    pub brush_edge_color: Color
+    pub brush_edge_color: Color,
 }
 
 impl GridDisplay {
@@ -20,7 +21,7 @@ impl GridDisplay {
             let iv = IVec2 { x: iv.x, y: cells.sizes.y - iv.y - 1 };
             let cell_type = cells[iv].cell_type;
             let mut color = cell_properties[cell_type].color;
-            if cells[iv].is_on_fire() {
+            if cells[iv].is_on_fire() && cells[iv].uses_fire_color() {
                 color = cell_properties[CellType::Fire].color;
             }
             let rgb = color.rgb_to_vec3() * cells[iv].color_scale();

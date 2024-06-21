@@ -14,6 +14,8 @@ pub struct CellGrid
     pub top_gass_leak: bool,
     pub acid_reaction_prob: f32,
     pub fire_decrease_prob: f32,
+    pub smoke_degradation_prob: f32,
+    pub fire_color_prob: f32,
     pub cells: Vector2D<Cell>,
     pub cell_properties: EnumMap<CellType, CellTypeProperties>,
 }
@@ -79,6 +81,10 @@ impl CellGrid
                 self.update_acid(pos);
             }
         } else if self.cells[pos].cell_type != CellType::Air { // is gass, but not air
+            if self.cells[pos].cell_type == CellType::Smoke && rand::thread_rng().gen::<f32>() < self.smoke_degradation_prob {
+                self.cells[pos] = Cell::default_air();
+                return;
+            }
             self.update_gass(pos);
         }
 
@@ -89,6 +95,10 @@ impl CellGrid
 
     fn update_color(&mut self, pos: IVec2) {
         let cell_type = self.cells[pos].cell_type;
+        self.update_color_cell_type(pos, cell_type);
+    }
+
+    fn update_color_cell_type(&mut self, pos: IVec2, cell_type: CellType) {
         if rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].color_change_prob {
             self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[cell_type].color_rand_radius);
         }
@@ -106,8 +116,9 @@ impl CellGrid
 
     fn new_cell(&self, cell_type: CellType) -> Cell {
         let mut cell = Cell::new(cell_type, CELL_CUSTOM_DATA_INIT, self.cell_properties[cell_type].color_rand_radius);
+        cell.set_flame_duration(self.cell_properties[cell_type].flame_duration);
         if cell_type == CellType::Fire {
-            cell.ignite(self.cell_properties[cell_type].flame_duration);
+            cell.ignite();
         }
         cell
     }
@@ -292,8 +303,19 @@ impl CellGrid
     }
 
     fn update_fire(&mut self, pos: IVec2) {
-        // ignite neigborhood
+        let cell_type = self.cells[pos].cell_type;
         if !self.cells[pos].was_ignited_this_frame() {
+            // change color
+            if rand::thread_rng().gen::<f32>() < self.cell_properties[CellType::Fire].color_change_prob {
+                if rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].fire_color_prob {
+                    self.cells[pos].use_fire_color();
+                    self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[CellType::Fire].color_rand_radius);
+                } else {
+                    self.cells[pos].dont_use_fire_color();
+                    self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[cell_type].color_rand_radius);
+                }
+            }
+            // ignite neigborhood
             for y in -1..2 {
                 for x in -1..2 {
                     let ignite_pos = pos + IVec2::new(x, y);
@@ -309,7 +331,7 @@ impl CellGrid
                             self.cells[ignite_pos] = self.new_cell(CellType::Fire);
                         }
                     } else {
-                        self.cells[ignite_pos].ignite(self.cell_properties[cell_type].flame_duration);
+                        self.cells[ignite_pos].ignite();
                     }
                 }
             }
@@ -321,7 +343,6 @@ impl CellGrid
         let mut flame_duration = self.cells[pos].get_flame_duration() as i8;
         flame_duration -= 1;
         if flame_duration <= 0 {
-            let cell_type = self.cells[pos].cell_type;
             if self.cell_properties[cell_type].smoke_after_burnout {
                 self.cells[pos] = self.new_cell(CellType::Smoke);
             } else {

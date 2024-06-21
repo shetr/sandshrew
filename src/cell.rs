@@ -18,6 +18,8 @@ pub const CELL_FLAME_DURATION_BITS: u8 = 0x1F;
 pub const CELL_DEFAULT_UPDATE_STATE: u8 = 0;
 pub const CELL_MOVE_UPDATE_BIT: u8 = 0x01;
 pub const CELL_IGNITE_UPDATE_BIT: u8 = 0x02;
+pub const CELL_UPDATE_STATE_BITS: u8 = 0x03;
+pub const CELL_USE_FIRE_COLOR_BIT: u8 = 0x04;
 
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Enum, Component)]
@@ -110,7 +112,7 @@ impl Cell {
     }
 
     pub fn reset_udpate_state(&mut self) {
-        self.update_state = CELL_DEFAULT_UPDATE_STATE;
+        self.update_state &= !CELL_UPDATE_STATE_BITS;
     }
 
     pub fn has_moved_this_frame(&self) -> bool {
@@ -127,6 +129,18 @@ impl Cell {
 
     pub fn ignite_update(&mut self) {
         self.update_state |= CELL_IGNITE_UPDATE_BIT;
+    }
+
+    pub fn uses_fire_color(&self) -> bool {
+        self.update_state & CELL_USE_FIRE_COLOR_BIT == CELL_USE_FIRE_COLOR_BIT
+    }
+
+    pub fn use_fire_color(&mut self) {
+        self.update_state |= CELL_USE_FIRE_COLOR_BIT;
+    }
+
+    pub fn dont_use_fire_color(&mut self) {
+        self.update_state &= !CELL_USE_FIRE_COLOR_BIT;
     }
 
     pub fn does_fluid_slide(&self) -> bool {
@@ -159,9 +173,10 @@ impl Cell {
         self.custom_data & CELL_FLAME_DURATION_BITS
     }
 
-    pub fn ignite(&mut self, flame_duration: u8) {
+    pub fn ignite(&mut self) {
         self.ignite_update();
-        self.custom_data = CELL_ON_FIRE_BIT | flame_duration | (self.custom_data & !CELL_FLAME_DURATION_BITS);
+        self.use_fire_color();
+        self.custom_data |= CELL_ON_FIRE_BIT;
     }
 
     pub fn set_flame_duration(&mut self, duration: u8) {
@@ -180,4 +195,5 @@ pub struct CellTypeProperties
     // max value 31
     pub flame_duration: u8,
     pub smoke_after_burnout: bool,
+    pub fire_color_prob: f32,
 }

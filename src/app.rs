@@ -237,7 +237,9 @@ fn setup(
     let grid = CellGrid {
         top_gass_leak: true,
         acid_reaction_prob: 0.05,
-        fire_decrease_prob: 0.1,
+        fire_decrease_prob: 0.05,
+        smoke_degradation_prob: 0.003,
+        fire_color_prob: 0.9,
         cells: Vector2D::<Cell>::new(
             IVec2 { x: img_size as i32, y: img_size  as i32 },
             Cell::default_air(),
@@ -252,6 +254,7 @@ fn setup(
                 ignite_prob: 0.05,
                 flame_duration: 0,
                 smoke_after_burnout: true,
+                fire_color_prob: 0.0,
             },
             CellType::Smoke => CellTypeProperties {
                 density: 0.2,
@@ -262,6 +265,7 @@ fn setup(
                 ignite_prob: 0.0,
                 flame_duration: 0,
                 smoke_after_burnout: true,
+                fire_color_prob: 0.0,
             },
             CellType::FlammableGass => CellTypeProperties {
                 density: 0.3,
@@ -270,18 +274,20 @@ fn setup(
                 color_change_prob: 0.03,
                 movement_prob: 0.15,
                 ignite_prob: 0.3,
-                flame_duration: 2,
+                flame_duration: 4,
                 smoke_after_burnout: false,
+                fire_color_prob: 0.9,
             },
             CellType::Fire => CellTypeProperties {
-                density: 0.35,
+                density: 0.1,
                 color: Color::rgb_u8(91, 34, 11),
                 color_rand_radius: 0.25,
                 color_change_prob: 0.1,
                 movement_prob: 0.3,
                 ignite_prob: 0.0,
-                flame_duration: 4,
+                flame_duration: 2,
                 smoke_after_burnout: true,
+                fire_color_prob: 1.0,
             },
             CellType::Water => CellTypeProperties {
                 density: 2.0,
@@ -292,6 +298,7 @@ fn setup(
                 ignite_prob: 0.0,
                 flame_duration: 0,
                 smoke_after_burnout: true,
+                fire_color_prob: 0.0,
             },
             CellType::Oil => CellTypeProperties {
                 density: 1.0,
@@ -302,6 +309,7 @@ fn setup(
                 ignite_prob: 0.2,
                 flame_duration: 25,
                 smoke_after_burnout: true,
+                fire_color_prob: 0.6,
             },
             CellType::Acid => CellTypeProperties {
                 density: 1.5,
@@ -312,6 +320,7 @@ fn setup(
                 ignite_prob: 0.0,
                 flame_duration: 0,
                 smoke_after_burnout: true,
+                fire_color_prob: 0.0,
             },
             CellType::Stone => CellTypeProperties {
                 density: 10.0,
@@ -322,6 +331,7 @@ fn setup(
                 ignite_prob: 0.0,
                 flame_duration: 0,
                 smoke_after_burnout: true,
+                fire_color_prob: 0.0,
             },
             CellType::Wood => CellTypeProperties {
                 density: 10.0,
@@ -329,9 +339,10 @@ fn setup(
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
-                ignite_prob: 0.01,
+                ignite_prob: 0.005,
                 flame_duration: 31,
                 smoke_after_burnout: true,
+                fire_color_prob: 0.5,
             },
             CellType::Sand => CellTypeProperties {
                 density: 10.0,
@@ -342,6 +353,7 @@ fn setup(
                 ignite_prob: 0.0,
                 flame_duration: 0,
                 smoke_after_burnout: true,
+                fire_color_prob: 0.0,
             },
         }
     };
