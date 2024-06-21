@@ -3,6 +3,11 @@ use rand::prelude::*;
 
 use enum_map::Enum;
 
+pub const CELL_TYPE_IS_SOLID_BIT: u8 = 0x80;
+pub const CELL_TYPE_IS_LIQUID_BIT: u8 = 0x40;
+pub const CELL_TYPE_IS_POWDER_BIT: u8 = 0x40;
+pub const CELL_TYPE_IS_DISSOLVABLE_BIT: u8 = 0x20;
+
 pub const CELL_CUSTOM_DATA_INIT: u8 = 0;
 pub const CELL_FLUID_SLIDE_BITS: u8 = 0xC0;
 pub const CELL_FLUID_SLIDE_BIT: u8 = 0x80;
@@ -19,13 +24,14 @@ pub enum CellType {
     FlammableGass = 0x02,
     Fire = 0x03,
     // liquids
-    Water = 0x40,
-    Oil = 0x41,
+    Water = CELL_TYPE_IS_LIQUID_BIT | 0,
+    Oil = CELL_TYPE_IS_LIQUID_BIT | 1,
+    Acid = CELL_TYPE_IS_LIQUID_BIT | 2,
     // solids - stable
-    Stone = 0x80,
-    Wood = 0x81,
+    Stone = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | 0,
+    Wood = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | 1,
     // solids - powders
-    Sand = 0xC0,
+    Sand = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_POWDER_BIT | 0,
 }
 
 impl CellType {
@@ -43,6 +49,10 @@ impl CellType {
 
     pub fn is_powder(&self) -> bool {
         (*self as u8) & 0xC0 == 0xC0
+    }
+
+    pub fn is_dissolvable(&self) -> bool {
+        (*self as u8) & 0x20 == 0x20
     }
 }
 
@@ -126,6 +136,10 @@ impl Cell {
 
     pub fn is_powder(&self) -> bool {
         self.cell_type.is_powder()
+    }
+
+    pub fn is_dissolvable(&self) -> bool {
+        self.cell_type.is_dissolvable()
     }
 
     pub fn has_moved(&self) -> bool {

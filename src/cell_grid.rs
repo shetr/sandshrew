@@ -67,16 +67,17 @@ impl CellGrid
             return;
         }
         self.update_color(pos);
-        match self.cells[pos].cell_type {
-            CellType::Air => {},
-            CellType::Smoke => { self.update_gass(pos); },
-            CellType::FlammableGass => { self.update_gass(pos); },
-            CellType::Fire => { self.update_gass(pos); },
-            CellType::Water => { self.update_water(pos); },
-            CellType::Oil => { self.update_liquid(pos); },
-            CellType::Stone => {},
-            CellType::Wood => {},
-            CellType::Sand => { self.update_sand(pos); },
+        if self.cells[pos].is_solid() {
+            if self.cells[pos].is_powder() {
+                self.update_powder(pos);
+            }
+        } else if self.cells[pos].is_liquid() {
+            self.update_liquid(pos);
+            if self.cells[pos].cell_type == CellType::Acid {
+                self.update_acid(pos);
+            }
+        } else if self.cells[pos].cell_type != CellType::Air { // is gass, but not air
+            self.update_gass(pos);
         }
     }
 
@@ -115,14 +116,6 @@ impl CellGrid
 
     fn left_has_greather_density(&self, left: CellType, right: CellType) -> bool {
         self.cell_properties[left].density > self.cell_properties[right].density
-    }
-
-    fn update_sand(&mut self, pos: IVec2) {
-        self.update_powder(pos);
-    }
-
-    fn update_water(&mut self, pos: IVec2) {
-        self.update_liquid(pos);
     }
 
     fn update_powder(&mut self, pos: IVec2) {
@@ -266,6 +259,28 @@ impl CellGrid
         }
         self.cells[pos].stop_fluid_slide();
         return;
+    }
+
+    fn update_acid(&mut self, pos: IVec2) {
+        let acid_reaction_prob = 0.05;
+        if rand::thread_rng().gen::<f32>() > acid_reaction_prob {
+            return;
+        }
+        // neutralize with water
+        let down_pos = pos + IVec2::new(0, -1);
+        if self.cells.is_in_range(down_pos) && self.cells[down_pos].cell_type == CellType::Water {
+            self.cells[pos] = self.new_cell(CellType::Water, CELL_CUSTOM_DATA_INIT);
+            return;
+        }
+        // dissolve materials
+        let diag_left_pos = pos + IVec2::new(-1, -1);
+        let diag_right_pos = pos + IVec2::new(1, -1);
+        let side_pos = [diag_left_pos, down_pos, diag_right_pos];
+        let choose_pos = side_pos[rand::thread_rng().gen_range(0..3)];
+        if self.cells.is_in_range(choose_pos) && self.cells[choose_pos].is_dissolvable() {
+            self.cells[pos] = self.new_cell(CellType::FlammableGass, CELL_CUSTOM_DATA_INIT);
+            self.cells[choose_pos] = Cell::default_air();
+        }
     }
 
     fn update_fire(&mut self, pos: IVec2) {

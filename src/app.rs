@@ -53,7 +53,7 @@ fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, name: 
     parent.spawn((ButtonBundle {
         style: Style {
             width: Val::Px(150.0),
-            height: Val::Px(65.0),
+            height: Val::Px(50.0),
             border: UiRect::all(Val::Px(5.0)),
             // horizontally center child text
             justify_content: JustifyContent::Center,
@@ -71,7 +71,7 @@ fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, name: 
             name,
             TextStyle {
                 font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                font_size: 30.0,
+                font_size: 20.0,
                 color: Color::rgb(0.9, 0.9, 0.9),
             },
         ));
@@ -208,6 +208,7 @@ fn setup(
                             add_button(parent, &asset_server, "6 Oil", CellType::Oil);
                             add_button(parent, &asset_server, "7 Fire", CellType::Fire);
                             add_button(parent, &asset_server, "8 Wood", CellType::Wood);
+                            add_button(parent, &asset_server, "9 Acid", CellType::Acid);
                         });
                 });
             // bevy logo (flex center)
@@ -293,6 +294,15 @@ fn setup(
                 movement_prob: 0.5,
                 ignite_prob: 0.8,
                 flame_duration: 25,
+            },
+            CellType::Acid => CellTypeProperties {
+                density: 1.5,
+                color: Color::rgb_u8(42, 79, 30),
+                color_rand_radius: 0.1,
+                color_change_prob: 0.01,
+                movement_prob: 0.8,
+                ignite_prob: 0.0,
+                flame_duration: 0,
             },
             CellType::Stone => CellTypeProperties {
                 density: 10.0,
@@ -416,6 +426,9 @@ fn update_input(
     }
     else if keyboard_input.pressed(KeyCode::Digit8) {
         globals.place_cell_type = CellType::Wood;
+    }
+    else if keyboard_input.pressed(KeyCode::Digit9) {
+        globals.place_cell_type = CellType::Acid;
     }
 
     for event in mouse_wheel_events.read() {
