@@ -208,11 +208,13 @@ pub enum CellColors
     Centric { color: Color },
     CentricAlpha { color: Color },
     Gradient { from: Color, to: Color },
+    DurationGradient { from: Color, to: Color },
 }
 
 impl CellTypeProperties {
-    pub fn get_color_rgba(&self, color_scale: f32) -> Vec4
+    pub fn get_color_rgba(&self, color_scale: f32, duration: u8) -> Vec4
     {
+        let dt = (duration as f32) / (CELL_MAX_FLAME_DURATION as f32);
         match self.colors {
             CellColors::Centric { color } => {
                 let rgb = color.rgb_to_vec3() * color_scale;
@@ -224,6 +226,9 @@ impl CellTypeProperties {
             CellColors::Gradient { from, to } => {
                 let t = self.color_scale_to_t(color_scale);
                 from.rgba_to_vec4() * (1.0 - t) + to.rgba_to_vec4() * t
+            },
+            CellColors::DurationGradient { from, to } => {
+                (from.rgba_to_vec4() * (1.0 - dt) + to.rgba_to_vec4() * dt) * color_scale
             },
         }
     }

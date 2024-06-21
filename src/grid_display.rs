@@ -15,15 +15,16 @@ impl GridDisplay {
 
     pub fn display(&self, cells: &Vector2D<Cell>, cell_properties: &EnumMap<CellType, CellTypeProperties>, out_image: &mut Image)
     {
-        let background_color = cell_properties[CellType::Air].get_color_rgba(1.0).xyz();
+        let background_color = cell_properties[CellType::Air].get_color_rgba(1.0, 0).xyz();
         for i in 0..cells.data.len() {
             let iv = cells.index_to_vec(i);
             let iv = IVec2 { x: iv.x, y: cells.sizes.y - iv.y - 1 };
             let cell_type = cells[iv].cell_type;
             let color_scale = cells[iv].color_scale();
-            let mut color = cell_properties[cell_type].get_color_rgba(color_scale);
+            let duration = cells[iv].get_flame_duration();
+            let mut color = cell_properties[cell_type].get_color_rgba(color_scale, duration);
             if cells[iv].is_on_fire() && cells[iv].uses_fire_color() {
-                color = cell_properties[CellType::Fire].get_color_rgba(color_scale);
+                color = cell_properties[CellType::Fire].get_color_rgba(color_scale, duration);
             }
             let rgb = color.xyz();
             let a = color.w;

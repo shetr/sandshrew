@@ -15,6 +15,7 @@ pub struct CellGrid
     pub acid_reaction_prob: f32,
     pub neutralize_acid_prob: f32,
     pub fire_decrease_prob: f32,
+    pub smoke_decrease_prob: f32,
     pub smoke_degradation_prob: f32,
     pub fire_color_prob: f32,
     pub cells: Vector2D<Cell>,
@@ -82,9 +83,8 @@ impl CellGrid
                 self.update_acid(pos);
             }
         } else if self.cells[pos].cell_type != CellType::Air { // is gass, but not air
-            if self.cells[pos].cell_type == CellType::Smoke && rand::thread_rng().gen::<f32>() < self.smoke_degradation_prob {
-                self.cells[pos] = Cell::default_air();
-                return;
+            if self.cells[pos].cell_type == CellType::Smoke {
+                self.update_smoke(pos);
             }
             self.update_gass(pos);
         }
@@ -120,6 +120,9 @@ impl CellGrid
         cell.set_flame_duration(self.cell_properties[cell_type].flame_duration);
         if cell_type == CellType::Fire {
             cell.ignite();
+        }
+        if cell_type == CellType::Smoke {
+            cell.set_flame_duration(CELL_MAX_FLAME_DURATION);
         }
         cell
     }
@@ -357,5 +360,21 @@ impl CellGrid
         } else {
             self.cells[pos].set_flame_duration(flame_duration as u8);
         }
+    }
+
+    fn update_smoke(&mut self, pos: IVec2) {
+        if rand::thread_rng().gen::<f32>() < self.smoke_degradation_prob {
+            self.cells[pos] = Cell::default_air();
+            return;
+        }
+        if rand::thread_rng().gen::<f32>() > self.smoke_decrease_prob {
+            return;
+        }
+        let mut duration = self.cells[pos].get_flame_duration() as i8;
+        duration -= 1;
+        if duration < 0 {
+            duration = 0;
+        }
+        self.cells[pos].set_flame_duration(duration as u8);
     }
 }
