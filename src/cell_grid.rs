@@ -107,6 +107,9 @@ impl CellGrid
 
     fn swap_cells(&mut self, from_pos: IVec2, to_pos: IVec2)
     {
+        if self.cells[to_pos].has_moved_this_frame() && self.cells[to_pos].cell_type != CellType::Air {
+            return;
+        }
         let temp_cell = self.cells[from_pos];
         self.cells[from_pos] = self.cells[to_pos];
         self.cells[to_pos] = temp_cell;
