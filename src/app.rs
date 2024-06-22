@@ -314,7 +314,7 @@ fn setup(
                 color_change_prob: 0.003,
                 movement_prob: 0.5,
                 fallthroug_prob: 0.3,
-                ignite_prob: 0.2,
+                ignite_prob: 0.02,
                 flame_duration: 25,
                 smoke_after_burnout: true,
                 fire_color_prob: 0.6,
