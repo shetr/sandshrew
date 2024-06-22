@@ -360,7 +360,7 @@ fn setup(
                 colors: CellColors::Centric { color: Color::rgb_u8(83, 69, 28) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
-                movement_prob: 1.0,
+                movement_prob: 0.95,
                 fallthroug_prob: 0.0,
                 ignite_prob: 0.0,
                 flame_duration: 0,

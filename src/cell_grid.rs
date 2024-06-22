@@ -147,6 +147,9 @@ impl CellGrid
     }
 
     fn update_powder(&mut self, pos: IVec2) {
+        if rand::thread_rng().gen::<f32>() > self.cell_properties[self.cells[pos].cell_type].movement_prob {
+            return;
+        }
         let bottom_pos = pos + IVec2::new(0, -1);
         if self.cells.is_in_range(bottom_pos) {
             if !self.cells[bottom_pos].is_solid() {
