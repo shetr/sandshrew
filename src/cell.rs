@@ -8,19 +8,19 @@ pub const CELL_TYPE_IS_LIQUID_BIT: u8 = 0x40;
 pub const CELL_TYPE_IS_POWDER_BIT: u8 = 0x40;
 pub const CELL_TYPE_IS_DISSOLVABLE_BIT: u8 = 0x20;
 
-pub const CELL_CUSTOM_DATA_INIT: u8 = 0;
-pub const CELL_FLUID_SLIDE_BIT: u8 = 0x80;
-pub const CELL_FLUID_SLIDE_DIR_BIT: u8 = 0x40;
-pub const CELL_FLUID_SLIDE_BITS: u8 = CELL_FLUID_SLIDE_BIT | CELL_FLUID_SLIDE_DIR_BIT;
-pub const CELL_ON_FIRE_BIT: u8 = 0x20;
-pub const CELL_FLAME_DURATION_BITS: u8 = 0x1F;
-pub const CELL_MAX_FLAME_DURATION: u8 = CELL_FLAME_DURATION_BITS;
+pub const CELL_CUSTOM_DATA_INIT: u16 = 0;
 
-pub const CELL_DEFAULT_UPDATE_STATE: u8 = 0;
-pub const CELL_MOVE_UPDATE_BIT: u8 = 0x01;
-pub const CELL_IGNITE_UPDATE_BIT: u8 = 0x02;
-pub const CELL_UPDATE_STATE_BITS: u8 = CELL_MOVE_UPDATE_BIT | CELL_IGNITE_UPDATE_BIT;
-pub const CELL_USE_FIRE_COLOR_BIT: u8 = 0x04;
+pub const CELL_MOVE_UPDATE_BIT: u16 = 0x8000;
+pub const CELL_IGNITE_UPDATE_BIT: u16 = 0x4000;
+pub const CELL_UPDATE_STATE_BITS: u16 = CELL_MOVE_UPDATE_BIT | CELL_IGNITE_UPDATE_BIT;
+pub const CELL_USE_FIRE_COLOR_BIT: u16 = 0x2000;
+
+pub const CELL_FLUID_SLIDE_BIT: u16 = 0x1000;
+pub const CELL_FLUID_SLIDE_DIR_BIT: u16 = 0x800;
+pub const CELL_FLUID_SLIDE_BITS: u16 = CELL_FLUID_SLIDE_BIT | CELL_FLUID_SLIDE_DIR_BIT;
+pub const CELL_ON_FIRE_BIT: u16 = 0x400;
+pub const CELL_DURATION_BITS: u16 = 0x3FF;
+pub const CELL_MAX_DURATION: u16 = CELL_DURATION_BITS;
 
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Enum, Component)]
@@ -67,21 +67,20 @@ impl CellType {
 pub struct Cell
 {
     pub cell_type: CellType,
-    pub custom_data: u8,
     pub color_offset: i8,
-    pub update_state: u8,
+    pub custom_data: u16,
 }
 
 impl Cell {
 
     pub fn default_air() -> Self {
-        Cell { cell_type: CellType::Air, custom_data: CELL_CUSTOM_DATA_INIT, color_offset: 0, update_state: CELL_DEFAULT_UPDATE_STATE }
+        Cell { cell_type: CellType::Air, color_offset: 0, custom_data: CELL_CUSTOM_DATA_INIT }
     }
 
-    pub fn new(cell_type: CellType, custom_data: u8, rand_radius: f32) -> Self
+    pub fn new(cell_type: CellType, custom_data: u16, rand_radius: f32) -> Self
     {
         let color_offset = Self::gen_color_offset(rand_radius);
-        Cell { cell_type, custom_data, color_offset, update_state: CELL_DEFAULT_UPDATE_STATE }
+        Cell { cell_type, color_offset, custom_data }
     }
 
     pub fn gen_color_offset(rand_radius: f32) -> i8 {
@@ -117,35 +116,35 @@ impl Cell {
     }
 
     pub fn reset_udpate_state(&mut self) {
-        self.update_state &= !CELL_UPDATE_STATE_BITS;
+        self.custom_data &= !CELL_UPDATE_STATE_BITS;
     }
 
     pub fn has_moved_this_frame(&self) -> bool {
-        self.update_state & CELL_MOVE_UPDATE_BIT == CELL_MOVE_UPDATE_BIT
+        self.custom_data & CELL_MOVE_UPDATE_BIT == CELL_MOVE_UPDATE_BIT
     }
 
     pub fn was_ignited_this_frame(&self) -> bool {
-        self.update_state & CELL_IGNITE_UPDATE_BIT == CELL_IGNITE_UPDATE_BIT
+        self.custom_data & CELL_IGNITE_UPDATE_BIT == CELL_IGNITE_UPDATE_BIT
     }
 
     pub fn move_update(&mut self) {
-        self.update_state |= CELL_MOVE_UPDATE_BIT;
+        self.custom_data |= CELL_MOVE_UPDATE_BIT;
     }
 
     pub fn ignite_update(&mut self) {
-        self.update_state |= CELL_IGNITE_UPDATE_BIT;
+        self.custom_data |= CELL_IGNITE_UPDATE_BIT;
     }
 
     pub fn uses_fire_color(&self) -> bool {
-        self.update_state & CELL_USE_FIRE_COLOR_BIT == CELL_USE_FIRE_COLOR_BIT
+        self.custom_data & CELL_USE_FIRE_COLOR_BIT == CELL_USE_FIRE_COLOR_BIT
     }
 
     pub fn use_fire_color(&mut self) {
-        self.update_state |= CELL_USE_FIRE_COLOR_BIT;
+        self.custom_data |= CELL_USE_FIRE_COLOR_BIT;
     }
 
     pub fn dont_use_fire_color(&mut self) {
-        self.update_state &= !CELL_USE_FIRE_COLOR_BIT;
+        self.custom_data &= !CELL_USE_FIRE_COLOR_BIT;
     }
 
     pub fn does_fluid_slide(&self) -> bool {
@@ -174,8 +173,8 @@ impl Cell {
         self.custom_data & CELL_ON_FIRE_BIT == CELL_ON_FIRE_BIT
     }
 
-    pub fn get_flame_duration(&self) -> u8 {
-        self.custom_data & CELL_FLAME_DURATION_BITS
+    pub fn get_duration(&self) -> u16 {
+        self.custom_data & CELL_DURATION_BITS
     }
 
     pub fn ignite(&mut self) {
@@ -184,8 +183,8 @@ impl Cell {
         self.custom_data |= CELL_ON_FIRE_BIT;
     }
 
-    pub fn set_flame_duration(&mut self, duration: u8) {
-        self.custom_data = duration | (self.custom_data & !CELL_FLAME_DURATION_BITS);
+    pub fn set_duration(&mut self, duration: u16) {
+        self.custom_data = duration | (self.custom_data & !CELL_DURATION_BITS);
     }
 }
 
@@ -198,8 +197,8 @@ pub struct CellTypeProperties
     pub movement_prob: f32,
     pub fallthroug_prob: f32,
     pub ignite_prob: f32,
-    // max value 31
-    pub flame_duration: u8,
+    // max value 1023
+    pub flame_duration: u16,
     pub smoke_after_burnout: bool,
     pub fire_color_prob: f32,
 }
@@ -213,9 +212,9 @@ pub enum CellColors
 }
 
 impl CellTypeProperties {
-    pub fn get_color_rgba(&self, color_scale: f32, duration: u8) -> Vec4
+    pub fn get_color_rgba(&self, color_scale: f32, duration: u16) -> Vec4
     {
-        let dt = (duration as f32) / (CELL_MAX_FLAME_DURATION as f32);
+        let dt = (duration as f32) / (self.flame_duration as f32);
         match self.colors {
             CellColors::Centric { color } => {
                 let rgb = color.rgb_to_vec3() * color_scale;

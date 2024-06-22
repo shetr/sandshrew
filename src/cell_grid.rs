@@ -47,20 +47,20 @@ impl CellGrid
             }
         }
 
-        for y in 0..self.cells.sizes.y {
-            let x_range: Box<dyn Iterator<Item=i32>> = if frame_num % 2 == 0 { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
-            for x in x_range {
-                let pos = IVec2::new(x, y);
-                if !self.cells[pos].is_gass() {
-                    self.update_cell(pos);
-                }
-            }
-        }
         for y in (0..self.cells.sizes.y).rev() {
             let x_range: Box<dyn Iterator<Item=i32>> = if frame_num % 2 == 0 { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
             for x in x_range {
                 let pos = IVec2::new(x, y);
                 if self.cells[pos].is_gass() {
+                    self.update_cell(pos);
+                }
+            }
+        }
+        for y in 0..self.cells.sizes.y {
+            let x_range: Box<dyn Iterator<Item=i32>> = if frame_num % 2 == 0 { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
+            for x in x_range {
+                let pos = IVec2::new(x, y);
+                if !self.cells[pos].is_gass() {
                     self.update_cell(pos);
                 }
             }
@@ -120,12 +120,12 @@ impl CellGrid
 
     fn new_cell(&self, cell_type: CellType) -> Cell {
         let mut cell = Cell::new(cell_type, CELL_CUSTOM_DATA_INIT, self.cell_properties[cell_type].color_rand_radius);
-        cell.set_flame_duration(self.cell_properties[cell_type].flame_duration);
+        cell.set_duration(self.cell_properties[cell_type].flame_duration);
         if cell_type == CellType::Fire {
             cell.ignite();
         }
         if cell_type == CellType::Smoke {
-            cell.set_flame_duration(CELL_MAX_FLAME_DURATION);
+            cell.set_duration(self.cell_properties[cell_type].flame_duration);
         }
         cell
     }
@@ -279,7 +279,7 @@ impl CellGrid
                     self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[CellType::Fire].color_rand_radius);
                 } else {
                     self.cells[pos].dont_use_fire_color();
-                    let shift = (self.cells[pos].get_flame_duration() as i8) - (CELL_MAX_FLAME_DURATION as i8);
+                    let shift = (-63.0* (1.0 - (self.cells[pos].get_duration() as f32) / (self.cell_properties[cell_type].flame_duration as f32))) as i8;
                     self.cells[pos].color_offset = Cell::gen_color_offset_shifted(self.cell_properties[cell_type].color_rand_radius, shift);
                 }
             }
@@ -308,7 +308,7 @@ impl CellGrid
         if rand::thread_rng().gen::<f32>() > self.fire_decrease_prob {
             return;
         }
-        let mut flame_duration = self.cells[pos].get_flame_duration() as i8;
+        let mut flame_duration = self.cells[pos].get_duration() as i16;
         flame_duration -= 1;
         if flame_duration <= 0 {
             if self.cell_properties[cell_type].smoke_after_burnout {
@@ -317,7 +317,7 @@ impl CellGrid
                 self.cells[pos] = self.new_cell(CellType::Air);
             }
         } else {
-            self.cells[pos].set_flame_duration(flame_duration as u8);
+            self.cells[pos].set_duration(flame_duration as u16);
         }
     }
 
@@ -329,11 +329,11 @@ impl CellGrid
         if rand::thread_rng().gen::<f32>() > self.smoke_decrease_prob {
             return;
         }
-        let mut duration = self.cells[pos].get_flame_duration() as i8;
+        let mut duration = self.cells[pos].get_duration() as i16;
         duration -= 1;
         if duration < 0 {
             duration = 0;
         }
-        self.cells[pos].set_flame_duration(duration as u8);
+        self.cells[pos].set_duration(duration as u16);
     }
 }
