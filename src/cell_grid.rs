@@ -142,48 +142,17 @@ impl CellGrid
         self.cell_properties[left].density > self.cell_properties[right].density
     }
 
+    fn rand_fallthrough(&self, pos: IVec2) -> bool {
+        rand::thread_rng().gen::<f32>() < self.cell_properties[self.cells[pos].cell_type].fallthroug_prob
+    }
+
     fn update_powder(&mut self, pos: IVec2) {
         let bottom_pos = pos + IVec2::new(0, -1);
         if self.cells.is_in_range(bottom_pos) {
             if !self.cells[bottom_pos].is_solid() {
-                if self.cells[bottom_pos].is_gass() {
+                if self.rand_fallthrough(bottom_pos) {
                     self.swap_cells(pos, bottom_pos);
-                    return;
                 }
-                self.cells[bottom_pos].reset_udpate_state();
-                // push to side down
-                let bottom_left_pos = pos + IVec2::new(-1, -1);
-                let bottom_right_pos = pos + IVec2::new(1, -1);
-                let choose = rand::thread_rng().gen_range(0..2);
-                let side_pos = [bottom_left_pos, bottom_right_pos];
-                if self.cells.is_in_range(side_pos[choose]) && self.cells[side_pos[choose]].is_gass() {
-                    self.swap_cells(bottom_pos, side_pos[choose]);
-                    self.swap_cells(pos, bottom_pos);
-                    return;
-                }
-                if self.cells.is_in_range(side_pos[1 - choose]) && self.cells[side_pos[1 - choose]].is_gass() {
-                    self.swap_cells(bottom_pos, side_pos[1 - choose]);
-                    self.swap_cells(pos, bottom_pos);
-                    return;
-                }
-                // push to side
-                let left_pos = pos + IVec2::new(-1, 0);
-                let right_pos = pos + IVec2::new(1, 0);
-                let choose = rand::thread_rng().gen_range(0..2);
-                let side_pos = [left_pos, right_pos];
-                if self.cells.is_in_range(side_pos[choose]) && self.cells[side_pos[choose]].is_gass() {
-                    self.swap_cells(bottom_pos, side_pos[choose]);
-                    self.swap_cells(pos, bottom_pos);
-                    return;
-                }
-                if self.cells.is_in_range(side_pos[1 - choose]) && self.cells[side_pos[1 - choose]].is_gass() {
-                    self.swap_cells(bottom_pos, side_pos[1 - choose]);
-                    self.swap_cells(pos, bottom_pos);
-                    return;
-                }
-                self.cells[bottom_pos].reset_udpate_state();
-                // push up
-                self.swap_cells(pos, bottom_pos);
                 return;
             }
             let bottom_left_dir = IVec2::new(-1, -1);
@@ -191,35 +160,9 @@ impl CellGrid
             let bottom_side_dir = if rand::random() { bottom_right_dir } else { bottom_left_dir };
             let bottom_side_pos = pos + bottom_side_dir;
             if self.cells.is_in_range(bottom_side_pos) && !self.cells[bottom_side_pos].is_solid() {
-                if self.cells[bottom_side_pos].is_gass() {
+                if self.rand_fallthrough(bottom_side_pos) {
                     self.swap_cells(pos, bottom_side_pos);
-                    return;
                 }
-                self.cells[bottom_side_pos].reset_udpate_state();
-                // push to side
-                let to_side_pos = bottom_side_pos + bottom_side_dir + IVec2::new(0, 1);
-                if self.cells.is_in_range(to_side_pos) && self.cells[to_side_pos].is_gass() {
-                    self.swap_cells(bottom_side_pos, to_side_pos);
-                    self.swap_cells(pos, bottom_side_pos);
-                    return;
-                }
-                // push diagonaly
-                let to_side_diag_pos = to_side_pos + IVec2::new(0, 1);
-                if self.cells.is_in_range(to_side_diag_pos) && self.cells[to_side_diag_pos].is_gass() {
-                    self.swap_cells(bottom_side_pos, to_side_diag_pos);
-                    self.swap_cells(pos, bottom_side_pos);
-                    return;
-                }
-                // push up
-                let up_pos = bottom_side_pos + IVec2::new(0, 1);
-                if self.cells.is_in_range(up_pos) && self.cells[up_pos].is_gass() {
-                    self.swap_cells(bottom_side_pos, up_pos);
-                    self.swap_cells(pos, bottom_side_pos);
-                    return;
-                }
-                self.cells[bottom_side_pos].reset_udpate_state();
-                // just swap
-                self.swap_cells(pos, bottom_side_pos);
                 return;
             }
         }
@@ -246,7 +189,9 @@ impl CellGrid
         let vert_pos = pos + IVec2::new(0, move_dir);
         if self.cells.is_in_range(vert_pos) {
             if !self.cells[vert_pos].is_solid() && self.compare_densities(self.cells[vert_pos].cell_type, fluid_type, is_liquid) {
-                self.swap_cells(pos, vert_pos);
+                if self.rand_fallthrough(vert_pos) {
+                    self.swap_cells(pos, vert_pos);
+                }
                 return;
             }
         } else if !is_liquid && self.top_gass_leak {
@@ -259,10 +204,14 @@ impl CellGrid
         let choose = rand::thread_rng().gen_range(0..2);
         let side_pos = [diag_left_pos, diag_right_pos];
         if self.cells.is_in_range(side_pos[choose]) && !self.cells[side_pos[choose]].is_solid() && self.compare_densities(self.cells[side_pos[choose]].cell_type, fluid_type, is_liquid) {
-            self.swap_cells(pos, side_pos[choose]);
+            if self.rand_fallthrough(side_pos[choose]) {
+                self.swap_cells(pos, side_pos[choose]);
+            }
             return;
         } else if self.cells.is_in_range(side_pos[1 - choose]) && !self.cells[side_pos[1 - choose]].is_solid() && self.compare_densities(self.cells[side_pos[1 - choose]].cell_type, fluid_type, is_liquid) {
-            self.swap_cells(pos, side_pos[1 - choose]);
+            if self.rand_fallthrough(side_pos[1 - choose]) {
+                self.swap_cells(pos, side_pos[1 - choose]);
+            }
             return;
         }
         // sides

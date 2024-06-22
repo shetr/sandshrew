@@ -196,6 +196,7 @@ pub struct CellTypeProperties
     pub color_rand_radius: f32,
     pub color_change_prob: f32,
     pub movement_prob: f32,
+    pub fallthroug_prob: f32,
     pub ignite_prob: f32,
     // max value 31
     pub flame_duration: u8,
