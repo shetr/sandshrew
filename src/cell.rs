@@ -31,14 +31,14 @@ pub enum CellType {
     FlammableGass = 0x02,
     Fire = 0x03,
     // liquids
-    Water = CELL_TYPE_IS_LIQUID_BIT | 0,
-    Oil = CELL_TYPE_IS_LIQUID_BIT | 1,
+    Water = CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_LIQUID_BIT | 0,
+    Oil = CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_LIQUID_BIT | 1,
     Acid = CELL_TYPE_IS_LIQUID_BIT | 2,
     // solids - stable
     Stone = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | 0,
     Wood = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | 1,
     // solids - powders
-    Sand = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_POWDER_BIT | 0,
+    Sand = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_POWDER_BIT | 0,
 }
 
 impl CellType {

@@ -237,7 +237,7 @@ fn setup(
     let grid = CellGrid {
         top_gass_leak: true,
         acid_reaction_prob: 0.05,
-        neutralize_acid_prob: 0.6,
+        neutralize_acid_prob: 0.1,
         fire_decrease_prob: 0.05,
         smoke_decrease_prob: 0.2,
         smoke_degradation_prob: 0.003,
