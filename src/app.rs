@@ -1,7 +1,31 @@
 // TODO: time not supported for wasm, find som alternative
 //use std::time::{Duration, Instant};
 use bevy::{
-    input::{mouse::MouseWheel, touch::Touch}, log::tracing_subscriber::field::display, prelude::*, reflect::TypePath, render::{render_asset::RenderAssetUsages, render_resource::{self, AsBindGroup, Extent3d, ShaderRef, TextureDimension}, texture::{ImageSampler, ImageSamplerDescriptor}}, sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle}, utils::hashbrown::Equivalent, window::PrimaryWindow
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    input::{mouse::MouseWheel, touch::Touch},
+    log::tracing_subscriber::field::display,
+    prelude::*,
+    reflect::TypePath,
+    render::{
+        render_asset::RenderAssetUsages,
+        render_resource::{
+            self,
+            AsBindGroup,
+            Extent3d,
+            ShaderRef,
+            TextureDimension
+        },
+        texture::{
+            ImageSampler,
+            ImageSamplerDescriptor
+        }}, 
+        sprite::{
+            Material2d,
+            Material2dPlugin,
+            MaterialMesh2dBundle
+        },
+        utils::hashbrown::Equivalent,
+        window::PrimaryWindow
 };
 
 use crate::utils::*;
@@ -18,12 +42,15 @@ pub fn run_sandshrew_app() {
                 primary_window: Some(Window {
                     title: "Sandshrew".into(),
                     name: Some("sandshrew.app".into()),
-                    //resolution: (576., 576.).into(),
+                    resolution: (1280.0 , 820.0).into(),
                     ..default()
                 }),
                 ..default()
             }),
             Material2dPlugin::<CustomMaterial>::default(),
+            // uncomment to diagnose FPS
+            //FrameTimeDiagnosticsPlugin::default(),
+            //LogDiagnosticsPlugin::default(),
         ))
         .add_systems(Startup, setup)
         .add_systems(Update, update_input)
@@ -113,7 +140,7 @@ fn setup(
         color_texture: Some(img_handle.clone()),
     });
 
-    let out_tex_size = 512u32;
+    let out_tex_size = 768u32;
 
     //commands.spawn(NodeBundle {
     //    style: Style {
@@ -435,6 +462,7 @@ fn update_input(
     //let start = Instant::now();
     let mut globals = globals_query.single_mut();
     let window = windows.single();
+    //println!("window size {}, {}", window.width(), window.height());
 
     if keyboard_input.pressed(KeyCode::Digit0) {
         globals.place_cell_type = CellType::Air;
