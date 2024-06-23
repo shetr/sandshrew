@@ -21,7 +21,7 @@ impl GridDisplay {
             let iv = IVec2 { x: iv.x, y: cells.sizes.y - iv.y - 1 };
             let cell_type = cells[iv].cell_type;
             let color_scale = cells[iv].color_scale();
-            let duration = cells[iv].get_duration();
+            let duration = cells[iv].get_timer();
             let mut color = cell_properties[cell_type].get_color_rgba(color_scale, duration);
             if cells[iv].is_on_fire() && cells[iv].uses_fire_color() {
                 color = cell_properties[CellType::Fire].get_color_rgba(color_scale, duration);
