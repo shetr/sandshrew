@@ -12,6 +12,7 @@ use crate::cell::*;
 pub struct CellGrid
 {
     pub top_gass_leak: bool,
+    pub liquid_fall_prob: f32,
     pub acid_reaction_prob: f32,
     pub neutralize_acid_prob: f32,
     pub fire_decrease_prob: f32,
@@ -189,13 +190,18 @@ impl CellGrid
     {
         let fluid_type = self.cells[pos].cell_type;
         let move_dir = if is_liquid { -1 } else { 1 };
-        if rand::thread_rng().gen::<f32>() > self.cell_properties[fluid_type].movement_prob {
+        // gass movement speed
+        if !is_liquid && rand::thread_rng().gen::<f32>() > self.cell_properties[fluid_type].movement_prob {
             return;
         }
         // vertical
         let vert_pos = pos + IVec2::new(0, move_dir);
         if self.cells.is_in_range(vert_pos) {
             if !self.cells[vert_pos].is_solid() && self.compare_densities(self.cells[vert_pos].cell_type, fluid_type, is_liquid) {
+                // liquid fall speed
+                if is_liquid && rand::thread_rng().gen::<f32>() > self.liquid_fall_prob {
+                    return;
+                }
                 if self.rand_fallthrough(vert_pos) {
                     self.swap_cells(pos, vert_pos);
                 }
@@ -203,6 +209,10 @@ impl CellGrid
             }
         } else if !is_liquid && self.top_gass_leak {
             self.cells[pos] = Cell::default_air();
+            return;
+        }
+        // liquid movement speed
+        if is_liquid && rand::thread_rng().gen::<f32>() > self.cell_properties[fluid_type].movement_prob {
             return;
         }
         // diagonal
