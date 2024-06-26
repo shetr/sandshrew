@@ -115,7 +115,10 @@ fn setup(
 ) {
     // let render_texture: Handle<Image> = asset_server.load("textures/green_tex.png");
 
+    let img_size = 200u32;
+    #[cfg(debug_assertions)]
     let img_size = 128u32;
+
     let img_data = vec![255u8; (img_size*img_size*4) as usize];
     let mut img = Image::new(
         Extent3d { width: img_size, height: img_size, depth_or_array_layers: 1 }, 
@@ -140,7 +143,7 @@ fn setup(
         color_texture: Some(img_handle.clone()),
     });
 
-    let out_tex_size = 768u32;
+    let out_tex_size = 4*img_size;
 
     //commands.spawn(NodeBundle {
     //    style: Style {
