@@ -30,19 +30,21 @@ pub type MoveUpdateBits = u16;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Enum, Component)]
 pub enum CellType {
     // gasses
-    Air = 0x00,
-    Smoke = 0x01,
-    FlammableGass = 0x02,
-    Fire = 0x03,
+    Air = 0,
+    Smoke = 1,
+    FlammableGass = 2,
+    Fire = 3,
     // liquids
+    Acid = CELL_TYPE_IS_LIQUID_BIT | 0,
     Water = CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_LIQUID_BIT | 0,
     Oil = CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_LIQUID_BIT | 1,
-    Acid = CELL_TYPE_IS_LIQUID_BIT | 2,
     // solids - stable
+    Glass = CELL_TYPE_IS_SOLID_BIT | 0,
     Stone = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | 0,
     Wood = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | 1,
     // solids - powders
     Sand = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_POWDER_BIT | 0,
+    Ash = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_POWDER_BIT | 1,
 }
 
 impl CellType {
@@ -220,8 +222,9 @@ pub struct CellTypeProperties
 
 pub enum CellColors
 {
-    Centric { color: Color },
-    CentricAlpha { color: Color },
+    CentricRGB { color: Color },
+    CentricRGBA { color: Color },
+    CentricA { color: Color },
     Gradient { from: Color, to: Color },
     DurationGradient { from: Color, to: Color },
 }
@@ -231,12 +234,17 @@ impl CellTypeProperties {
     {
         let dt = (duration as f32) / (self.timer as f32);
         match self.colors {
-            CellColors::Centric { color } => {
+            CellColors::CentricRGB { color } => {
                 let rgb = color.rgb_to_vec3() * color_scale;
                 Vec4::new(rgb.x, rgb.y, rgb.z, 1.0)
             },
-            CellColors::CentricAlpha { color } => {
+            CellColors::CentricRGBA { color } => {
                 color.rgba_to_vec4() * color_scale
+            },
+            CellColors::CentricA { color } => {
+                let mut rgba = color.rgba_to_vec4();
+                rgba.w *= color_scale;
+                rgba
             },
             CellColors::Gradient { from, to } => {
                 let t = self.color_scale_to_t(color_scale);

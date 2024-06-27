@@ -233,12 +233,12 @@ fn setup(
                             add_button(parent, &asset_server, "1 Sand", CellType::Sand);
                             add_button(parent, &asset_server, "2 Water", CellType::Water);
                             add_button(parent, &asset_server, "3 Stone", CellType::Stone);
-                            add_button(parent, &asset_server, "4 Smoke", CellType::Smoke);
-                            add_button(parent, &asset_server, "5 FGass", CellType::FlammableGass);
-                            add_button(parent, &asset_server, "6 Oil", CellType::Oil);
-                            add_button(parent, &asset_server, "7 Fire", CellType::Fire);
-                            add_button(parent, &asset_server, "8 Wood", CellType::Wood);
-                            add_button(parent, &asset_server, "9 Acid", CellType::Acid);
+                            add_button(parent, &asset_server, "4 FGass", CellType::FlammableGass);
+                            add_button(parent, &asset_server, "5 Oil", CellType::Oil);
+                            add_button(parent, &asset_server, "6 Fire", CellType::Fire);
+                            add_button(parent, &asset_server, "7 Wood", CellType::Wood);
+                            add_button(parent, &asset_server, "8 Acid", CellType::Acid);
+                            add_button(parent, &asset_server, "9 Glass", CellType::Glass);
                         });
                 });
             // bevy logo (flex center)
@@ -272,6 +272,7 @@ fn setup(
         fire_decrease_prob: 0.05,
         smoke_decrease_prob: 0.2,
         smoke_degradation_prob: 0.003,
+        wood_flame_ash_prob: 0.3,
         fire_color_prob: 0.9,
         cells: Vector2D::<Cell>::new(
             IVec2 { x: img_size as i32, y: img_size  as i32 },
@@ -280,7 +281,7 @@ fn setup(
         cell_properties: enum_map! {
             CellType::Air => CellTypeProperties {
                 density: 0.5,
-                colors: CellColors::Centric { color: Color::rgb_u8(34, 51, 81) },
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(34, 51, 81) },
                 color_rand_radius: 0.0,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -304,7 +305,7 @@ fn setup(
             },
             CellType::FlammableGass => CellTypeProperties {
                 density: 0.3,
-                colors: CellColors::CentricAlpha { color: Color::rgba(0.3, 0.6, 0.3, 0.2) },
+                colors: CellColors::CentricRGBA { color: Color::rgba(0.3, 0.6, 0.3, 0.2) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.03,
                 movement_prob: 0.15,
@@ -328,7 +329,7 @@ fn setup(
             },
             CellType::Water => CellTypeProperties {
                 density: 2.0,
-                colors: CellColors::Centric { color: Color::rgb_u8(18, 35, 90) },
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(18, 35, 90) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.01,
                 movement_prob: 0.9,
@@ -340,7 +341,7 @@ fn setup(
             },
             CellType::Oil => CellTypeProperties {
                 density: 1.5,
-                colors: CellColors::Centric { color: Color::rgb_u8(10, 10, 10) },
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(10, 10, 10) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.003,
                 movement_prob: 0.5,
@@ -352,7 +353,7 @@ fn setup(
             },
             CellType::Acid => CellTypeProperties {
                 density: 1.0,
-                colors: CellColors::Centric { color: Color::rgb_u8(42, 79, 30) },
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(42, 79, 30) },
                 color_rand_radius: 0.1,
                 color_change_prob: 0.1,
                 movement_prob: 0.8,
@@ -364,7 +365,7 @@ fn setup(
             },
             CellType::Stone => CellTypeProperties {
                 density: 10.0,
-                colors: CellColors::Centric { color: Color::rgb_u8(32, 32, 32) },
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(32, 32, 32) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -376,7 +377,7 @@ fn setup(
             },
             CellType::Wood => CellTypeProperties {
                 density: 10.0,
-                colors: CellColors::Centric { color: Color::rgb_u8(31, 20, 5) },
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(31, 20, 5) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -386,9 +387,33 @@ fn setup(
                 smoke_after_burnout: true,
                 fire_color_prob: 0.5,
             },
+            CellType::Glass => CellTypeProperties {
+                density: 10.0,
+                colors: CellColors::CentricA { color: Color::rgba(0.85, 0.85, 1.0, 0.1) },
+                color_rand_radius: 1.0,
+                color_change_prob: 0.0,
+                movement_prob: 1.0,
+                fallthroug_prob: 0.0,
+                ignite_prob: 0.0,
+                timer: 0,
+                smoke_after_burnout: true,
+                fire_color_prob: 0.0,
+            },
             CellType::Sand => CellTypeProperties {
                 density: 10.0,
-                colors: CellColors::Centric { color: Color::rgb_u8(83, 69, 28) },
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(83, 69, 28) },
+                color_rand_radius: 0.25,
+                color_change_prob: 0.0,
+                movement_prob: 0.95,
+                fallthroug_prob: 0.0,
+                ignite_prob: 0.0,
+                timer: 0,
+                smoke_after_burnout: true,
+                fire_color_prob: 0.0,
+            },
+            CellType::Ash => CellTypeProperties {
+                density: 10.0,
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(26, 25, 25) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 0.95,
@@ -481,22 +506,22 @@ fn update_input(
         globals.place_cell_type = CellType::Stone;
     }
     else if keyboard_input.pressed(KeyCode::Digit4) {
-        globals.place_cell_type = CellType::Smoke;
-    }
-    else if keyboard_input.pressed(KeyCode::Digit5) {
         globals.place_cell_type = CellType::FlammableGass;
     }
-    else if keyboard_input.pressed(KeyCode::Digit6) {
+    else if keyboard_input.pressed(KeyCode::Digit5) {
         globals.place_cell_type = CellType::Oil;
     }
-    else if keyboard_input.pressed(KeyCode::Digit7) {
+    else if keyboard_input.pressed(KeyCode::Digit6) {
         globals.place_cell_type = CellType::Fire;
     }
-    else if keyboard_input.pressed(KeyCode::Digit8) {
+    else if keyboard_input.pressed(KeyCode::Digit7) {
         globals.place_cell_type = CellType::Wood;
     }
-    else if keyboard_input.pressed(KeyCode::Digit9) {
+    else if keyboard_input.pressed(KeyCode::Digit8) {
         globals.place_cell_type = CellType::Acid;
+    }
+    else if keyboard_input.pressed(KeyCode::Digit9) {
+        globals.place_cell_type = CellType::Glass;
     }
 
     for event in mouse_wheel_events.read() {

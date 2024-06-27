@@ -18,6 +18,7 @@ pub struct CellGrid
     pub fire_decrease_prob: f32,
     pub smoke_decrease_prob: f32,
     pub smoke_degradation_prob: f32,
+    pub wood_flame_ash_prob: f32,
     pub fire_color_prob: f32,
     pub cells: Vector2D<Cell>,
     pub cell_properties: EnumMap<CellType, CellTypeProperties>,
@@ -109,13 +110,19 @@ impl CellGrid
     fn swap_cells(&mut self, from_pos: IVec2, to_pos: IVec2)
     {
         let move_update_bits = Cell::dir_to_move_update_bits(to_pos - from_pos);
+        // ensure that movement doesn't exceed 2 units in both axis separately per frame
         if self.cells[to_pos].cell_type != CellType::Air && self.cells[to_pos].is_move_update_not_orhogonal(move_update_bits) {
             return;
         }
+        // water extinguishing flame
+        if self.cells[from_pos].cell_type == CellType::Water && self.cells[to_pos].cell_type == CellType::Fire {
+            self.cells[to_pos] = self.new_cell(CellType::Smoke);
+        }
+        // swap
         let temp_cell = self.cells[from_pos];
         self.cells[from_pos] = self.cells[to_pos];
         self.cells[to_pos] = temp_cell;
-
+        // register move updates
         self.cells[from_pos].move_update(move_update_bits);
         self.cells[to_pos].move_update(move_update_bits);
     }
@@ -323,7 +330,11 @@ impl CellGrid
         flame_timer -= 1;
         if flame_timer <= 0 {
             if self.cell_properties[cell_type].smoke_after_burnout {
-                self.cells[pos] = self.new_cell(CellType::Smoke);
+                if cell_type == CellType::Wood && rand::thread_rng().gen::<f32>() < self.wood_flame_ash_prob {
+                    self.cells[pos] = self.new_cell(CellType::Ash);
+                } else {
+                    self.cells[pos] = self.new_cell(CellType::Smoke);
+                }
             } else {
                 self.cells[pos] = self.new_cell(CellType::Air);
             }
