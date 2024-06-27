@@ -192,6 +192,7 @@ fn setup(
                 .spawn(NodeBundle {
                     style: Style {
                         width: Val::Px(200.),
+                        height: Val::Percent(100.0),
                         border: UiRect::all(Val::Px(2.)),
                         ..default()
                     },
@@ -204,7 +205,10 @@ fn setup(
                         .spawn(NodeBundle {
                             style: Style {
                                 width: Val::Percent(100.),
+                                height: Val::Percent(100.0),
                                 flex_direction: FlexDirection::Column,
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 padding: UiRect::all(Val::Px(5.)),
                                 row_gap: Val::Px(5.),
                                 ..default()
@@ -241,7 +245,7 @@ fn setup(
                             add_button(parent, &asset_server, "9 Glass", CellType::Glass);
                         });
                 });
-            // bevy logo (flex center)
+            // render cell grid image
             parent
                 .spawn(NodeBundle {
                     style: Style {
