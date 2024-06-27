@@ -133,6 +133,9 @@ impl CellGrid
         if cell_type == CellType::Fire {
             cell.ignite();
         }
+        if cell_type == CellType::Smoke {
+            cell.set_timer(self.cell_properties[cell_type].timer);
+        }
         cell
     }
 
@@ -286,7 +289,6 @@ impl CellGrid
 
     fn update_fire(&mut self, pos: IVec2) {
         let cell_type = self.cells[pos].cell_type;
-        let mut is_air_nearby = false;
         if !self.cells[pos].was_ignited_this_frame() {
             // change color
             if rand::thread_rng().gen::<f32>() < self.cell_properties[CellType::Fire].color_change_prob {
@@ -307,12 +309,10 @@ impl CellGrid
                         continue;
                     }
                     let cell_type = self.cells[ignite_pos].cell_type;
-                    let is_air = cell_type == CellType::Air;
-                    is_air_nearby |= is_air;
                     if rand::thread_rng().gen::<f32>() > self.cell_properties[cell_type].ignite_prob {
                         continue;
                     }
-                    if is_air {
+                    if cell_type == CellType::Air {
                         if self.cells[pos].cell_type != CellType::Fire {
                             self.cells[ignite_pos] = self.new_cell(CellType::Fire);
                         }
@@ -321,13 +321,6 @@ impl CellGrid
                     }
                 }
             }
-        } else {
-            is_air_nearby = true;
-        }
-        // extinguish fire
-        if !is_air_nearby && rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].extinuguish_prob {
-            self.cells[pos].extinguish();
-            return;
         }
         // decrease fire
         if rand::thread_rng().gen::<f32>() > self.fire_decrease_prob {

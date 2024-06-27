@@ -219,7 +219,6 @@ pub struct CellTypeProperties
     pub movement_prob: f32,
     pub fallthroug_prob: f32,
     pub ignite_prob: f32,
-    pub extinuguish_prob: f32,
     // max value CELL_MAX_TIMER
     pub timer: u16,
     pub smoke_after_burnout: bool,
