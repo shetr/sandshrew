@@ -200,6 +200,11 @@ impl Cell {
         self.custom_data |= CELL_ON_FIRE_BIT;
     }
 
+    pub fn extinguish(&mut self) {
+        self.dont_use_fire_color();
+        self.custom_data &= !CELL_ON_FIRE_BIT;
+    }
+
     pub fn set_timer(&mut self, duration: u16) {
         self.custom_data = duration | (self.custom_data & !CELL_TIMER_BITS);
     }
@@ -214,6 +219,7 @@ pub struct CellTypeProperties
     pub movement_prob: f32,
     pub fallthroug_prob: f32,
     pub ignite_prob: f32,
+    pub extinuguish_prob: f32,
     // max value CELL_MAX_TIMER
     pub timer: u16,
     pub smoke_after_burnout: bool,
