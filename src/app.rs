@@ -1,7 +1,7 @@
 // TODO: time not supported for wasm, find som alternative
 //use std::time::{Duration, Instant};
 use bevy::{
-    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, input::{mouse::MouseWheel, touch::Touch}, log::tracing_subscriber::field::display, prelude::*, reflect::TypePath, render::{
+    diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, input::{mouse::MouseWheel, touch::Touch}, log::tracing_subscriber::field::display, prelude::*, reflect::TypePath, render::{
         render_asset::RenderAssetUsages,
         render_resource::{
             self,
@@ -41,12 +41,13 @@ pub fn run_sandshrew_app() {
             }),
             Material2dPlugin::<CustomMaterial>::default(),
             // uncomment to diagnose FPS
-            //FrameTimeDiagnosticsPlugin::default(),
+            FrameTimeDiagnosticsPlugin::default(),
             //LogDiagnosticsPlugin::default(),
         ))
         .add_systems(Startup, setup)
         .add_systems(Update, update_input)
         .add_systems(Update, button_interactions)
+        .add_systems(Update, update_fps)
         .add_systems(Update, update_cells)
         .add_systems(Update, draw_to_out_img)
         .run();
@@ -65,6 +66,14 @@ struct GameGlobals
     display: GridDisplay,
     place_cell_type: CellType,
     replace_solids: bool,
+}
+
+#[derive(Component)]
+struct FpsText;
+
+#[derive(Component)]
+struct FpsDisplayTimer {
+    timer: Timer,
 }
 
 fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, name: &str, cell_type: CellType)
@@ -135,6 +144,11 @@ fn setup(
     });
 
     let out_tex_size = 4*img_size;
+
+    commands.spawn(FpsDisplayTimer { timer: Timer::from_seconds(
+        0.25,
+        TimerMode::Repeating,
+    )});
 
     commands
         .spawn(NodeBundle {
@@ -250,8 +264,8 @@ fn setup(
                         width: Val::Percent(100.),
                         height: Val::Percent(100.0),
                         flex_direction: FlexDirection::Column,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::FlexStart,
+                        align_items: AlignItems::FlexStart,
                         padding: UiRect::all(Val::Px(5.)),
                         row_gap: Val::Px(5.),
                         ..default()
@@ -260,17 +274,29 @@ fn setup(
                     ..default()
                 })
                 .with_children(|parent| {
-                    // text
+                    // FPS counter
                     parent.spawn((
-                        TextBundle::from_section(
-                            "Test text",
-                            TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                font_size: 40.0,
-                                ..default()
-                            },
-                        ),
-                        Label,
+                        // Create a TextBundle that has a Text with a list of sections.
+                        TextBundle::from_sections([
+                            TextSection::new(
+                                "FPS: ",
+                                TextStyle {
+                                    // This font is loaded and will be used instead of the default font.
+                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                    font_size: 40.0,
+                                    ..default()
+                                },
+                            ),
+                            TextSection::new(
+                                "60",
+                                TextStyle {
+                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                    font_size: 40.0,
+                                    color: Color::GOLD,
+                                }
+                            ),
+                        ]),
+                        FpsText,
                     ));
                 });
             });
@@ -606,6 +632,24 @@ fn button_interactions(
                 } else {
                     border_color.0 = Color::BLACK;
                     //border_color.0 = globals.grid.cell_properties[*cell_type].color;
+                }
+            }
+        }
+    }
+}
+
+fn update_fps(
+    diagnostics: Res<DiagnosticsStore>,
+    time: Res<Time>,
+    mut text_query: Query<&mut Text, With<FpsText>>,
+    mut timer_query: Query<&mut FpsDisplayTimer>,
+) {
+    if timer_query.single_mut().timer.tick(time.delta()).just_finished() {
+        for mut text in &mut text_query {
+            if let Some(fps) = diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS) {
+                if let Some(value) = fps.smoothed() {
+                    // Update the value of the second section
+                    text.sections[1].value = format!("{value:.0}");
                 }
             }
         }
