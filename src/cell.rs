@@ -235,9 +235,9 @@ pub enum CellColors
 }
 
 impl CellTypeProperties {
-    pub fn get_color_rgba(&self, color_scale: f32, duration: u16) -> Vec4
+    pub fn get_color_rgba(&self, color_scale: f32, timer: u16) -> Vec4
     {
-        let dt = (duration as f32) / (self.timer as f32);
+        let dt = (timer as f32) / (self.timer as f32);
         match self.colors {
             CellColors::CentricRGB { color } => {
                 let rgb = color.rgb_to_vec3() * color_scale;
@@ -259,6 +259,16 @@ impl CellTypeProperties {
                 (from.rgba_to_vec4() * (1.0 - dt) + to.rgba_to_vec4() * dt) * color_scale
             },
         }
+    }
+
+    pub fn get_default_color_scaled(&self, color_scale: f32) -> Color {
+        let rgba = self.get_color_rgba(color_scale, self.timer);
+        Color::Rgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }
+    }
+
+    pub fn get_default_color(&self) -> Color {
+        let rgba = self.get_color_rgba(1.0, self.timer);
+        Color::Rgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }
     }
 
     fn color_scale_to_t(&self, color_scale: f32) -> f32 {

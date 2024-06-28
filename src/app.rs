@@ -117,12 +117,13 @@ fn setup(
         0.25,
         TimerMode::Repeating,
     )});
+    
+    let grid = get_default_cell_grid(img_size);
 
     let buttons_config = get_cell_type_buttons_config();
 
-    setup_ui(&mut commands, &asset_server, out_tex_size, img_handle.clone(), &buttons_config);           
+    setup_ui(&mut commands, &asset_server, out_tex_size, img_handle.clone(), &buttons_config, &grid.cell_properties);           
 
-    let grid = get_default_cell_grid(img_size);
 
     let display = GridDisplay {
         //shallow_water_color: Color::rgb_u8(27, 52, 135),

@@ -16,14 +16,16 @@ pub fn cell_type_button_interactions(
 ) {
     let mut globals = globals_query.single_mut();
     for (interaction, mut color, mut border_color, cell_type) in &mut interaction_query {
+        let cell_color = globals.grid.cell_properties[*cell_type].get_default_color();
+        let hover_cell_color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(0.75);
         match *interaction {
             Interaction::Pressed => {
-                *color = CELL_BUTTON_BACKGROUND_COLOR.into();
+                *color = cell_color.into();
                 border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 globals.place_cell_type = *cell_type;
             }
             Interaction::Hovered => {
-                *color = CELL_BUTTON_HOVER_BACKGROUND_COLOR.into();
+                *color = hover_cell_color.into();
                 if globals.place_cell_type == *cell_type {
                     border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
@@ -31,12 +33,12 @@ pub fn cell_type_button_interactions(
                 }
             }
             Interaction::None => {
-                *color = CELL_BUTTON_BACKGROUND_COLOR.into();
+                *color = cell_color.into();
                 if globals.place_cell_type == *cell_type {
                     border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
                     border_color.0 = CELL_BUTTON_BORDER_COLOR;
-                    //border_color.0 = globals.grid.cell_properties[*cell_type].color;
+                    //border_color.0 = cell_color;
                 }
             }
         }

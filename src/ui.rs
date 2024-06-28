@@ -1,4 +1,5 @@
 use bevy::{prelude::*, ui::RelativeCursorPosition};
+use enum_map::EnumMap;
 
 use crate::cell::*;
 
@@ -11,25 +12,19 @@ pub struct CellTypeButtonConfig
     name: String,
 }
 
-pub const CELL_BUTTON_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
 pub const CELL_BUTTON_BORDER_COLOR: Color = Color::BLACK;
+pub const CELL_BUTTON_HOVER_BORDER_COLOR: Color = Color::rgb(0.5, 0.5, 0.5);
+pub const CELL_BUTTON_SELECTED_BORDER_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
+
 pub const CELL_BUTTON_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
-
-pub const CELL_BUTTON_HOVER_BACKGROUND_COLOR: Color = Color::rgb(0.25, 0.25, 0.25);
-pub const CELL_BUTTON_HOVER_BORDER_COLOR: Color = Color::WHITE;
-pub const CELL_BUTTON_HOVER_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
-
-pub const CELL_BUTTON_SELECTED_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
-pub const CELL_BUTTON_SELECTED_BORDER_COLOR: Color = Color::RED;
-pub const CELL_BUTTON_SELECTED_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
 
 pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
 {
     vec![
-        CellTypeButtonConfig {
-            cell_type: CellType::Air,
-            name: String::from("Air"),
-        },
+        //CellTypeButtonConfig {
+        //    cell_type: CellType::Air,
+        //    name: String::from("Air"),
+        //},
         CellTypeButtonConfig {
             cell_type: CellType::Sand,
             name: String::from("Sand"),
@@ -70,10 +65,10 @@ pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
             cell_type: CellType::Ash,
             name: String::from("Ash"),
         },
-        CellTypeButtonConfig {
-            cell_type: CellType::Smoke,
-            name: String::from("Smoke"),
-        },
+        //CellTypeButtonConfig {
+        //    cell_type: CellType::Smoke,
+        //    name: String::from("Smoke"),
+        //},
     ]
 }
 
@@ -82,7 +77,8 @@ pub fn setup_ui(
     asset_server: &Res<AssetServer>,
     out_tex_size: u32,
     img_handle: Handle<Image>,
-    buttons_config: &Vec<CellTypeButtonConfig>
+    buttons_config: &Vec<CellTypeButtonConfig>,
+    cell_properties: &EnumMap<CellType, CellTypeProperties>,
 ) {
     commands
         .spawn(NodeBundle {
@@ -141,7 +137,7 @@ pub fn setup_ui(
                     ));
                     // add buttons
                     for button_config in buttons_config {
-                        add_button(parent, &asset_server, button_config);
+                        add_button(parent, &asset_server, cell_properties, button_config);
                     }
                 });
             });
@@ -231,8 +227,15 @@ pub fn setup_ui(
 }
 
 
-fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, button_config: &CellTypeButtonConfig)
-{
+fn add_button(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    cell_properties: &EnumMap<CellType, CellTypeProperties>,
+    button_config: &CellTypeButtonConfig
+) {
+    let cell_color = cell_properties[button_config.cell_type].get_default_color();
+    //let rgb = 1.0 - cell_color.rgb_to_vec3();
+    //let text_color = Color::rgb(rgb.x, rgb.y, rgb.z);
     parent.spawn((ButtonBundle {
         style: Style {
             width: Val::Px(150.0),
@@ -245,7 +248,7 @@ fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, button
             ..default()
         },
         border_color: BorderColor(CELL_BUTTON_BORDER_COLOR),
-        background_color: CELL_BUTTON_BACKGROUND_COLOR.into(),
+        background_color: cell_color.into(),
         ..default()
     }, button_config.cell_type
     ))
