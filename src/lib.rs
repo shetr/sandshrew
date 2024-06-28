@@ -6,5 +6,6 @@ mod app;
 mod ui;
 mod input;
 mod grid_config;
+mod ui_control;
 
 pub use app::*;
