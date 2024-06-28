@@ -1,12 +1,7 @@
 // TODO: time not supported for wasm, find som alternative
 //use std::time::{Duration, Instant};
 use bevy::{
-    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-    input::{mouse::MouseWheel, touch::Touch},
-    log::tracing_subscriber::field::display,
-    prelude::*,
-    reflect::TypePath,
-    render::{
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, input::{mouse::MouseWheel, touch::Touch}, log::tracing_subscriber::field::display, prelude::*, reflect::TypePath, render::{
         render_asset::RenderAssetUsages,
         render_resource::{
             self,
@@ -18,14 +13,11 @@ use bevy::{
         texture::{
             ImageSampler,
             ImageSamplerDescriptor
-        }}, 
-        sprite::{
+        }}, sprite::{
             Material2d,
             Material2dPlugin,
             MaterialMesh2dBundle
-        },
-        utils::hashbrown::Equivalent,
-        window::PrimaryWindow
+        }, ui::RelativeCursorPosition, utils::hashbrown::Equivalent, window::PrimaryWindow
 };
 
 use crate::utils::*;
@@ -108,7 +100,6 @@ fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, name: 
 // Setup a simple 2d scene
 fn setup(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<CustomMaterial>>,
     asset_server: Res<AssetServer>,
@@ -145,36 +136,6 @@ fn setup(
 
     let out_tex_size = 4*img_size;
 
-    //commands.spawn(NodeBundle {
-    //    style: Style {
-    //        width: Val::Percent(100.0),
-    //        height: Val::Percent(100.0),
-    //        justify_content: JustifyContent::Center,
-    //        align_items: AlignItems::Center,
-    //        ..default()
-    //    },
-    //    ..default()
-    //}).with_children(|parent| {
-    //    // left vertical fill (border)
-    //    parent
-    //        .spawn(MaterialMesh2dBundle {
-    //            mesh: meshes.add(Rectangle::default()).into(),
-    //            transform: Transform::default().with_scale(Vec3::splat(out_tex_size as f32)),
-    //            material: material_handle.clone(),
-    //            ..default()
-    //        });
-    //    }
-    //);
-
-
-    // quad
-    //commands.spawn(MaterialMesh2dBundle {
-    //        mesh: meshes.add(Rectangle::default()).into(),
-    //        transform: Transform::default().with_scale(Vec3::splat(out_tex_size as f32)),
-    //        material: material_handle.clone(),
-    //        ..default()
-    //});
-
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -188,83 +149,131 @@ fn setup(
         })
         .with_children(|parent| {
             // left vertical fill (border)
-            parent
-                .spawn(NodeBundle {
+            parent.spawn(NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    border: UiRect::all(Val::Px(2.)),
+                    ..default()
+                },
+                background_color: Color::rgb(0.65, 0.65, 0.65).into(),
+                ..default()
+            })
+            .with_children(|parent| {
+                // left vertical fill (content)
+                parent.spawn(NodeBundle {
                     style: Style {
-                        width: Val::Px(200.),
+                        width: Val::Percent(100.),
                         height: Val::Percent(100.0),
-                        border: UiRect::all(Val::Px(2.)),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        padding: UiRect::all(Val::Px(10.)),
+                        row_gap: Val::Px(5.),
                         ..default()
                     },
-                    background_color: Color::rgb(0.65, 0.65, 0.65).into(),
+                    background_color: Color::rgb(0.15, 0.15, 0.15).into(),
                     ..default()
                 })
                 .with_children(|parent| {
-                    // left vertical fill (content)
-                    parent
-                        .spawn(NodeBundle {
-                            style: Style {
-                                width: Val::Percent(100.),
-                                height: Val::Percent(100.0),
-                                flex_direction: FlexDirection::Column,
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                padding: UiRect::all(Val::Px(5.)),
-                                row_gap: Val::Px(5.),
+                    // text
+                    parent.spawn((
+                        TextBundle::from_section(
+                            "Material:",
+                            TextStyle {
+                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font_size: 40.0,
                                 ..default()
                             },
-                            background_color: Color::rgb(0.15, 0.15, 0.15).into(),
-                            ..default()
-                        })
-                        .with_children(|parent| {
-                            // text
-                            parent.spawn((
-                                TextBundle::from_section(
-                                    "Material:",
-                                    TextStyle {
-                                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                        font_size: 40.0,
-                                        ..default()
-                                    },
-                                ),
-                                // Because this is a distinct label widget and
-                                // not button/list item text, this is necessary
-                                // for accessibility to treat the text accordingly.
-                                Label,
-                            ));
+                        ),
+                        // Because this is a distinct label widget and
+                        // not button/list item text, this is necessary
+                        // for accessibility to treat the text accordingly.
+                        Label,
+                    ));
 
-                            add_button(parent, &asset_server, "0 Air", CellType::Air);
-                            add_button(parent, &asset_server, "1 Sand", CellType::Sand);
-                            add_button(parent, &asset_server, "2 Water", CellType::Water);
-                            add_button(parent, &asset_server, "3 Stone", CellType::Stone);
-                            add_button(parent, &asset_server, "4 FGass", CellType::FlammableGass);
-                            add_button(parent, &asset_server, "5 Oil", CellType::Oil);
-                            add_button(parent, &asset_server, "6 Fire", CellType::Fire);
-                            add_button(parent, &asset_server, "7 Wood", CellType::Wood);
-                            add_button(parent, &asset_server, "8 Acid", CellType::Acid);
-                            add_button(parent, &asset_server, "9 Glass", CellType::Glass);
-                        });
+                    add_button(parent, &asset_server, "0 Air", CellType::Air);
+                    add_button(parent, &asset_server, "1 Sand", CellType::Sand);
+                    add_button(parent, &asset_server, "2 Water", CellType::Water);
+                    add_button(parent, &asset_server, "3 Stone", CellType::Stone);
+                    add_button(parent, &asset_server, "4 FGass", CellType::FlammableGass);
+                    add_button(parent, &asset_server, "5 Oil", CellType::Oil);
+                    add_button(parent, &asset_server, "6 Fire", CellType::Fire);
+                    add_button(parent, &asset_server, "7 Wood", CellType::Wood);
+                    add_button(parent, &asset_server, "8 Acid", CellType::Acid);
+                    add_button(parent, &asset_server, "9 Glass", CellType::Glass);
                 });
+            });
             // render cell grid image
-            parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        position_type: PositionType::Absolute,
-                        align_items: AlignItems::FlexStart,
+            parent.spawn(NodeBundle {
+                style: Style {
+                    width: Val::Px((out_tex_size + 20) as f32),
+                    height: Val::Percent(100.0),
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                ..default()
+            }).with_children(|parent| {
+                parent.spawn((
+                    NodeBundle{
+                        style: Style {
+                            height: Val::Px(out_tex_size as f32),
+                            width: Val::Px(out_tex_size as f32),
+                            margin: UiRect::all(Val::Px(10.)),
+                            ..default()
+                        },
+                        background_color: Color::WHITE.into(),
                         ..default()
                     },
+                    UiImage::new(img_handle.clone()),
+                    RelativeCursorPosition::default(),
+                ));
+            });
+            // right tab
+            parent.spawn(NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    border: UiRect::all(Val::Px(2.)),
                     ..default()
-                }).with_children(|parent| {
-                    // left vertical fill (border)
-                    parent
-                        .spawn(MaterialMesh2dBundle {
-                            mesh: meshes.add(Rectangle::default()).into(),
-                            transform: Transform::default().with_scale(Vec3::splat(out_tex_size as f32)),
-                            material: material_handle.clone(),
-                            ..default()
-                        });
-                    }
-                );
+                },
+                background_color: Color::rgb(0.65, 0.65, 0.65).into(),
+                ..default()
+            })
+            .with_children(|parent| {
+                // left vertical fill (content)
+                parent.spawn(NodeBundle {
+                    style: Style {
+                        width: Val::Percent(100.),
+                        height: Val::Percent(100.0),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        padding: UiRect::all(Val::Px(5.)),
+                        row_gap: Val::Px(5.),
+                        ..default()
+                    },
+                    background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                    ..default()
+                })
+                .with_children(|parent| {
+                    // text
+                    parent.spawn((
+                        TextBundle::from_section(
+                            "Test text",
+                            TextStyle {
+                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font_size: 40.0,
+                                ..default()
+                            },
+                        ),
+                        Label,
+                    ));
+                });
+            });
         });
            
 
@@ -452,16 +461,13 @@ fn setup(
     ));
 }
 
-fn get_out_img_cursor_pos(window: &Window, globals: &GameGlobals) -> Option<IVec2>
+fn get_out_img_cursor_pos(relative_cursor_position: &RelativeCursorPosition, globals: &GameGlobals) -> Option<IVec2>
 {
-    let window_size = Vec2::new(window.width(), window.height());
-    if let Some(win_position) = window.cursor_position() {
-        let min_pos = (window_size - Vec2::splat(globals.out_tex_size as f32)) * 0.5;
-        let max_pos = min_pos + Vec2::splat(globals.out_tex_size as f32);
-        if win_position.x >= min_pos.x && win_position.y >= min_pos.y && win_position.x <= max_pos.x && win_position.y <= max_pos.y {
-            let cell_size = (globals.out_tex_size / globals.img_size) as f32;
-            let cell_pos = ((win_position - min_pos) / cell_size).as_ivec2();
+    if let Some(rel_cursor_position) = relative_cursor_position.normalized {
+        let cell_pos = (rel_cursor_position * (globals.img_size as f32)).as_ivec2();
+        if cell_pos.x >= 0 && cell_pos.y >= 0 && cell_pos.x < (globals.img_size as i32) && cell_pos.y < (globals.img_size as i32) {
             let cursor_pos = IVec2::new(cell_pos.x, (globals.img_size as i32) - cell_pos.y - 1);
+            println!("cursor_pos {}, {}", cursor_pos.x, cursor_pos.y);
             return Some(cursor_pos);
         }
     }
@@ -491,10 +497,12 @@ fn update_input(
     mut mouse_wheel_events: EventReader<MouseWheel>,
     touches: Res<Touches>,
     windows: Query<&Window, With<PrimaryWindow>>,
+    relative_cursor_position_query: Query<&RelativeCursorPosition>,
 ) {
     //let start = Instant::now();
     let mut globals = globals_query.single_mut();
     let window = windows.single();
+    let relative_cursor_position = relative_cursor_position_query.single();
     //println!("window size {}, {}", window.width(), window.height());
 
     if keyboard_input.pressed(KeyCode::Digit0) {
@@ -539,7 +547,7 @@ fn update_input(
     }
 
     // add cells with mouse
-    if let Some(cursor_pos) = get_out_img_cursor_pos(window, &globals) {
+    if let Some(cursor_pos) = get_out_img_cursor_pos(relative_cursor_position, &globals) {
         if mouse_button.pressed(MouseButton::Left) {
             let radius = globals.brush_radius;
             let place_cell_type = globals.place_cell_type;
@@ -622,16 +630,16 @@ fn update_cells(mut globals_query: Query<&mut GameGlobals>)
 fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<CustomMaterial>>,
     globals_query: Query<&GameGlobals>,
-    windows: Query<&Window, With<PrimaryWindow>>,
+    relative_cursor_position_query: Query<&RelativeCursorPosition>,
     ) {
     //let start = Instant::now();
     let globals = globals_query.single();
     let image = images.get_mut(globals.render_image.clone()).unwrap();
-    let window = windows.single();
+    let relative_cursor_position = relative_cursor_position_query.single();
 
     let material = materials.get_mut(globals.material_handle.clone()).unwrap();
     globals.display.display(&globals.grid.cells, &globals.grid.cell_properties, image);
-    if let Some(cursor_pos) = get_out_img_cursor_pos(window, &globals) {
+    if let Some(cursor_pos) = get_out_img_cursor_pos(relative_cursor_position, &globals) {
         globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, globals.brush_radius);
     }
     material.color_texture = Some(globals.render_image.clone());
