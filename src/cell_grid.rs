@@ -16,6 +16,7 @@ pub struct CellGrid
     pub acid_reaction_prob: f32,
     pub neutralize_acid_prob: f32,
     pub fire_decrease_prob: f32,
+    pub fire_solid_extinguish_prob: f32,
     pub smoke_decrease_prob: f32,
     pub smoke_degradation_prob: f32,
     pub wood_flame_ash_prob: f32,
@@ -291,6 +292,7 @@ impl CellGrid
 
     fn update_fire(&mut self, pos: IVec2) {
         let cell_type = self.cells[pos].cell_type;
+        let mut is_gass_neirby = false;
         if !self.cells[pos].was_ignited_this_frame() {
             // change color
             if rand::thread_rng().gen::<f32>() < self.cell_properties[CellType::Fire].color_change_prob {
@@ -307,7 +309,13 @@ impl CellGrid
             for y in -1..2 {
                 for x in -1..2 {
                     let ignite_pos = pos + IVec2::new(x, y);
-                    if x == 0 && y == 0 || !self.cells.is_in_range(ignite_pos) || self.cells[ignite_pos].is_on_fire() {
+                    if x == 0 && y == 0 || !self.cells.is_in_range(ignite_pos) {
+                        continue;
+                    }
+                    if self.cells[ignite_pos].is_gass() {
+                        is_gass_neirby = true;
+                    }
+                    if self.cells[ignite_pos].is_on_fire() {
                         continue;
                     }
                     let cell_type = self.cells[ignite_pos].cell_type;
@@ -323,6 +331,13 @@ impl CellGrid
                     }
                 }
             }
+        } else {
+            is_gass_neirby = true;
+        }
+        // extinguish solids without gass neirby
+        if self.cells[pos].is_solid() && !is_gass_neirby && rand::thread_rng().gen::<f32>() < self.fire_solid_extinguish_prob {
+            self.cells[pos].extinguish();
+            return;
         }
         // decrease fire
         if rand::thread_rng().gen::<f32>() > self.fire_decrease_prob {
@@ -332,11 +347,13 @@ impl CellGrid
         flame_timer -= 1;
         if flame_timer <= 0 {
             if self.cell_properties[cell_type].smoke_after_burnout {
-                if cell_type == CellType::Wood && rand::thread_rng().gen::<f32>() < self.wood_flame_ash_prob {
-                    self.cells[pos] = self.new_cell(CellType::Ash);
-                } else {
-                    self.cells[pos] = self.new_cell(CellType::Smoke);
-                }
+                // removing ash for now
+                //if cell_type == CellType::Wood && rand::thread_rng().gen::<f32>() < self.wood_flame_ash_prob {
+                //    self.cells[pos] = self.new_cell(CellType::Ash);
+                //} else {
+                //    self.cells[pos] = self.new_cell(CellType::Smoke);
+                //}
+                self.cells[pos] = self.new_cell(CellType::Smoke);
             } else {
                 self.cells[pos] = self.new_cell(CellType::Air);
             }
