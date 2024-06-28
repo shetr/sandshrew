@@ -467,7 +467,6 @@ fn get_out_img_cursor_pos(relative_cursor_position: &RelativeCursorPosition, glo
         let cell_pos = (rel_cursor_position * (globals.img_size as f32)).as_ivec2();
         if cell_pos.x >= 0 && cell_pos.y >= 0 && cell_pos.x < (globals.img_size as i32) && cell_pos.y < (globals.img_size as i32) {
             let cursor_pos = IVec2::new(cell_pos.x, (globals.img_size as i32) - cell_pos.y - 1);
-            println!("cursor_pos {}, {}", cursor_pos.x, cursor_pos.y);
             return Some(cursor_pos);
         }
     }
