@@ -49,7 +49,7 @@ pub fn update_input(
     if keyboard_input.pressed(KeyCode::Digit0) {
         globals.place_cell_type = CellType::Air;
     }
-    if keyboard_input.pressed(KeyCode::Digit1) {
+    else if keyboard_input.pressed(KeyCode::Digit1) {
         globals.place_cell_type = CellType::Sand;
     }
     else if keyboard_input.pressed(KeyCode::Digit2) {

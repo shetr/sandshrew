@@ -5,9 +5,85 @@ use crate::cell::*;
 #[derive(Component)]
 pub struct FpsText;
 
-
-pub fn setup_ui(commands: &mut Commands, asset_server: &Res<AssetServer>, out_tex_size: u32, img_handle: Handle<Image>)
+pub struct CellTypeButtonConfig
 {
+    cell_type: CellType,
+    name: String,
+}
+
+pub const CELL_BUTTON_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
+pub const CELL_BUTTON_BORDER_COLOR: Color = Color::BLACK;
+pub const CELL_BUTTON_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+
+pub const CELL_BUTTON_HOVER_BACKGROUND_COLOR: Color = Color::rgb(0.25, 0.25, 0.25);
+pub const CELL_BUTTON_HOVER_BORDER_COLOR: Color = Color::WHITE;
+pub const CELL_BUTTON_HOVER_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+
+pub const CELL_BUTTON_SELECTED_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
+pub const CELL_BUTTON_SELECTED_BORDER_COLOR: Color = Color::RED;
+pub const CELL_BUTTON_SELECTED_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+
+pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
+{
+    vec![
+        CellTypeButtonConfig {
+            cell_type: CellType::Air,
+            name: String::from("Air"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Sand,
+            name: String::from("Sand"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Water,
+            name: String::from("Water"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Stone,
+            name: String::from("Stone"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::FlammableGass,
+            name: String::from("FGass"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Oil,
+            name: String::from("Oil"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Fire,
+            name: String::from("Fire"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Wood,
+            name: String::from("Wood"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Acid,
+            name: String::from("Acid"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Glass,
+            name: String::from("Glass"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Ash,
+            name: String::from("Ash"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Smoke,
+            name: String::from("Smoke"),
+        },
+    ]
+}
+
+pub fn setup_ui(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    out_tex_size: u32,
+    img_handle: Handle<Image>,
+    buttons_config: &Vec<CellTypeButtonConfig>
+) {
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -63,17 +139,10 @@ pub fn setup_ui(commands: &mut Commands, asset_server: &Res<AssetServer>, out_te
                         // for accessibility to treat the text accordingly.
                         Label,
                     ));
-
-                    add_button(parent, &asset_server, "0 Air", CellType::Air);
-                    add_button(parent, &asset_server, "1 Sand", CellType::Sand);
-                    add_button(parent, &asset_server, "2 Water", CellType::Water);
-                    add_button(parent, &asset_server, "3 Stone", CellType::Stone);
-                    add_button(parent, &asset_server, "4 FGass", CellType::FlammableGass);
-                    add_button(parent, &asset_server, "5 Oil", CellType::Oil);
-                    add_button(parent, &asset_server, "6 Fire", CellType::Fire);
-                    add_button(parent, &asset_server, "7 Wood", CellType::Wood);
-                    add_button(parent, &asset_server, "8 Acid", CellType::Acid);
-                    add_button(parent, &asset_server, "9 Glass", CellType::Glass);
+                    // add buttons
+                    for button_config in buttons_config {
+                        add_button(parent, &asset_server, button_config);
+                    }
                 });
             });
             // render cell grid image
@@ -162,7 +231,7 @@ pub fn setup_ui(commands: &mut Commands, asset_server: &Res<AssetServer>, out_te
 }
 
 
-fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, name: &str, cell_type: CellType)
+fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, button_config: &CellTypeButtonConfig)
 {
     parent.spawn((ButtonBundle {
         style: Style {
@@ -175,18 +244,18 @@ fn add_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, name: 
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: BorderColor(Color::BLACK),
-        background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+        border_color: BorderColor(CELL_BUTTON_BORDER_COLOR),
+        background_color: CELL_BUTTON_BACKGROUND_COLOR.into(),
         ..default()
-    }, cell_type
+    }, button_config.cell_type
     ))
     .with_children(|parent| {
         parent.spawn(TextBundle::from_section(
-            name,
+            &button_config.name,
             TextStyle {
                 font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                 font_size: 20.0,
-                color: Color::rgb(0.9, 0.9, 0.9),
+                color: CELL_BUTTON_TEXT_COLOR,
             },
         ));
     });

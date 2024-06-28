@@ -3,7 +3,6 @@ use enum_map::enum_map;
 
 use crate::{cell::*, cell_grid::*, utils::*};
 
-
 pub fn get_default_cell_grid(img_size: u32) -> CellGrid
 {
     CellGrid {

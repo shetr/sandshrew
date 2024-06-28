@@ -58,6 +58,7 @@ pub struct GameGlobals
 {
     pub render_image: Handle<Image>,
     pub material_handle: Handle<CustomMaterial>,
+    pub buttons_config: Vec<CellTypeButtonConfig>,
     pub img_size: u32,
     pub out_tex_size: u32,
     pub frame_num: usize,
@@ -117,7 +118,9 @@ fn setup(
         TimerMode::Repeating,
     )});
 
-    setup_ui(&mut commands, &asset_server, out_tex_size, img_handle.clone());           
+    let buttons_config = get_cell_type_buttons_config();
+
+    setup_ui(&mut commands, &asset_server, out_tex_size, img_handle.clone(), &buttons_config);           
 
     let grid = get_default_cell_grid(img_size);
 
@@ -131,6 +134,7 @@ fn setup(
         GameGlobals {
             render_image: img_handle,
             material_handle,
+            buttons_config,
             img_size,
             out_tex_size,
             frame_num: 0,

@@ -1,6 +1,6 @@
 use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, prelude::*};
 
-use crate::{cell::CellType, ui::FpsText, FpsDisplayTimer, GameGlobals};
+use crate::{cell::CellType, ui::*, FpsDisplayTimer, GameGlobals};
 
 pub fn cell_type_button_interactions(
     mut globals_query: Query<&mut GameGlobals>,
@@ -18,24 +18,24 @@ pub fn cell_type_button_interactions(
     for (interaction, mut color, mut border_color, cell_type) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                *color = Color::rgb(0.15, 0.15, 0.15).into();
-                border_color.0 = Color::RED;
+                *color = CELL_BUTTON_BACKGROUND_COLOR.into();
+                border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 globals.place_cell_type = *cell_type;
             }
             Interaction::Hovered => {
-                *color = Color::rgb(0.25, 0.25, 0.25).into();
+                *color = CELL_BUTTON_HOVER_BACKGROUND_COLOR.into();
                 if globals.place_cell_type == *cell_type {
-                    border_color.0 = Color::RED;
+                    border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
-                    border_color.0 = Color::WHITE;
+                    border_color.0 = CELL_BUTTON_HOVER_BORDER_COLOR;
                 }
             }
             Interaction::None => {
-                *color = Color::rgb(0.15, 0.15, 0.15).into();
+                *color = CELL_BUTTON_BACKGROUND_COLOR.into();
                 if globals.place_cell_type == *cell_type {
-                    border_color.0 = Color::RED;
+                    border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
-                    border_color.0 = Color::BLACK;
+                    border_color.0 = CELL_BUTTON_BORDER_COLOR;
                     //border_color.0 = globals.grid.cell_properties[*cell_type].color;
                 }
             }
