@@ -1,7 +1,13 @@
 use bevy::{input::{mouse::MouseWheel, touch::Touch}, math::*, prelude::*, ui::RelativeCursorPosition, window::{PrimaryWindow, Window}};
 
-use crate::{cell::CellType, utils::clamp, GameGlobals};
+use crate::{cell::CellType, ui::BrushType, utils::clamp, GameGlobals};
 
+pub enum MousePressState
+{
+    Left,
+    Right,
+    None,
+}
 
 pub fn get_out_img_cursor_pos(relative_cursor_position: &RelativeCursorPosition, globals: &GameGlobals) -> Option<IVec2>
 {
@@ -89,19 +95,29 @@ pub fn update_input(
 
     let brush_type = globals.brush_type;
 
+    let maybe_cursor_pos = get_out_img_cursor_pos(relative_cursor_position, &globals);
+    let prev_cursor_pos = globals.prev_cursor_pos;
+
     // add cells with mouse
-    if let Some(cursor_pos) = get_out_img_cursor_pos(relative_cursor_position, &globals) {
-        if mouse_button.pressed(MouseButton::Left) {
-            let radius = globals.brush_size;
-            let place_cell_type = globals.place_cell_type;
-            let replace_solids = if place_cell_type != CellType::Air { globals.replace_solids } else { true };
-            globals.grid.set_cells(cursor_pos, None, brush_type, radius, place_cell_type, replace_solids);
+    if let Some(cursor_pos) = maybe_cursor_pos {
+        let brush_size = globals.brush_size;
+        let place_cell_type = globals.place_cell_type;
+        let replace_solids = if place_cell_type != CellType::Air { globals.replace_solids } else { true };
+
+        if brush_type == BrushType::Circle || brush_type == BrushType::Square {
+            if mouse_button.pressed(MouseButton::Left) {
+                globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, place_cell_type, replace_solids);
+            } else if mouse_button.pressed(MouseButton::Right) {
+                globals.grid.set_cells(cursor_pos, None, brush_type, brush_size, CellType::Air, true);
+            } 
+        } else {
+            if mouse_button.just_pressed(MouseButton::Left) {
+                globals.curr_cursor_pos = maybe_cursor_pos;
+                globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, place_cell_type, replace_solids);
+            } else if mouse_button.just_pressed(MouseButton::Right) {
+                globals.grid.set_cells(cursor_pos, None, brush_type, brush_size, CellType::Air, true);
+            }
         }
-        
-        if mouse_button.pressed(MouseButton::Right) {
-            let radius = globals.brush_size;
-            globals.grid.set_cells(cursor_pos, None, brush_type, radius, CellType::Air, true);
-        }   
     }
 
     for touch in touches.iter_just_pressed() {

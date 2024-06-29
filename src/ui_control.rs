@@ -64,6 +64,7 @@ pub fn brush_type_button_interactions(
                 *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 globals.brush_type = *brush_type;
+                globals.prev_cursor_pos = None;
             }
             Interaction::Hovered => {
                 *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();

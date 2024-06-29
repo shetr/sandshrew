@@ -45,14 +45,16 @@ pub fn run_sandshrew_app() {
             //LogDiagnosticsPlugin::default(),
         ))
         .add_systems(Startup, setup)
-        .add_systems(Update, update_input)
-        .add_systems(Update, cell_type_button_interactions)
-        .add_systems(Update, brush_type_button_interactions)
-        .add_systems(Update, save_button_interactions)
-        .add_systems(Update, load_button_interactions)
-        .add_systems(Update, update_fps)
-        .add_systems(Update, update_cells)
-        .add_systems(Update, draw_to_out_img)
+        .add_systems(Update, (
+            update_input,
+            cell_type_button_interactions,
+            brush_type_button_interactions,
+            save_button_interactions,
+            load_button_interactions,
+            update_fps,
+            update_cells,
+            draw_to_out_img,
+        ).chain())
         .run();
 }
 
@@ -67,6 +69,8 @@ pub struct GameGlobals
     pub frame_num: usize,
     pub brush_type: BrushType,
     pub brush_size: i32,
+    pub prev_cursor_pos: Option<IVec2>,
+    pub curr_cursor_pos: Option<IVec2>,
     pub grid: CellGrid,
     pub display: GridDisplay,
     pub place_cell_type: CellType,
@@ -145,6 +149,8 @@ fn setup(
             frame_num: 0,
             brush_type: BrushType::Circle,
             brush_size: 6,
+            prev_cursor_pos: None,
+            curr_cursor_pos: None,
             grid,
             display,
             place_cell_type: CellType::Sand,
@@ -169,20 +175,33 @@ fn update_cells(mut globals_query: Query<&mut GameGlobals>)
 
 fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<CustomMaterial>>,
-    globals_query: Query<&GameGlobals>,
+    mut globals_query: Query<&mut GameGlobals>,
     relative_cursor_position_query: Query<&RelativeCursorPosition>,
+    mouse_button: Res<ButtonInput<MouseButton>>,
     ) {
     //let start = Instant::now();
-    let globals = globals_query.single();
+    let mut globals = globals_query.single_mut();
     let image = images.get_mut(globals.render_image.clone()).unwrap();
     let relative_cursor_position = relative_cursor_position_query.single();
 
     let material = materials.get_mut(globals.material_handle.clone()).unwrap();
     globals.display.display(&globals.grid.cells, &globals.grid.cell_properties, image);
-    if let Some(cursor_pos) = get_out_img_cursor_pos(relative_cursor_position, &globals) {
-        globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, None, globals.brush_type, globals.brush_size);
+    let prev_cursor_pos = globals.prev_cursor_pos;
+    let maybe_cursor_pos = get_out_img_cursor_pos(relative_cursor_position, &globals);
+    if let Some(cursor_pos) = maybe_cursor_pos {
+        globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, prev_cursor_pos, globals.brush_type, globals.brush_size);
     }
     material.color_texture = Some(globals.render_image.clone());
+
+    if maybe_cursor_pos.is_some() {
+        if mouse_button.just_pressed(MouseButton::Left) {
+            if globals.prev_cursor_pos.is_some() {
+                globals.prev_cursor_pos = None;
+            } else {
+                globals.prev_cursor_pos = globals.curr_cursor_pos;
+            }
+        }
+    }
 }
 
 // This is the struct that will be passed to your shader
