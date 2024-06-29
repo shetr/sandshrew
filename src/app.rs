@@ -180,7 +180,7 @@ fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     let material = materials.get_mut(globals.material_handle.clone()).unwrap();
     globals.display.display(&globals.grid.cells, &globals.grid.cell_properties, image);
     if let Some(cursor_pos) = get_out_img_cursor_pos(relative_cursor_position, &globals) {
-        globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, globals.brush_size);
+        globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, None, globals.brush_type, globals.brush_size);
     }
     material.color_texture = Some(globals.render_image.clone());
 }

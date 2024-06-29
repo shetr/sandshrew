@@ -87,18 +87,20 @@ pub fn update_input(
         }
     }
 
+    let brush_type = globals.brush_type;
+
     // add cells with mouse
     if let Some(cursor_pos) = get_out_img_cursor_pos(relative_cursor_position, &globals) {
         if mouse_button.pressed(MouseButton::Left) {
             let radius = globals.brush_size;
             let place_cell_type = globals.place_cell_type;
             let replace_solids = if place_cell_type != CellType::Air { globals.replace_solids } else { true };
-            globals.grid.set_cells(cursor_pos, radius, place_cell_type, replace_solids);
+            globals.grid.set_cells(cursor_pos, None, brush_type, radius, place_cell_type, replace_solids);
         }
         
         if mouse_button.pressed(MouseButton::Right) {
             let radius = globals.brush_size;
-            globals.grid.set_cells(cursor_pos, radius, CellType::Air, true);
+            globals.grid.set_cells(cursor_pos, None, brush_type, radius, CellType::Air, true);
         }   
     }
 
@@ -108,7 +110,7 @@ pub fn update_input(
             let radius = globals.brush_size;
             let place_cell_type = globals.place_cell_type;
             let replace_solids = globals.replace_solids;
-            globals.grid.set_cells(cursor_pos, radius, place_cell_type, replace_solids);
+            globals.grid.set_cells(cursor_pos, None, brush_type, radius, place_cell_type, replace_solids);
         }
     }
 }

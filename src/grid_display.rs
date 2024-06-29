@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use enum_map::EnumMap;
 
 use rand::prelude::*;
+use crate::ui::BrushType;
 use crate::utils::*;
 use crate::cell::*;
 
@@ -34,18 +35,56 @@ impl GridDisplay {
             out_image.data[i*4 + 2] = color[2] as u8;
         }
     }
+    
+    pub fn draw_brush_edge(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, prev_pos: Option<IVec2>, brush: BrushType, size: i32)
+    {
+        match brush {
+            BrushType::Circle => {
+                self.draw_brush_edge_circle(cells, out_image, pos, size);
+            },
+            BrushType::Square => {
+                self.draw_brush_edge_square(cells, out_image, pos, size);
+            },
+            BrushType::LineRound => {
 
-    pub fn draw_brush_edge(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, radius: i32)
+            },
+            BrushType::LineSharp => {
+
+            },
+        }
+    }
+
+    pub fn draw_brush_edge_circle(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, size: i32)
     {
         let pos = IVec2 { x: pos.x, y: cells.sizes.y - pos.y - 1 };
         let color = self.brush_edge_color.rgb_to_vec3();
         let a = self.brush_edge_color.a();
-        let start_pos = pos - radius - 1;
-        let end_pos = pos + radius + 2;
+        let start_pos = pos - size - 1;
+        let end_pos = pos + size + 2;
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
-                if cells.is_in_range(iv) && !is_in_radius(pos, radius, iv) && is_in_radius(pos, radius + 1, iv) {
+                if cells.is_in_range(iv) && !is_in_radius(pos, size, iv) && is_in_radius(pos, size + 1, iv) {
+                    let i = cells.vec_to_index(iv);
+                    out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
+                    out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
+                    out_image.data[i*4 + 2] = (a * color.z * 255.0 + (out_image.data[i*4 + 2] as f32) * (1.0 - a)) as u8;
+                }
+            }
+        }
+    }
+
+    pub fn draw_brush_edge_square(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, size: i32)
+    {
+        let pos = IVec2 { x: pos.x, y: cells.sizes.y - pos.y - 1 };
+        let color = self.brush_edge_color.rgb_to_vec3();
+        let a = self.brush_edge_color.a();
+        let start_pos = pos - size - 1;
+        let end_pos = pos + size + 2;
+        for y in start_pos.y..end_pos.y {
+            for x in start_pos.x..end_pos.x {
+                let iv = IVec2::new(x, y);
+                if cells.is_in_range(iv) && (x == start_pos.x || y == start_pos.y || x == end_pos.x - 1 || y == end_pos.y - 1) {
                     let i = cells.vec_to_index(iv);
                     out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
                     out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;

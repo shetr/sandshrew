@@ -6,6 +6,7 @@ use enum_map::EnumMap;
 
 use bevy::prelude::*;
 
+use crate::ui::BrushType;
 use crate::utils::*;
 use crate::cell::*;
 
@@ -27,14 +28,44 @@ pub struct CellGrid
 
 impl CellGrid
 {
-    pub fn set_cells(&mut self, pos: IVec2, radius: i32, cell_type: CellType, replace_solids: bool)
+    pub fn set_cells(&mut self, pos: IVec2, prev_pos: Option<IVec2>, brush: BrushType, size: i32, cell_type: CellType, replace_solids: bool)
     {
-        let start_pos = pos - radius;
-        let end_pos = pos + radius + 1;
+        match brush {
+            BrushType::Circle => {
+                self.set_cells_circle(pos, size, cell_type, replace_solids);
+            },
+            BrushType::Square => {
+                self.set_cells_square(pos, size, cell_type, replace_solids);
+            },
+            BrushType::LineRound => {},
+            BrushType::LineSharp => {},
+        }
+    }
+
+    pub fn set_cells_circle(&mut self, pos: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
+    {
+        let start_pos = pos - size;
+        let end_pos = pos + size + 1;
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
-                if self.cells.is_in_range(iv) && is_in_radius(pos, radius, iv) && (replace_solids || !self.cells[iv].is_solid()) {
+                if self.cells.is_in_range(iv) && is_in_radius(pos, size, iv) && (replace_solids || !self.cells[iv].is_solid()) {
+                    if self.cells[iv].cell_type != cell_type {
+                        self.cells[iv] = self.new_cell(cell_type);
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn set_cells_square(&mut self, pos: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
+    {
+        let start_pos = pos - size;
+        let end_pos = pos + size + 1;
+        for y in start_pos.y..end_pos.y {
+            for x in start_pos.x..end_pos.x {
+                let iv = IVec2::new(x, y);
+                if self.cells.is_in_range(iv) && (replace_solids || !self.cells[iv].is_solid()) {
                     if self.cells[iv].cell_type != cell_type {
                         self.cells[iv] = self.new_cell(cell_type);
                     }
