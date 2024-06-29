@@ -155,17 +155,27 @@ pub fn is_in_radius(origin: IVec2, radius: i32, pos: IVec2) -> bool {
     diff_sqr.x + diff_sqr.y <= radius * radius
 }
 
-pub fn is_in_line_sharp(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -> bool {
-    let line_dir = pos_to - pos_from;
+pub fn is_in_line_sharp(pos_from: IVec2, pos_to: IVec2, size: f32, pos: IVec2) -> bool {
+    is_in_line_sharp_with_tolerance(pos_from, pos_to, size, pos, 0)
+}
+
+pub fn is_in_line_sharp_with_tolerance(mut pos_from: IVec2, mut pos_to: IVec2, size: f32, pos: IVec2, tolerance: i32) -> bool {
+    let mut line_dir = pos_to - pos_from;
+    if tolerance > 0 {
+        let shift = line_dir.as_vec2().normalize().round().as_ivec2() * tolerance;
+        pos_from = pos_from - shift;
+        pos_to = pos_to + shift;
+        line_dir = pos_to - pos_from;
+    }
     let line_normal = line_dir.perp().as_vec2().normalize();
     let rel_pos = pos - pos_from;
     let pos_on_dir_scaled = line_dir.dot(rel_pos);
-    let pos_on_normal = line_normal.dot(rel_pos.as_vec2()).abs() as i32;
-    pos_on_dir_scaled >= 0 && pos_on_dir_scaled <= line_dir.length_squared() && pos_on_normal <= size
+    let pos_on_normal = line_normal.dot(rel_pos.as_vec2()).abs();
+    pos_on_dir_scaled >= 0 && pos_on_dir_scaled <= line_dir.length_squared() && pos_on_normal < size
 }
 
-pub fn is_in_line_round(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -> bool {
-    is_in_radius(pos_from, size, pos) ||
-    is_in_radius(pos_to, size, pos) ||
+pub fn is_in_line_round(pos_from: IVec2, pos_to: IVec2, size: f32, pos: IVec2) -> bool {
+    is_in_radius(pos_from, size as i32, pos) ||
+    is_in_radius(pos_to, size as i32, pos) ||
     is_in_line_sharp(pos_from, pos_to, size, pos)
 }

@@ -42,7 +42,11 @@ impl CellGrid
                     self.set_cells_line_round(prev_pos, pos, size, cell_type, replace_solids);
                 }
             },
-            BrushType::LineSharp => {},
+            BrushType::LineSharp => {
+                if let Some(prev_pos) = prev_pos {
+                    self.set_cells_line_sharp(prev_pos, pos, size, cell_type, replace_solids);
+                }
+            },
         }
     }
 
@@ -82,10 +86,28 @@ impl CellGrid
     {
         let start_pos = (pos_from - size).min(pos_to - size);
         let end_pos = (pos_from + size + 1).max(pos_to + size + 1);
+        let size = (size as f32).max(0.5);
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if self.cells.is_in_range(iv) && is_in_line_round(pos_from, pos_to, size, iv) && (replace_solids || !self.cells[iv].is_solid()) {
+                    if self.cells[iv].cell_type != cell_type {
+                        self.cells[iv] = self.new_cell(cell_type);
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn set_cells_line_sharp(&mut self, pos_from: IVec2, pos_to: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
+    {
+        let start_pos = (pos_from - size).min(pos_to - size);
+        let end_pos = (pos_from + size + 1).max(pos_to + size + 1);
+        let size = (size as f32).max(0.5);
+        for y in start_pos.y..end_pos.y {
+            for x in start_pos.x..end_pos.x {
+                let iv = IVec2::new(x, y);
+                if self.cells.is_in_range(iv) && is_in_line_sharp(pos_from, pos_to, size, iv) && (replace_solids || !self.cells[iv].is_solid()) {
                     if self.cells[iv].cell_type != cell_type {
                         self.cells[iv] = self.new_cell(cell_type);
                     }

@@ -53,7 +53,11 @@ impl GridDisplay {
                 }
             },
             BrushType::LineSharp => {
-
+                if let Some(prev_pos) = prev_pos {
+                    self.draw_brush_edge_line_sharp(cells, out_image, prev_pos, pos, size);
+                } else {
+                    self.draw_brush_edge_square(cells, out_image, pos, size);
+                }
             },
         }
     }
@@ -106,12 +110,37 @@ impl GridDisplay {
         let a = self.brush_edge_color.a();
         let start_pos = (pos_from - size - 1).min(pos_to - size - 1);
         let end_pos = (pos_from + size + 2).max(pos_to + size + 2);
+        let size = (size as f32).max(0.5);
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if cells.is_in_range(iv) &&
                     !is_in_line_round(pos_from, pos_to, size, iv) &&
-                    is_in_line_round(pos_from, pos_to, size + 1, iv) {
+                    is_in_line_round(pos_from, pos_to, size + 1.0, iv) {
+                    let i = cells.vec_to_index(iv);
+                    out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
+                    out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
+                    out_image.data[i*4 + 2] = (a * color.z * 255.0 + (out_image.data[i*4 + 2] as f32) * (1.0 - a)) as u8;
+                }
+            }
+        }
+    }
+
+    pub fn draw_brush_edge_line_sharp(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos_from: IVec2, pos_to: IVec2, size: i32)
+    {
+        let pos_from = IVec2 { x: pos_from.x, y: cells.sizes.y - pos_from.y - 1 };
+        let pos_to = IVec2 { x: pos_to.x, y: cells.sizes.y - pos_to.y - 1 };
+        let color = self.brush_edge_color.rgb_to_vec3();
+        let a = self.brush_edge_color.a();
+        let start_pos = (pos_from - size - 1).min(pos_to - size - 1);
+        let end_pos = (pos_from + size + 2).max(pos_to + size + 2);
+        let size = (size as f32).max(0.5);
+        for y in start_pos.y..end_pos.y {
+            for x in start_pos.x..end_pos.x {
+                let iv = IVec2::new(x, y);
+                if cells.is_in_range(iv) &&
+                    !is_in_line_sharp(pos_from, pos_to, size, iv) &&
+                    is_in_line_sharp_with_tolerance(pos_from, pos_to, size + 1.0, iv, 1) {
                     let i = cells.vec_to_index(iv);
                     out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
                     out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
