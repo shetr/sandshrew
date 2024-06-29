@@ -12,6 +12,12 @@ pub struct SaveButton;
 #[derive(Component)]
 pub struct LoadButton;
 
+#[derive(Component)]
+pub struct ReplaceSolidsButton;
+
+#[derive(Component)]
+pub struct TopGassLeakButton;
+
 pub struct CellTypeButtonConfig
 {
     cell_type: CellType,
@@ -230,6 +236,10 @@ pub fn setup_ui(
                     brush_type(parent, asset_server);
                     // Brush size
                     brush_size(parent, asset_server);
+                    // Replace solids
+                    replace_solids_button(parent, asset_server);
+                    // Top gass leak
+                    top_gass_leak_button(parent, asset_server);
                     // Save & Load buttons
                     save_and_load_buttons(parent, asset_server);
                     // Controls
@@ -339,6 +349,66 @@ fn brush_size(
     asset_server: &Res<AssetServer>,
 ) {
 
+}
+
+fn replace_solids_button(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+) {
+    parent.spawn((ButtonBundle {
+        style: Style {
+            width: Val::Px(150.0),
+            height: Val::Px(50.0),
+            border: UiRect::all(Val::Px(5.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+        ..default()
+    }, ReplaceSolidsButton
+    ))
+    .with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            "Replace solids",
+            TextStyle {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font_size: 20.0,
+                color: BASIC_BUTTON_TEXT_COLOR,
+            },
+        ));
+    });
+}
+
+fn top_gass_leak_button(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+) {
+    parent.spawn((ButtonBundle {
+        style: Style {
+            width: Val::Px(150.0),
+            height: Val::Px(50.0),
+            border: UiRect::all(Val::Px(5.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+        ..default()
+    }, TopGassLeakButton
+    ))
+    .with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            "Top gass leak",
+            TextStyle {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font_size: 20.0,
+                color: BASIC_BUTTON_TEXT_COLOR,
+            },
+        ));
+    });
 }
 
 fn save_and_load_buttons(
