@@ -32,7 +32,11 @@ impl CellGrid
     {
         match brush {
             BrushType::Circle => {
-                self.set_cells_circle(pos, size, cell_type, replace_solids);
+                if let Some(prev_pos) = prev_pos {
+                    self.set_cells_line_round(prev_pos, pos, size, cell_type, replace_solids);
+                } else {
+                    self.set_cells_circle(pos, size, cell_type, replace_solids);
+                }
             },
             BrushType::Square => {
                 self.set_cells_square(pos, size, cell_type, replace_solids);
