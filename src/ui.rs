@@ -1,16 +1,43 @@
 use bevy::{prelude::*, ui::RelativeCursorPosition};
-use enum_map::EnumMap;
+use enum_map::{Enum, EnumMap};
 
 use crate::cell::*;
 
 #[derive(Component)]
 pub struct FpsText;
 
+#[derive(Component)]
+pub struct SaveButton;
+
+#[derive(Component)]
+pub struct LoadButton;
+
 pub struct CellTypeButtonConfig
 {
     cell_type: CellType,
     name: String,
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Enum, Component)]
+pub enum BrushType
+{
+    Circle,
+    Square,
+    LineRound,
+    LineSharp,
+}
+
+pub const BASIC_BUTTON_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
+pub const BASIC_BUTTON_BORDER_COLOR: Color = Color::BLACK;
+pub const BASIC_BUTTON_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+
+pub const BASIC_BUTTON_HOVER_BACKGROUND_COLOR: Color = Color::rgb(0.25, 0.25, 0.25);
+pub const BASIC_BUTTON_HOVER_BORDER_COLOR: Color = Color::rgb(0.5, 0.5, 0.5);
+pub const BASIC_BUTTON_HOVER_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+
+pub const BASIC_BUTTON_SELECTED_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
+pub const BASIC_BUTTON_SELECTED_BORDER_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
+pub const BASIC_BUTTON_SELECTED_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
 
 pub const CELL_BUTTON_BORDER_COLOR: Color = Color::BLACK;
 pub const CELL_BUTTON_HOVER_BORDER_COLOR: Color = Color::rgb(0.5, 0.5, 0.5);
@@ -137,7 +164,7 @@ pub fn setup_ui(
                     ));
                     // add buttons
                     for button_config in buttons_config {
-                        add_button(parent, &asset_server, cell_properties, button_config);
+                        add_cell_type_button(parent, &asset_server, cell_properties, button_config);
                     }
                 });
             });
@@ -198,36 +225,241 @@ pub fn setup_ui(
                 })
                 .with_children(|parent| {
                     // FPS counter
-                    parent.spawn((
-                        // Create a TextBundle that has a Text with a list of sections.
-                        TextBundle::from_sections([
-                            TextSection::new(
-                                "FPS: ",
-                                TextStyle {
-                                    // This font is loaded and will be used instead of the default font.
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                    font_size: 40.0,
-                                    ..default()
-                                },
-                            ),
-                            TextSection::new(
-                                "60",
-                                TextStyle {
-                                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                                    font_size: 40.0,
-                                    color: Color::GOLD,
-                                }
-                            ),
-                        ]),
-                        FpsText,
-                    ));
+                    fps_counter(parent, asset_server);
+                    // Brush type
+                    brush_type(parent, asset_server);
+                    // Brush size
+                    brush_size(parent, asset_server);
+                    // Save & Load buttons
+                    save_and_load_buttons(parent, asset_server);
+                    // Controls
+                    controls_help(parent, asset_server);
                 });
             });
         });
 }
 
 
-fn add_button(
+fn fps_counter(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+) {
+    parent.spawn((
+        // Create a TextBundle that has a Text with a list of sections.
+        TextBundle::from_sections([
+            TextSection::new(
+                "FPS: ",
+                TextStyle {
+                    // This font is loaded and will be used instead of the default font.
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font_size: 40.0,
+                    ..default()
+                },
+            ),
+            TextSection::new(
+                "60",
+                TextStyle {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font_size: 40.0,
+                    color: Color::GOLD,
+                }
+            ),
+        ]),
+        FpsText,
+    ));
+}
+
+fn brush_type(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+) {
+    parent.spawn(TextBundle::from_section(
+        "Brush type:",
+        TextStyle {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font_size: 40.0,
+            ..default()
+        },
+    ));
+    parent.spawn(NodeBundle {
+        style: Style {
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            padding: UiRect::all(Val::Px(5.)),
+            column_gap: Val::Px(5.),
+            ..default()
+        },
+        background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+        ..default()
+    })
+    .with_children(|parent| {
+        // buttons
+        add_brush_type_button(parent, asset_server, BrushType::Circle, "Ci");
+        add_brush_type_button(parent, asset_server, BrushType::Square, "Sq");
+        add_brush_type_button(parent, asset_server, BrushType::LineRound, "LR");
+        add_brush_type_button(parent, asset_server, BrushType::LineSharp, "LS");
+    });
+}
+
+fn add_brush_type_button(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    brush_type: BrushType,
+    name: &str,
+) {
+    parent.spawn((ButtonBundle {
+        style: Style {
+            width: Val::Px(50.0),
+            height: Val::Px(50.0),
+            border: UiRect::all(Val::Px(5.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+        ..default()
+    }, brush_type
+    ))
+    .with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            name,
+            TextStyle {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font_size: 20.0,
+                color: BASIC_BUTTON_TEXT_COLOR,
+            },
+        ));
+    });
+}
+
+fn brush_size(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+) {
+
+}
+
+fn save_and_load_buttons(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+) {
+    parent.spawn(TextBundle::from_section(
+        "File:",
+        TextStyle {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font_size: 40.0,
+            ..default()
+        },
+    ));
+    parent.spawn(NodeBundle {
+        style: Style {
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            padding: UiRect::all(Val::Px(5.)),
+            column_gap: Val::Px(5.),
+            ..default()
+        },
+        background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+        ..default()
+    })
+    .with_children(|parent| {
+        // Save Button
+        parent.spawn((ButtonBundle {
+            style: Style {
+                width: Val::Px(100.0),
+                height: Val::Px(50.0),
+                border: UiRect::all(Val::Px(5.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+            background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+            ..default()
+        }, SaveButton
+        ))
+        .with_children(|parent| {
+            parent.spawn(TextBundle::from_section(
+                "Save",
+                TextStyle {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font_size: 20.0,
+                    color: BASIC_BUTTON_TEXT_COLOR,
+                },
+            ));
+        });
+        // Load button
+        parent.spawn((ButtonBundle {
+            style: Style {
+                width: Val::Px(100.0),
+                height: Val::Px(50.0),
+                border: UiRect::all(Val::Px(5.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+            background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+            ..default()
+        }, LoadButton
+        ))
+        .with_children(|parent| {
+            parent.spawn(TextBundle::from_section(
+                "Load",
+                TextStyle {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font_size: 20.0,
+                    color: BASIC_BUTTON_TEXT_COLOR,
+                },
+            ));
+        });
+    });
+    
+}
+
+fn controls_help(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+) {
+    parent.spawn(TextBundle::from_section(
+        "Controls:",
+        TextStyle {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font_size: 40.0,
+            ..default()
+        },
+    ));
+
+    parent.spawn(TextBundle::from_section(
+        "Mouse Left - add material",
+        TextStyle {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font_size: 20.0,
+            ..default()
+        },
+    ));
+    parent.spawn(TextBundle::from_section(
+        "Mouse Right - remove material",
+        TextStyle {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font_size: 20.0,
+            ..default()
+        },
+    ));
+    parent.spawn(TextBundle::from_section(
+        "Mouse Scroll - brush size",
+        TextStyle {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font_size: 20.0,
+            ..default()
+        },
+    ));
+}
+
+fn add_cell_type_button(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
     cell_properties: &EnumMap<CellType, CellTypeProperties>,

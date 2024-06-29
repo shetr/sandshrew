@@ -47,6 +47,9 @@ pub fn run_sandshrew_app() {
         .add_systems(Startup, setup)
         .add_systems(Update, update_input)
         .add_systems(Update, cell_type_button_interactions)
+        .add_systems(Update, brush_type_button_interactions)
+        .add_systems(Update, save_button_interactions)
+        .add_systems(Update, load_button_interactions)
         .add_systems(Update, update_fps)
         .add_systems(Update, update_cells)
         .add_systems(Update, draw_to_out_img)
@@ -62,7 +65,8 @@ pub struct GameGlobals
     pub img_size: u32,
     pub out_tex_size: u32,
     pub frame_num: usize,
-    pub brush_radius: i32,
+    pub brush_type: BrushType,
+    pub brush_size: i32,
     pub grid: CellGrid,
     pub display: GridDisplay,
     pub place_cell_type: CellType,
@@ -139,7 +143,8 @@ fn setup(
             img_size,
             out_tex_size,
             frame_num: 0,
-            brush_radius: 6,
+            brush_type: BrushType::Circle,
+            brush_size: 6,
             grid,
             display,
             place_cell_type: CellType::Sand,
@@ -175,7 +180,7 @@ fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     let material = materials.get_mut(globals.material_handle.clone()).unwrap();
     globals.display.display(&globals.grid.cells, &globals.grid.cell_properties, image);
     if let Some(cursor_pos) = get_out_img_cursor_pos(relative_cursor_position, &globals) {
-        globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, globals.brush_radius);
+        globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, globals.brush_size);
     }
     material.color_texture = Some(globals.render_image.clone());
 }

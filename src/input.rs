@@ -79,25 +79,25 @@ pub fn update_input(
 
     for event in mouse_wheel_events.read() {
         let dir = clamp(event.y as i32, -3, 3);
-        globals.brush_radius += dir;
-        if globals.brush_radius < 0 {
-            globals.brush_radius = 0;
-        } else if globals.brush_radius > 50 {
-            globals.brush_radius = 50;
+        globals.brush_size += dir;
+        if globals.brush_size < 0 {
+            globals.brush_size = 0;
+        } else if globals.brush_size > 50 {
+            globals.brush_size = 50;
         }
     }
 
     // add cells with mouse
     if let Some(cursor_pos) = get_out_img_cursor_pos(relative_cursor_position, &globals) {
         if mouse_button.pressed(MouseButton::Left) {
-            let radius = globals.brush_radius;
+            let radius = globals.brush_size;
             let place_cell_type = globals.place_cell_type;
             let replace_solids = if place_cell_type != CellType::Air { globals.replace_solids } else { true };
             globals.grid.set_cells(cursor_pos, radius, place_cell_type, replace_solids);
         }
         
         if mouse_button.pressed(MouseButton::Right) {
-            let radius = globals.brush_radius;
+            let radius = globals.brush_size;
             globals.grid.set_cells(cursor_pos, radius, CellType::Air, true);
         }   
     }
@@ -105,7 +105,7 @@ pub fn update_input(
     for touch in touches.iter_just_pressed() {
 
         if let Some(cursor_pos) = get_out_img_touch_pos(window, touch, &globals) {
-            let radius = globals.brush_radius;
+            let radius = globals.brush_size;
             let place_cell_type = globals.place_cell_type;
             let replace_solids = globals.replace_solids;
             globals.grid.set_cells(cursor_pos, radius, place_cell_type, replace_solids);
