@@ -71,6 +71,7 @@ pub struct GameGlobals
     pub brush_size: i32,
     pub prev_cursor_pos: Option<IVec2>,
     pub curr_cursor_pos: Option<IVec2>,
+    pub prev_mouse_press: Option<MouseButton>,
     pub grid: CellGrid,
     pub display: GridDisplay,
     pub place_cell_type: CellType,
@@ -151,6 +152,7 @@ fn setup(
             brush_size: 6,
             prev_cursor_pos: None,
             curr_cursor_pos: None,
+            prev_mouse_press: None,
             grid,
             display,
             place_cell_type: CellType::Sand,
@@ -194,11 +196,19 @@ fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     material.color_texture = Some(globals.render_image.clone());
 
     if maybe_cursor_pos.is_some() {
-        if mouse_button.just_pressed(MouseButton::Left) {
-            if globals.prev_cursor_pos.is_some() {
-                globals.prev_cursor_pos = None;
-            } else {
-                globals.prev_cursor_pos = globals.curr_cursor_pos;
+        if globals.brush_type == BrushType::Circle || globals.brush_type == BrushType::Square {
+        } else {
+            if mouse_button.just_pressed(MouseButton::Left) || mouse_button.just_pressed(MouseButton::Right) {
+                if globals.prev_cursor_pos.is_some() {
+                    globals.prev_cursor_pos = None;
+                } else {
+                    globals.prev_cursor_pos = globals.curr_cursor_pos;
+                }
+            }
+            if mouse_button.just_pressed(MouseButton::Left) {
+                globals.prev_mouse_press = Some(MouseButton::Left);
+            } else if mouse_button.just_pressed(MouseButton::Right) {
+                globals.prev_mouse_press = Some(MouseButton::Right);
             }
         }
     }

@@ -112,10 +112,16 @@ pub fn update_input(
             } 
         } else {
             if mouse_button.just_pressed(MouseButton::Left) {
-                globals.curr_cursor_pos = maybe_cursor_pos;
-                globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, place_cell_type, replace_solids);
+                if Some(MouseButton::Left) == globals.prev_mouse_press {
+                    globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, place_cell_type, replace_solids);
+                }
             } else if mouse_button.just_pressed(MouseButton::Right) {
-                globals.grid.set_cells(cursor_pos, None, brush_type, brush_size, CellType::Air, true);
+                if Some(MouseButton::Right) == globals.prev_mouse_press {
+                    globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, CellType::Air, true);
+                }
+            }
+            if mouse_button.just_pressed(MouseButton::Left) || mouse_button.just_pressed(MouseButton::Right) {
+                globals.curr_cursor_pos = maybe_cursor_pos;
             }
         }
     }

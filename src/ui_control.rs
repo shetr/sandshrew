@@ -1,6 +1,6 @@
 use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, prelude::*};
 
-use crate::{cell::CellType, ui::*, FpsDisplayTimer, GameGlobals};
+use crate::{cell::CellType, input::MousePressState, ui::*, FpsDisplayTimer, GameGlobals};
 
 pub fn cell_type_button_interactions(
     mut globals_query: Query<&mut GameGlobals>,
@@ -65,6 +65,7 @@ pub fn brush_type_button_interactions(
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 globals.brush_type = *brush_type;
                 globals.prev_cursor_pos = None;
+                globals.prev_mouse_press = None;
             }
             Interaction::Hovered => {
                 *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
