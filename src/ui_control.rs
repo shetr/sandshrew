@@ -1,6 +1,6 @@
 use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, prelude::*};
 
-use crate::{cell::CellType, input::MousePressState, ui::*, FpsDisplayTimer, GameGlobals};
+use crate::{cell::CellType, input::*, ui::*, FpsDisplayTimer, GameGlobals};
 
 pub fn cell_type_button_interactions(
     mut globals_query: Query<&mut GameGlobals>,

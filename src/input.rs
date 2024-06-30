@@ -1,13 +1,6 @@
 use bevy::{input::{mouse::MouseWheel, touch::Touch}, math::*, prelude::*, ui::RelativeCursorPosition, window::{PrimaryWindow, Window}};
 
-use crate::{cell::CellType, ui::BrushType, utils::clamp, GameGlobals};
-
-pub enum MousePressState
-{
-    Left,
-    Right,
-    None,
-}
+use crate::{cell::CellType, ui::BrushType, utils::*, GameGlobals};
 
 pub fn get_out_img_cursor_pos(relative_cursor_position: &RelativeCursorPosition, globals: &GameGlobals) -> Option<IVec2>
 {
@@ -50,7 +43,7 @@ pub fn update_input(
     let mut globals = globals_query.single_mut();
     let window = windows.single();
     let relative_cursor_position = relative_cursor_position_query.single();
-    //println!("window size {}, {}", window.width(), window.height());
+    //info!("Window size: {}x{}", window.width(), window.height());
 
     if keyboard_input.pressed(KeyCode::Digit0) {
         globals.place_cell_type = CellType::Air;
@@ -100,6 +93,7 @@ pub fn update_input(
 
     // add cells with mouse
     if let Some(cursor_pos) = maybe_cursor_pos {
+        //info!("cursor pos {}, {}", cursor_pos.x, cursor_pos.y);
         let brush_size = globals.brush_size;
         let place_cell_type = globals.place_cell_type;
         let replace_solids = if place_cell_type != CellType::Air { globals.replace_solids } else { true };
