@@ -1,6 +1,10 @@
-use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, prelude::*};
+use std::thread::panicking;
+
+use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, prelude::*, tasks::block_on};
 
 use crate::{cell::CellType, input::*, ui::*, FpsDisplayTimer, GameGlobals};
+
+use rfd::AsyncFileDialog;
 
 pub fn cell_type_button_interactions(
     mut globals_query: Query<&mut GameGlobals>,
@@ -106,14 +110,29 @@ pub fn save_button_interactions(
             Interaction::Pressed => {
                 *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
+                if !globals.save_button_pressed {
+                    globals.save_button_pressed = true;
+                    //let future = async {
+                    //    let file = AsyncFileDialog::new()
+                    //        //.add_filter("text", &["txt", "rs"])
+                    //        //.add_filter("rust", &["rs", "toml"])
+                    //        //.set_directory("/")
+                    //        .pick_file()
+                    //        .await;
+                    //    info!("save file: {}", file.unwrap().file_name());
+                    //};
+                    //block_on(future);
+                }
             }
             Interaction::Hovered => {
                 *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
                 border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
+                globals.save_button_pressed = false;
             }
             Interaction::None => {
                 *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
                 border_color.0 = BASIC_BUTTON_BORDER_COLOR;
+                globals.save_button_pressed = false;
             }
         }
     }
@@ -137,14 +156,19 @@ pub fn load_button_interactions(
             Interaction::Pressed => {
                 *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
+                if !globals.load_button_pressed {
+                    globals.load_button_pressed = true;
+                }
             }
             Interaction::Hovered => {
                 *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
                 border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
+                globals.load_button_pressed = false;
             }
             Interaction::None => {
                 *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
                 border_color.0 = BASIC_BUTTON_BORDER_COLOR;
+                globals.load_button_pressed = false;
             }
         }
     }
