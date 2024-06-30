@@ -241,6 +241,7 @@ pub fn setup_ui(
                     // Top gass leak
                     top_gass_leak_button(parent, asset_server);
                     // Save & Load buttons
+                    #[cfg(not(target_arch = "wasm32"))]
                     save_and_load_buttons(parent, asset_server);
                     // Controls
                     controls_help(parent, asset_server);

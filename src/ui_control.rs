@@ -1,6 +1,5 @@
-use std::thread::panicking;
 
-use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, prelude::*, tasks::block_on};
+use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, prelude::*, tasks::{block_on}};
 
 use crate::{cell::CellType, input::*, ui::*, FpsDisplayTimer, GameGlobals};
 
@@ -112,16 +111,15 @@ pub fn save_button_interactions(
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 if !globals.save_button_pressed {
                     globals.save_button_pressed = true;
-                    //let future = async {
-                    //    let file = AsyncFileDialog::new()
-                    //        //.add_filter("text", &["txt", "rs"])
-                    //        //.add_filter("rust", &["rs", "toml"])
-                    //        //.set_directory("/")
-                    //        .pick_file()
-                    //        .await;
-                    //    info!("save file: {}", file.unwrap().file_name());
-                    //};
-                    //block_on(future);
+                    let future = async {
+                        let maybe_file_handle = AsyncFileDialog::new()
+                            .pick_file()
+                            .await;
+                        if let Some(file_handle) = maybe_file_handle {
+                            info!("save file: {}", file_handle.file_name());
+                        }
+                    };
+                    block_on(future);
                 }
             }
             Interaction::Hovered => {
