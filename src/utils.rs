@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use std::ops::{Index, IndexMut};
+use std::{mem::swap, ops::{Index, IndexMut}};
 
 #[derive(Clone)]
 pub struct AABB {
@@ -178,4 +178,55 @@ pub fn is_in_line_round(pos_from: IVec2, pos_to: IVec2, size: f32, pos: IVec2) -
     is_in_radius(pos_from, size as i32, pos) ||
     is_in_radius(pos_to, size as i32, pos) ||
     is_in_line_sharp(pos_from, pos_to, size, pos)
+}
+
+pub fn dda<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, mut handle_pos: HandlePos)
+{
+    let mut dir = pos_to - pos_from;
+    let abs_dir = dir.abs();
+    let swap_xy = abs_dir.y > abs_dir.x;
+    if swap_xy {
+        pos_from = pos_from.yx();
+        pos_to = pos_to.yx();
+        dir = dir.yx();
+    }
+    let swap_from_to = pos_from.x > pos_to.x;
+    if swap_from_to {
+        swap(&mut pos_from, &mut pos_to);
+        dir = -dir;
+    }
+    let k = (dir.y as f32) / (dir.x as f32);
+    for i in 0..=dir.x {
+        let mut pos = IVec2::new(pos_from.x + i, pos_from.y + ((k * (i as f32)).round() as i32));
+        if swap_xy { pos = pos.yx(); }
+        handle_pos(pos);
+    }
+}
+
+// incorrect, has holes inside
+pub fn dda_thick<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, thickness: i32, mut handle_pos: HandlePos)
+{
+    let mut dir = pos_to - pos_from;
+    let abs_dir = dir.abs();
+    let swap_xy = abs_dir.y > abs_dir.x;
+    if swap_xy {
+        pos_from = pos_from.yx();
+        pos_to = pos_to.yx();
+        dir = dir.yx();
+    }
+    let swap_from_to = pos_from.x > pos_to.x;
+    if swap_from_to {
+        swap(&mut pos_from, &mut pos_to);
+        dir = -dir;
+    }
+    let ky = (dir.y as f32) / (dir.x as f32);
+    let kx = -ky;
+    for yi in -thickness..=thickness {
+        let start_pos = IVec2::new(pos_from.x + ((kx * (yi as f32)).round() as i32), pos_from.y + yi);
+        for xi in 0..=dir.x {
+            let mut pos = IVec2::new(start_pos.x + xi, start_pos.y + ((ky * (xi as f32)).round() as i32));
+            if swap_xy { pos = pos.yx(); }
+            handle_pos(pos);
+        }
+    }
 }
