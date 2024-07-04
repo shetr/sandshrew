@@ -90,7 +90,6 @@ impl CellGrid
     {
         let start_pos = (pos_from - size).min(pos_to - size);
         let end_pos = (pos_from + size + 1).max(pos_to + size + 1);
-        let size = (size as f32).max(0.5);
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
@@ -107,7 +106,6 @@ impl CellGrid
     {
         let start_pos = (pos_from - size).min(pos_to - size);
         let end_pos = (pos_from + size + 1).max(pos_to + size + 1);
-        let size = (size as f32).max(0.5);
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);

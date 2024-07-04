@@ -79,8 +79,8 @@ pub fn update_input(
     for event in mouse_wheel_events.read() {
         let dir = clamp(event.y as i32, -3, 3);
         globals.brush_size += dir;
-        if globals.brush_size < 0 {
-            globals.brush_size = 0;
+        if globals.brush_size < 1 {
+            globals.brush_size = 1;
         } else if globals.brush_size > 50 {
             globals.brush_size = 50;
         }

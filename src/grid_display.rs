@@ -110,13 +110,12 @@ impl GridDisplay {
         let a = self.brush_edge_color.a();
         let start_pos = (pos_from - size - 1).min(pos_to - size - 1);
         let end_pos = (pos_from + size + 2).max(pos_to + size + 2);
-        let size = (size as f32).max(0.5);
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if cells.is_in_range(iv) &&
                     !is_in_line_round(pos_from, pos_to, size, iv) &&
-                    is_in_line_round(pos_from, pos_to, size + 1.0, iv) {
+                    is_in_line_round(pos_from, pos_to, size + 1, iv) {
                     let i = cells.vec_to_index(iv);
                     out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
                     out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
@@ -134,13 +133,12 @@ impl GridDisplay {
         let a = self.brush_edge_color.a();
         let start_pos = (pos_from - size - 1).min(pos_to - size - 1);
         let end_pos = (pos_from + size + 2).max(pos_to + size + 2);
-        let size = (size as f32).max(0.5);
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if cells.is_in_range(iv) &&
                     !is_in_line_sharp(pos_from, pos_to, size, iv) &&
-                    is_in_line_sharp_with_tolerance(pos_from, pos_to, size + 1.0, iv, 1) {
+                    is_in_line_sharp_with_tolerance(pos_from, pos_to, size + 1, iv, 1) {
                     let i = cells.vec_to_index(iv);
                     out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
                     out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
