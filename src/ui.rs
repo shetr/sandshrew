@@ -125,23 +125,24 @@ pub fn setup_ui(
             ..default()
         })
         .with_children(|parent| {
-            // left vertical fill (border)
+            // left vertical fill
             parent.spawn(NodeBundle {
                 style: Style {
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
-                    border: UiRect::all(Val::Px(2.)),
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::FlexEnd,
+                    align_items: AlignItems::Center,
+                    padding: UiRect::all(Val::Px(10.)),
                     ..default()
                 },
-                background_color: Color::rgb(0.65, 0.65, 0.65).into(),
+                background_color: Color::rgb(0.25, 0.25, 0.25).into(),
                 ..default()
             })
             .with_children(|parent| {
-                // left vertical fill (content)
+                // left material buttons section
                 parent.spawn(NodeBundle {
                     style: Style {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(100.0),
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
@@ -177,52 +178,66 @@ pub fn setup_ui(
             // render cell grid image
             parent.spawn(NodeBundle {
                 style: Style {
-                    width: Val::Px((out_tex_size + 20) as f32),
                     height: Val::Percent(100.0),
                     flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    padding: UiRect::horizontal(Val::Px(10.)),
                     ..default()
                 },
-                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                background_color: Color::rgb(0.25, 0.25, 0.25).into(),
                 ..default()
             }).with_children(|parent| {
-                parent.spawn((
-                    NodeBundle{
-                        style: Style {
-                            height: Val::Px(out_tex_size as f32),
-                            width: Val::Px(out_tex_size as f32),
-                            margin: UiRect::all(Val::Px(10.)),
-                            ..default()
-                        },
-                        background_color: Color::WHITE.into(),
+                parent.spawn(NodeBundle {
+                    style: Style {
+                        //width: Val::Px((out_tex_size + 20) as f32),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        padding: UiRect::all(Val::Px(10.)),
                         ..default()
                     },
-                    UiImage::new(img_handle.clone()),
-                    RelativeCursorPosition::default(),
-                ));
+                    background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                    ..default()
+                }).with_children(|parent| {
+                    parent.spawn((
+                        NodeBundle{
+                            style: Style {
+                                height: Val::Px(out_tex_size as f32),
+                                width: Val::Px(out_tex_size as f32),
+                                ..default()
+                            },
+                            background_color: Color::WHITE.into(),
+                            ..default()
+                        },
+                        UiImage::new(img_handle.clone()),
+                        RelativeCursorPosition::default(),
+                    ));
+                });
             });
-            // right tab
+            
+            // right vertical fill
             parent.spawn(NodeBundle {
                 style: Style {
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
-                    border: UiRect::all(Val::Px(2.)),
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::FlexStart,
+                    align_items: AlignItems::Center,
+                    padding: UiRect::all(Val::Px(10.)),
                     ..default()
                 },
-                background_color: Color::rgb(0.65, 0.65, 0.65).into(),
+                background_color: Color::rgb(0.25, 0.25, 0.25).into(),
                 ..default()
             })
             .with_children(|parent| {
-                // left vertical fill (content)
+                // right settings buttons
                 parent.spawn(NodeBundle {
                     style: Style {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(100.0),
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::FlexStart,
                         align_items: AlignItems::FlexStart,
-                        padding: UiRect::all(Val::Px(5.)),
+                        padding: UiRect::all(Val::Px(10.)),
                         row_gap: Val::Px(5.),
                         ..default()
                     },

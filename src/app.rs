@@ -34,7 +34,7 @@ pub fn run_sandshrew_app() {
                 primary_window: Some(Window {
                     title: "Sandshrew".into(),
                     name: Some("sandshrew.app".into()),
-                    resolution: (1280.0 , 820.0).into(),
+                    resolution: (1320.0 , 820.0).into(),
                     ..default()
                 }),
                 ..default()
