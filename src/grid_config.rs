@@ -7,6 +7,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
 {
     CellGrid {
         top_gass_leak: true,
+        powder_fall_prob: 0.95,
         liquid_fall_prob: 0.9,
         acid_reaction_prob: 0.05,
         neutralize_acid_prob: 0.1,
@@ -83,13 +84,13 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Oil => CellTypeProperties {
                 density: 1.5,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(10, 10, 10) },
-                color_rand_radius: 0.25,
-                color_change_prob: 0.003,
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(54, 41, 24) },
+                color_rand_radius: 0.1,
+                color_change_prob: 0.01,
                 movement_prob: 0.5,
                 fallthroug_prob: 0.3,
                 ignite_prob: 0.02,
-                timer: 300,
+                timer: 100,
                 smoke_after_burnout: true,
                 fire_color_prob: 0.6,
             },
@@ -153,17 +154,17 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
                 smoke_after_burnout: true,
                 fire_color_prob: 0.0,
             },
-            CellType::Ash => CellTypeProperties {
+            CellType::Coal => CellTypeProperties {
                 density: 10.0,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(26, 25, 25) },
+                colors: CellColors::CentricRGB { color: Color::rgb_u8(10, 10, 10) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
-                movement_prob: 0.95,
+                movement_prob: 0.1,
                 fallthroug_prob: 0.0,
-                ignite_prob: 0.0,
-                timer: 0,
+                ignite_prob: 0.01,
+                timer: 50,
                 smoke_after_burnout: true,
-                fire_color_prob: 0.0,
+                fire_color_prob: 0.5,
             },
         }
     }

@@ -13,6 +13,7 @@ use crate::cell::*;
 pub struct CellGrid
 {
     pub top_gass_leak: bool,
+    pub powder_fall_prob: f32,
     pub liquid_fall_prob: f32,
     pub acid_reaction_prob: f32,
     pub neutralize_acid_prob: f32,
@@ -247,7 +248,7 @@ impl CellGrid
     }
 
     fn update_powder(&mut self, pos: IVec2) {
-        if rand::thread_rng().gen::<f32>() > self.cell_properties[self.cells[pos].cell_type].movement_prob {
+        if rand::thread_rng().gen::<f32>() > self.powder_fall_prob {
             return;
         }
         let bottom_pos = pos + IVec2::new(0, -1);
@@ -256,6 +257,9 @@ impl CellGrid
                 if self.rand_fallthrough(bottom_pos) {
                     self.swap_cells(pos, bottom_pos);
                 }
+                return;
+            }
+            if rand::thread_rng().gen::<f32>() > self.cell_properties[self.cells[pos].cell_type].movement_prob {
                 return;
             }
             let bottom_left_dir = IVec2::new(-1, -1);

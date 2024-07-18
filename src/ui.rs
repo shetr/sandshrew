@@ -104,8 +104,8 @@ pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
             name: String::from("Glass"),
         },
         CellTypeButtonConfig {
-            cell_type: CellType::Ash,
-            name: String::from("Ash"),
+            cell_type: CellType::Coal,
+            name: String::from("Coal"),
         },
         //CellTypeButtonConfig {
         //    cell_type: CellType::Smoke,
