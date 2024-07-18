@@ -20,15 +20,14 @@ pub fn cell_type_button_interactions(
     let mut globals = globals_query.single_mut();
     for (interaction, mut color, mut border_color, cell_type) in &mut interaction_query {
         let cell_color = globals.grid.cell_properties[*cell_type].get_default_color();
-        let hover_cell_color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(0.75);
         match *interaction {
             Interaction::Pressed => {
-                *color = cell_color.into();
+                *color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.5).into();
                 border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 globals.place_cell_type = *cell_type;
             }
             Interaction::Hovered => {
-                *color = hover_cell_color.into();
+                *color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.25).into();
                 if globals.place_cell_type == *cell_type {
                     border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 } else {

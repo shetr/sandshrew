@@ -33,26 +33,32 @@ pub enum BrushType
     LineSharp,
 }
 
-pub const MAIN_BACKGROUND_COLOR: Color = Color::rgb(0.25, 0.25, 0.25);
-pub const SECTION_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
+pub const TEXT_LIGHT: Color = Color::rgb(0.88235, 0.88235, 0.88235);
+pub const TEXT_DARK: Color = Color::rgb(0.67843, 0.67843, 0.67843);
 
-pub const BASIC_BUTTON_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
-pub const BASIC_BUTTON_BORDER_COLOR: Color = Color::BLACK;
-pub const BASIC_BUTTON_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+pub const MAIN_BACKGROUND_COLOR: Color = Color::rgb(0.1216, 0.1216, 0.1216);
+pub const SECTION_BACKGROUND_COLOR: Color = Color::rgb(0.07059, 0.07059, 0.07059);
 
-pub const BASIC_BUTTON_HOVER_BACKGROUND_COLOR: Color = Color::rgb(0.25, 0.25, 0.25);
+pub const BASIC_BUTTON_BACKGROUND_COLOR: Color = SECTION_BACKGROUND_COLOR;
+pub const BASIC_BUTTON_BORDER_COLOR: Color = Color::rgb(0.2, 0.2, 0.2);
+pub const BASIC_BUTTON_TEXT_COLOR: Color = TEXT_LIGHT;
+
+pub const BASIC_BUTTON_HOVER_BACKGROUND_COLOR: Color = Color::rgb(0.1058, 0.1058, 0.1058);
 pub const BASIC_BUTTON_HOVER_BORDER_COLOR: Color = Color::rgb(0.5, 0.5, 0.5);
-pub const BASIC_BUTTON_HOVER_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+pub const BASIC_BUTTON_HOVER_TEXT_COLOR: Color = TEXT_LIGHT;
 
 pub const BASIC_BUTTON_SELECTED_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
 pub const BASIC_BUTTON_SELECTED_BORDER_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
-pub const BASIC_BUTTON_SELECTED_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+pub const BASIC_BUTTON_SELECTED_TEXT_COLOR: Color = TEXT_LIGHT;
 
-pub const CELL_BUTTON_BORDER_COLOR: Color = Color::BLACK;
-pub const CELL_BUTTON_HOVER_BORDER_COLOR: Color = Color::rgb(0.5, 0.5, 0.5);
-pub const CELL_BUTTON_SELECTED_BORDER_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
+pub const CELL_BUTTON_BORDER_COLOR: Color = BASIC_BUTTON_BORDER_COLOR;
+pub const CELL_BUTTON_HOVER_BORDER_COLOR: Color = BASIC_BUTTON_HOVER_BORDER_COLOR;
+pub const CELL_BUTTON_SELECTED_BORDER_COLOR: Color = BASIC_BUTTON_SELECTED_BORDER_COLOR;
 
-pub const CELL_BUTTON_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
+pub const CELL_BUTTON_TEXT_COLOR: Color = TEXT_LIGHT;
+
+pub const SECTION_PADDING: UiRect = UiRect::all(Val::Px(15.));
+pub const BUTTON_BORDER: UiRect = UiRect::all(Val::Px(3.0));
 
 pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
 {
@@ -149,8 +155,8 @@ pub fn setup_ui(
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
-                        padding: UiRect::all(Val::Px(10.)),
-                        row_gap: Val::Px(5.),
+                        padding: SECTION_PADDING,
+                        row_gap: Val::Px(10.),
                         ..default()
                     },
                     background_color: SECTION_BACKGROUND_COLOR.into(),
@@ -197,7 +203,7 @@ pub fn setup_ui(
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
-                        padding: UiRect::all(Val::Px(10.)),
+                        padding: SECTION_PADDING,
                         ..default()
                     },
                     background_color: SECTION_BACKGROUND_COLOR.into(),
@@ -240,8 +246,8 @@ pub fn setup_ui(
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::FlexStart,
                         align_items: AlignItems::FlexStart,
-                        padding: UiRect::all(Val::Px(10.)),
-                        row_gap: Val::Px(5.),
+                        padding: SECTION_PADDING,
+                        row_gap: Val::Px(10.),
                         ..default()
                     },
                     background_color: SECTION_BACKGROUND_COLOR.into(),
@@ -341,7 +347,7 @@ fn add_brush_type_button(
         style: Style {
             width: Val::Px(50.0),
             height: Val::Px(50.0),
-            border: UiRect::all(Val::Px(5.0)),
+            border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             ..default()
@@ -378,7 +384,7 @@ fn replace_solids_button(
         style: Style {
             width: Val::Px(150.0),
             height: Val::Px(50.0),
-            border: UiRect::all(Val::Px(5.0)),
+            border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             ..default()
@@ -408,7 +414,7 @@ fn top_gass_leak_button(
         style: Style {
             width: Val::Px(150.0),
             height: Val::Px(50.0),
-            border: UiRect::all(Val::Px(5.0)),
+            border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             ..default()
@@ -460,7 +466,7 @@ fn save_and_load_buttons(
             style: Style {
                 width: Val::Px(100.0),
                 height: Val::Px(50.0),
-                border: UiRect::all(Val::Px(5.0)),
+                border: BUTTON_BORDER,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 ..default()
@@ -485,7 +491,7 @@ fn save_and_load_buttons(
             style: Style {
                 width: Val::Px(100.0),
                 height: Val::Px(50.0),
-                border: UiRect::all(Val::Px(5.0)),
+                border: BUTTON_BORDER,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 ..default()
@@ -561,7 +567,7 @@ fn add_cell_type_button(
         style: Style {
             width: Val::Px(150.0),
             height: Val::Px(50.0),
-            border: UiRect::all(Val::Px(5.0)),
+            border: BUTTON_BORDER,
             // horizontally center child text
             justify_content: JustifyContent::Center,
             // vertically center child text
