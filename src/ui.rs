@@ -33,6 +33,9 @@ pub enum BrushType
     LineSharp,
 }
 
+pub const MAIN_BACKGROUND_COLOR: Color = Color::rgb(0.25, 0.25, 0.25);
+pub const SECTION_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
+
 pub const BASIC_BUTTON_BACKGROUND_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
 pub const BASIC_BUTTON_BORDER_COLOR: Color = Color::BLACK;
 pub const BASIC_BUTTON_TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 0.9);
@@ -136,7 +139,7 @@ pub fn setup_ui(
                     padding: UiRect::all(Val::Px(10.)),
                     ..default()
                 },
-                background_color: Color::rgb(0.25, 0.25, 0.25).into(),
+                background_color: MAIN_BACKGROUND_COLOR.into(),
                 ..default()
             })
             .with_children(|parent| {
@@ -150,7 +153,7 @@ pub fn setup_ui(
                         row_gap: Val::Px(5.),
                         ..default()
                     },
-                    background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                    background_color: SECTION_BACKGROUND_COLOR.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -185,7 +188,7 @@ pub fn setup_ui(
                     padding: UiRect::horizontal(Val::Px(10.)),
                     ..default()
                 },
-                background_color: Color::rgb(0.25, 0.25, 0.25).into(),
+                background_color: MAIN_BACKGROUND_COLOR.into(),
                 ..default()
             }).with_children(|parent| {
                 parent.spawn(NodeBundle {
@@ -197,7 +200,7 @@ pub fn setup_ui(
                         padding: UiRect::all(Val::Px(10.)),
                         ..default()
                     },
-                    background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                    background_color: SECTION_BACKGROUND_COLOR.into(),
                     ..default()
                 }).with_children(|parent| {
                     parent.spawn((
@@ -227,7 +230,7 @@ pub fn setup_ui(
                     padding: UiRect::all(Val::Px(10.)),
                     ..default()
                 },
-                background_color: Color::rgb(0.25, 0.25, 0.25).into(),
+                background_color: MAIN_BACKGROUND_COLOR.into(),
                 ..default()
             })
             .with_children(|parent| {
@@ -241,7 +244,7 @@ pub fn setup_ui(
                         row_gap: Val::Px(5.),
                         ..default()
                     },
-                    background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                    background_color: SECTION_BACKGROUND_COLOR.into(),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -316,7 +319,7 @@ fn brush_type(
             column_gap: Val::Px(5.),
             ..default()
         },
-        background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+        background_color: SECTION_BACKGROUND_COLOR.into(),
         ..default()
     })
     .with_children(|parent| {
@@ -448,7 +451,7 @@ fn save_and_load_buttons(
             column_gap: Val::Px(5.),
             ..default()
         },
-        background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+        background_color: SECTION_BACKGROUND_COLOR.into(),
         ..default()
     })
     .with_children(|parent| {
