@@ -40,6 +40,7 @@ pub const TEXT_FONT: &str = "fonts/RetroGaming.ttf";
 
 pub const MAIN_BACKGROUND_COLOR: Color = Color::rgb(0.1216, 0.1216, 0.1216);
 pub const SECTION_BACKGROUND_COLOR: Color = Color::rgb(0.07059, 0.07059, 0.07059);
+pub const SUBSECTION_BACKGROUND_COLOR: Color = MAIN_BACKGROUND_COLOR;
 
 pub const BASIC_BUTTON_BACKGROUND_COLOR: Color = SECTION_BACKGROUND_COLOR;
 pub const BASIC_BUTTON_BORDER_COLOR: Color = Color::rgb(0.2, 0.2, 0.2);
@@ -60,7 +61,11 @@ pub const CELL_BUTTON_SELECTED_BORDER_COLOR: Color = BASIC_BUTTON_SELECTED_BORDE
 pub const CELL_BUTTON_TEXT_COLOR: Color = TEXT_LIGHT;
 
 pub const SECTION_PADDING: UiRect = UiRect::all(Val::Px(15.));
+pub const SUBSECTION_PADDING: UiRect = UiRect::all(Val::Px(10.));
 pub const BUTTON_BORDER: UiRect = UiRect::all(Val::Px(3.0));
+
+pub const SECTION_ROW_GAP: Val = Val::Px(10.);
+pub const SUBSECTION_ROW_GAP: Val = Val::Px(10.);
 
 pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
 {
@@ -247,30 +252,28 @@ pub fn setup_ui(
                     style: Style {
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::FlexStart,
-                        align_items: AlignItems::FlexStart,
+                        align_items: AlignItems::FlexEnd,
                         padding: SECTION_PADDING,
-                        row_gap: Val::Px(10.),
+                        row_gap: SECTION_ROW_GAP,
                         ..default()
                     },
                     background_color: SECTION_BACKGROUND_COLOR.into(),
                     ..default()
                 })
                 .with_children(|parent| {
-                    // FPS counter
-                    fps_counter(parent, asset_server);
                     // Brush type
                     brush_type(parent, asset_server);
                     // Brush size
                     brush_size(parent, asset_server);
-                    // Replace solids
-                    replace_solids_button(parent, asset_server);
-                    // Top gass leak
-                    top_gass_leak_button(parent, asset_server);
+                    // Toggle settings
+                    toggle_settings(parent, asset_server);
                     // Save & Load buttons
                     #[cfg(not(target_arch = "wasm32"))]
                     save_and_load_buttons(parent, asset_server);
                     // Controls
                     controls_help(parent, asset_server);
+                    // FPS counter
+                    fps_counter(parent, asset_server);
                 });
             });
         });
@@ -281,61 +284,89 @@ fn fps_counter(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-    parent.spawn((
-        // Create a TextBundle that has a Text with a list of sections.
-        TextBundle::from_sections([
-            TextSection::new(
-                "FPS: ",
-                TextStyle {
-                    // This font is loaded and will be used instead of the default font.
-                    font: asset_server.load(TEXT_FONT),
-                    font_size: 40.0,
-                    ..default()
-                },
-            ),
-            TextSection::new(
-                "60",
-                TextStyle {
-                    font: asset_server.load(TEXT_FONT),
-                    font_size: 40.0,
-                    color: Color::GOLD,
-                }
-            ),
-        ]),
-        FpsText,
-    ));
-}
-
-fn brush_type(
-    parent: &mut ChildBuilder,
-    asset_server: &Res<AssetServer>,
-) {
-    parent.spawn(TextBundle::from_section(
-        "Brush type:",
-        TextStyle {
-            font: asset_server.load(TEXT_FONT),
-            font_size: 40.0,
-            ..default()
-        },
-    ));
     parent.spawn(NodeBundle {
         style: Style {
             flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::FlexStart,
             align_items: AlignItems::FlexStart,
-            padding: UiRect::all(Val::Px(5.)),
-            column_gap: Val::Px(5.),
+            padding: SUBSECTION_PADDING,
+            row_gap: SUBSECTION_ROW_GAP,
             ..default()
         },
         background_color: SECTION_BACKGROUND_COLOR.into(),
         ..default()
     })
     .with_children(|parent| {
-        // buttons
-        add_brush_type_button(parent, asset_server, BrushType::Circle, "Ci");
-        add_brush_type_button(parent, asset_server, BrushType::Square, "Sq");
-        add_brush_type_button(parent, asset_server, BrushType::LineRound, "LR");
-        add_brush_type_button(parent, asset_server, BrushType::LineSharp, "LS");
+        parent.spawn((
+            // Create a TextBundle that has a Text with a list of sections.
+            TextBundle::from_sections([
+                TextSection::new(
+                    "FPS: ",
+                    TextStyle {
+                        // This font is loaded and will be used instead of the default font.
+                        font: asset_server.load(TEXT_FONT),
+                        font_size: 20.0,
+                        ..default()
+                    },
+                ),
+                TextSection::new(
+                    "60",
+                    TextStyle {
+                        font: asset_server.load(TEXT_FONT),
+                        font_size: 20.0,
+                        color: Color::GOLD,
+                    }
+                ),
+            ]),
+            FpsText,
+        ));
+    });
+}
+
+fn brush_type(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+) {
+    parent.spawn(NodeBundle {
+        style: Style {
+            flex_direction: FlexDirection::Column,
+            width: Val::Percent(100.0),
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            padding: SUBSECTION_PADDING,
+            row_gap: SUBSECTION_ROW_GAP,
+            ..default()
+        },
+        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        ..default()
+    })
+    .with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            "Brush type",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 40.0,
+                ..default()
+            },
+        ));
+        parent.spawn(NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::FlexStart,
+                align_items: AlignItems::FlexStart,
+                column_gap: Val::Px(10.),
+                ..default()
+            },
+            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+            ..default()
+        })
+        .with_children(|parent| {
+            // buttons
+            add_brush_type_button(parent, asset_server, BrushType::Circle, "Ci");
+            add_brush_type_button(parent, asset_server, BrushType::Square, "Sq");
+            add_brush_type_button(parent, asset_server, BrushType::LineRound, "LR");
+            add_brush_type_button(parent, asset_server, BrushType::LineSharp, "LS");
+        });
     });
 }
 
@@ -376,6 +407,29 @@ fn brush_size(
     asset_server: &Res<AssetServer>,
 ) {
 
+}
+
+fn toggle_settings(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+) {
+    parent.spawn(NodeBundle {
+        style: Style {
+            flex_direction: FlexDirection::Column,
+            width: Val::Percent(100.0),
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            padding: SUBSECTION_PADDING,
+            row_gap: SUBSECTION_ROW_GAP,
+            ..default()
+        },
+        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        ..default()
+    })
+    .with_children(|parent| {
+        replace_solids_button(parent, asset_server);
+        top_gass_leak_button(parent, asset_server);
+    });
 }
 
 fn replace_solids_button(
@@ -442,118 +496,146 @@ fn save_and_load_buttons(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-    parent.spawn(TextBundle::from_section(
-        "File:",
-        TextStyle {
-            font: asset_server.load(TEXT_FONT),
-            font_size: 40.0,
-            ..default()
-        },
-    ));
     parent.spawn(NodeBundle {
         style: Style {
-            flex_direction: FlexDirection::Row,
+            flex_direction: FlexDirection::Column,
+            width: Val::Percent(100.0),
             justify_content: JustifyContent::FlexStart,
             align_items: AlignItems::FlexStart,
-            padding: UiRect::all(Val::Px(5.)),
-            column_gap: Val::Px(5.),
+            padding: SUBSECTION_PADDING,
+            row_gap: SUBSECTION_ROW_GAP,
             ..default()
         },
-        background_color: SECTION_BACKGROUND_COLOR.into(),
+        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
         ..default()
     })
     .with_children(|parent| {
-        // Save Button
-        parent.spawn((ButtonBundle {
-            style: Style {
-                width: Val::Px(100.0),
-                height: Val::Px(50.0),
-                border: BUTTON_BORDER,
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
+        parent.spawn(TextBundle::from_section(
+            "File",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 40.0,
                 ..default()
             },
-            border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-            background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-            ..default()
-        }, SaveButton
-        ))
-        .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Save",
-                TextStyle {
-                    font: asset_server.load(TEXT_FONT),
-                    font_size: 20.0,
-                    color: BASIC_BUTTON_TEXT_COLOR,
-                },
-            ));
-        });
-        // Load button
-        parent.spawn((ButtonBundle {
+        ));
+        parent.spawn(NodeBundle {
             style: Style {
-                width: Val::Px(100.0),
-                height: Val::Px(50.0),
-                border: BUTTON_BORDER,
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::FlexStart,
+                align_items: AlignItems::FlexStart,
+                column_gap: Val::Px(10.),
                 ..default()
             },
-            border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-            background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
             ..default()
-        }, LoadButton
-        ))
+        })
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Load",
-                TextStyle {
-                    font: asset_server.load(TEXT_FONT),
-                    font_size: 20.0,
-                    color: BASIC_BUTTON_TEXT_COLOR,
+            // Save Button
+            parent.spawn((ButtonBundle {
+                style: Style {
+                    width: Val::Px(100.0),
+                    height: Val::Px(50.0),
+                    border: BUTTON_BORDER,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
                 },
-            ));
+                border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+                background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+                ..default()
+            }, SaveButton
+            ))
+            .with_children(|parent| {
+                parent.spawn(TextBundle::from_section(
+                    "Save",
+                    TextStyle {
+                        font: asset_server.load(TEXT_FONT),
+                        font_size: 20.0,
+                        color: BASIC_BUTTON_TEXT_COLOR,
+                    },
+                ));
+            });
+            // Load button
+            parent.spawn((ButtonBundle {
+                style: Style {
+                    width: Val::Px(100.0),
+                    height: Val::Px(50.0),
+                    border: BUTTON_BORDER,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+                background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+                ..default()
+            }, LoadButton
+            ))
+            .with_children(|parent| {
+                parent.spawn(TextBundle::from_section(
+                    "Load",
+                    TextStyle {
+                        font: asset_server.load(TEXT_FONT),
+                        font_size: 20.0,
+                        color: BASIC_BUTTON_TEXT_COLOR,
+                    },
+                ));
+            });
         });
     });
-    
 }
 
 fn controls_help(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-    parent.spawn(TextBundle::from_section(
-        "Controls:",
-        TextStyle {
-            font: asset_server.load(TEXT_FONT),
-            font_size: 40.0,
+    parent.spawn(NodeBundle {
+        style: Style {
+            flex_direction: FlexDirection::Column,
+            width: Val::Percent(100.0),
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            padding: SUBSECTION_PADDING,
+            row_gap: SUBSECTION_ROW_GAP,
             ..default()
         },
-    ));
-
-    parent.spawn(TextBundle::from_section(
-        "Mouse Left - add material",
-        TextStyle {
-            font: asset_server.load(TEXT_FONT),
-            font_size: 20.0,
-            ..default()
-        },
-    ));
-    parent.spawn(TextBundle::from_section(
-        "Mouse Right - remove material",
-        TextStyle {
-            font: asset_server.load(TEXT_FONT),
-            font_size: 20.0,
-            ..default()
-        },
-    ));
-    parent.spawn(TextBundle::from_section(
-        "Mouse Scroll - brush size",
-        TextStyle {
-            font: asset_server.load(TEXT_FONT),
-            font_size: 20.0,
-            ..default()
-        },
-    ));
+        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        ..default()
+    })
+    .with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            "Controls",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 40.0,
+                ..default()
+            },
+        ));
+    
+        parent.spawn(TextBundle::from_section(
+            "Mouse Left - add material",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 20.0,
+                ..default()
+            },
+        ));
+        parent.spawn(TextBundle::from_section(
+            "Mouse Right - remove material",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 20.0,
+                ..default()
+            },
+        ));
+        parent.spawn(TextBundle::from_section(
+            "Mouse Scroll - brush size",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 20.0,
+                ..default()
+            },
+        ));
+    });
 }
 
 fn add_cell_type_button(
