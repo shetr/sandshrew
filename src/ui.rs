@@ -36,6 +36,8 @@ pub enum BrushType
 pub const TEXT_LIGHT: Color = Color::rgb(0.88235, 0.88235, 0.88235);
 pub const TEXT_DARK: Color = Color::rgb(0.67843, 0.67843, 0.67843);
 
+pub const TEXT_FONT: &str = "fonts/RetroGaming.ttf";
+
 pub const MAIN_BACKGROUND_COLOR: Color = Color::rgb(0.1216, 0.1216, 0.1216);
 pub const SECTION_BACKGROUND_COLOR: Color = Color::rgb(0.07059, 0.07059, 0.07059);
 
@@ -166,9 +168,9 @@ pub fn setup_ui(
                     // text
                     parent.spawn((
                         TextBundle::from_section(
-                            "Material:",
+                            "Material",
                             TextStyle {
-                                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                                font: asset_server.load(TEXT_FONT),
                                 font_size: 40.0,
                                 ..default()
                             },
@@ -286,7 +288,7 @@ fn fps_counter(
                 "FPS: ",
                 TextStyle {
                     // This font is loaded and will be used instead of the default font.
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font: asset_server.load(TEXT_FONT),
                     font_size: 40.0,
                     ..default()
                 },
@@ -294,7 +296,7 @@ fn fps_counter(
             TextSection::new(
                 "60",
                 TextStyle {
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font: asset_server.load(TEXT_FONT),
                     font_size: 40.0,
                     color: Color::GOLD,
                 }
@@ -311,7 +313,7 @@ fn brush_type(
     parent.spawn(TextBundle::from_section(
         "Brush type:",
         TextStyle {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font: asset_server.load(TEXT_FONT),
             font_size: 40.0,
             ..default()
         },
@@ -361,7 +363,7 @@ fn add_brush_type_button(
         parent.spawn(TextBundle::from_section(
             name,
             TextStyle {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
                 color: BASIC_BUTTON_TEXT_COLOR,
             },
@@ -382,7 +384,7 @@ fn replace_solids_button(
 ) {
     parent.spawn((ButtonBundle {
         style: Style {
-            width: Val::Px(150.0),
+            width: Val::Px(200.0),
             height: Val::Px(50.0),
             border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
@@ -398,7 +400,7 @@ fn replace_solids_button(
         parent.spawn(TextBundle::from_section(
             "Replace solids",
             TextStyle {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
                 color: BASIC_BUTTON_TEXT_COLOR,
             },
@@ -412,7 +414,7 @@ fn top_gass_leak_button(
 ) {
     parent.spawn((ButtonBundle {
         style: Style {
-            width: Val::Px(150.0),
+            width: Val::Px(200.0),
             height: Val::Px(50.0),
             border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
@@ -428,7 +430,7 @@ fn top_gass_leak_button(
         parent.spawn(TextBundle::from_section(
             "Top gass leak",
             TextStyle {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
                 color: BASIC_BUTTON_TEXT_COLOR,
             },
@@ -443,7 +445,7 @@ fn save_and_load_buttons(
     parent.spawn(TextBundle::from_section(
         "File:",
         TextStyle {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font: asset_server.load(TEXT_FONT),
             font_size: 40.0,
             ..default()
         },
@@ -480,7 +482,7 @@ fn save_and_load_buttons(
             parent.spawn(TextBundle::from_section(
                 "Save",
                 TextStyle {
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font: asset_server.load(TEXT_FONT),
                     font_size: 20.0,
                     color: BASIC_BUTTON_TEXT_COLOR,
                 },
@@ -505,7 +507,7 @@ fn save_and_load_buttons(
             parent.spawn(TextBundle::from_section(
                 "Load",
                 TextStyle {
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    font: asset_server.load(TEXT_FONT),
                     font_size: 20.0,
                     color: BASIC_BUTTON_TEXT_COLOR,
                 },
@@ -522,7 +524,7 @@ fn controls_help(
     parent.spawn(TextBundle::from_section(
         "Controls:",
         TextStyle {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font: asset_server.load(TEXT_FONT),
             font_size: 40.0,
             ..default()
         },
@@ -531,7 +533,7 @@ fn controls_help(
     parent.spawn(TextBundle::from_section(
         "Mouse Left - add material",
         TextStyle {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font: asset_server.load(TEXT_FONT),
             font_size: 20.0,
             ..default()
         },
@@ -539,7 +541,7 @@ fn controls_help(
     parent.spawn(TextBundle::from_section(
         "Mouse Right - remove material",
         TextStyle {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font: asset_server.load(TEXT_FONT),
             font_size: 20.0,
             ..default()
         },
@@ -547,7 +549,7 @@ fn controls_help(
     parent.spawn(TextBundle::from_section(
         "Mouse Scroll - brush size",
         TextStyle {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            font: asset_server.load(TEXT_FONT),
             font_size: 20.0,
             ..default()
         },
@@ -583,7 +585,7 @@ fn add_cell_type_button(
         parent.spawn(TextBundle::from_section(
             &button_config.name,
             TextStyle {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
                 color: CELL_BUTTON_TEXT_COLOR,
             },
