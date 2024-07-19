@@ -62,6 +62,14 @@ impl GridDisplay {
         }
     }
 
+    pub fn set_color(&self, cells: &Vector2D<Cell>, iv: IVec2, out_image: &mut Image, color: Vec3, a: f32)
+    {
+        let i = cells.vec_to_index(iv);
+        out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
+        out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
+        out_image.data[i*4 + 2] = (a * color.z * 255.0 + (out_image.data[i*4 + 2] as f32) * (1.0 - a)) as u8;
+    }
+
     pub fn draw_brush_edge_circle(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, size: i32)
     {
         let pos = IVec2 { x: pos.x, y: cells.sizes.y - pos.y - 1 };
@@ -73,10 +81,7 @@ impl GridDisplay {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if cells.is_in_range(iv) && !is_in_radius(pos, size, iv) && is_in_radius(pos, size + 1, iv) {
-                    let i = cells.vec_to_index(iv);
-                    out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
-                    out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
-                    out_image.data[i*4 + 2] = (a * color.z * 255.0 + (out_image.data[i*4 + 2] as f32) * (1.0 - a)) as u8;
+                    self.set_color(cells, iv, out_image, color, a);
                 }
             }
         }
@@ -93,10 +98,7 @@ impl GridDisplay {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if cells.is_in_range(iv) && (x == start_pos.x || y == start_pos.y || x == end_pos.x - 1 || y == end_pos.y - 1) {
-                    let i = cells.vec_to_index(iv);
-                    out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
-                    out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
-                    out_image.data[i*4 + 2] = (a * color.z * 255.0 + (out_image.data[i*4 + 2] as f32) * (1.0 - a)) as u8;
+                    self.set_color(cells, iv, out_image, color, a);
                 }
             }
         }
@@ -116,10 +118,7 @@ impl GridDisplay {
                 if cells.is_in_range(iv) &&
                     !is_in_line_round(pos_from, pos_to, size, iv) &&
                     is_in_line_round(pos_from, pos_to, size + 1, iv) {
-                    let i = cells.vec_to_index(iv);
-                    out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
-                    out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
-                    out_image.data[i*4 + 2] = (a * color.z * 255.0 + (out_image.data[i*4 + 2] as f32) * (1.0 - a)) as u8;
+                    self.set_color(cells, iv, out_image, color, a);
                 }
             }
         }
@@ -139,10 +138,7 @@ impl GridDisplay {
                 if cells.is_in_range(iv) &&
                     !is_in_line_sharp(pos_from, pos_to, size, iv) &&
                     is_in_line_sharp_with_tolerance(pos_from, pos_to, size + 1, iv, 1) {
-                    let i = cells.vec_to_index(iv);
-                    out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
-                    out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
-                    out_image.data[i*4 + 2] = (a * color.z * 255.0 + (out_image.data[i*4 + 2] as f32) * (1.0 - a)) as u8;
+                    self.set_color(cells, iv, out_image, color, a);
                 }
             }
         }

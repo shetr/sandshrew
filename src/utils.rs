@@ -149,6 +149,52 @@ impl<T : Clone> IndexMut<IVec3> for Vector3D<T> {
     }
 }
 
+// area of the pixel is square with size 1
+pub fn circle_area_inside_of_a_pixel(origin: IVec2, radius: i32, pixel_pos: IVec2) -> f32 {
+    let origin = origin.as_vec2();
+    let pixel_pos = pixel_pos.as_vec2();
+    let pixel_corners = [
+        pixel_pos + Vec2::new(-0.5, -0.5),
+        pixel_pos + Vec2::new( 0.5, -0.5),
+        pixel_pos + Vec2::new( 0.5,  0.5),
+        pixel_pos + Vec2::new(-0.5,  0.5),
+    ];
+    0.0
+}
+
+pub fn circle_distance(origin: IVec2, radius: i32, pos: IVec2) -> f32 {
+    let origin = origin.as_vec2();
+    let pos = pos.as_vec2();
+    let diff = pos - origin;
+    let diff_sqr = diff * diff;
+    (diff_sqr.x + diff_sqr.y - ((radius * radius) as f32)).sqrt()
+}
+
+pub fn line_sharp_distance(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -> f32 {
+    let pos_from = pos_from.as_vec2();
+    let pos_to = pos_to.as_vec2();
+    let pos = pos.as_vec2();
+
+    let line_dir = pos_to - pos_from;
+    let line_length = line_dir.length();
+    let line_dir = line_dir.normalize();
+    let line_normal = line_dir.perp();
+    let rel_pos = pos - pos_from;
+    let pos_on_dir = line_dir.dot(rel_pos);
+    let pos_on_normal = line_normal.dot(rel_pos).abs();
+
+    let dir_dist1 = -pos_on_dir;
+    let dir_dist2 = pos_on_dir - line_length;
+    let normal_dist = pos_on_normal - (size as f32);
+    dir_dist1.max(dir_dist2).max(normal_dist)
+}
+
+pub fn line_round_distance(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -> f32 {
+    circle_distance(pos_from, size, pos)
+    .min(circle_distance(pos_to, size, pos))
+    .min(line_sharp_distance(pos_from, pos_to, size, pos))
+}
+
 pub fn is_in_radius(origin: IVec2, radius: i32, pos: IVec2) -> bool {
     let diff = pos - origin;
     let diff_sqr = diff * diff;
