@@ -34,7 +34,7 @@ pub enum BrushType
 }
 
 pub const TEXT_LIGHT: Color = Color::rgb(0.88235, 0.88235, 0.88235);
-pub const TEXT_DARK: Color = Color::rgb(0.67843, 0.67843, 0.67843);
+pub const TEXT_DIMM: Color = Color::rgb(0.77843, 0.77843, 0.77843);
 
 pub const TEXT_FONT: &str = "fonts/RetroGaming.ttf";
 
@@ -44,7 +44,7 @@ pub const SUBSECTION_BACKGROUND_COLOR: Color = MAIN_BACKGROUND_COLOR;
 
 pub const BASIC_BUTTON_BACKGROUND_COLOR: Color = SECTION_BACKGROUND_COLOR;
 pub const BASIC_BUTTON_BORDER_COLOR: Color = Color::rgb(0.2, 0.2, 0.2);
-pub const BASIC_BUTTON_TEXT_COLOR: Color = TEXT_LIGHT;
+pub const BASIC_BUTTON_TEXT_COLOR: Color = TEXT_DIMM;
 
 pub const BASIC_BUTTON_HOVER_BACKGROUND_COLOR: Color = Color::rgb(0.1058, 0.1058, 0.1058);
 pub const BASIC_BUTTON_HOVER_BORDER_COLOR: Color = Color::rgb(0.5, 0.5, 0.5);
@@ -58,7 +58,7 @@ pub const CELL_BUTTON_BORDER_COLOR: Color = BASIC_BUTTON_BORDER_COLOR;
 pub const CELL_BUTTON_HOVER_BORDER_COLOR: Color = BASIC_BUTTON_HOVER_BORDER_COLOR;
 pub const CELL_BUTTON_SELECTED_BORDER_COLOR: Color = BASIC_BUTTON_SELECTED_BORDER_COLOR;
 
-pub const CELL_BUTTON_TEXT_COLOR: Color = TEXT_LIGHT;
+pub const CELL_BUTTON_TEXT_COLOR: Color = TEXT_DIMM;
 
 pub const SECTION_PADDING: UiRect = UiRect::all(Val::Px(15.));
 pub const SUBSECTION_PADDING: UiRect = UiRect::all(Val::Px(10.));
@@ -177,6 +177,7 @@ pub fn setup_ui(
                             TextStyle {
                                 font: asset_server.load(TEXT_FONT),
                                 font_size: 40.0,
+                                color: TEXT_LIGHT,
                                 ..default()
                             },
                         ),
@@ -252,7 +253,7 @@ pub fn setup_ui(
                     style: Style {
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::FlexStart,
-                        align_items: AlignItems::FlexEnd,
+                        align_items: AlignItems::FlexStart,
                         padding: SECTION_PADDING,
                         row_gap: SECTION_ROW_GAP,
                         ..default()
@@ -306,6 +307,7 @@ fn fps_counter(
                         // This font is loaded and will be used instead of the default font.
                         font: asset_server.load(TEXT_FONT),
                         font_size: 20.0,
+                        color: TEXT_DIMM,
                         ..default()
                     },
                 ),
@@ -346,6 +348,7 @@ fn brush_type(
             TextStyle {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 40.0,
+                color: TEXT_LIGHT,
                 ..default()
             },
         ));
@@ -515,6 +518,7 @@ fn save_and_load_buttons(
             TextStyle {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 40.0,
+                color: TEXT_LIGHT,
                 ..default()
             },
         ));
@@ -607,6 +611,7 @@ fn controls_help(
             TextStyle {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 40.0,
+                color: TEXT_LIGHT,
                 ..default()
             },
         ));
@@ -616,6 +621,7 @@ fn controls_help(
             TextStyle {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
+                color: TEXT_DIMM,
                 ..default()
             },
         ));
@@ -624,6 +630,7 @@ fn controls_help(
             TextStyle {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
+                color: TEXT_DIMM,
                 ..default()
             },
         ));
@@ -632,6 +639,7 @@ fn controls_help(
             TextStyle {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
+                color: TEXT_DIMM,
                 ..default()
             },
         ));
