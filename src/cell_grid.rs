@@ -267,6 +267,13 @@ impl CellGrid
             let bottom_side_dir = if rand::random() { bottom_right_dir } else { bottom_left_dir };
             let bottom_side_pos = pos + bottom_side_dir;
             if self.cells.is_in_range(bottom_side_pos) && !self.cells[bottom_side_pos].is_solid() {
+                if self.cells[bottom_side_pos].is_liquid() {
+                    // ensure more steep angles inside of a liquid
+                    let more_down_pos = bottom_side_pos + IVec2::new(0, -1);
+                    if self.cells.is_in_range(more_down_pos) && self.cells[more_down_pos].is_solid() {
+                        return;
+                    }
+                }
                 if self.rand_fallthrough(bottom_side_pos) {
                     self.swap_cells(pos, bottom_side_pos);
                 }
