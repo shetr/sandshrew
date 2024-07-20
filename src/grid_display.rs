@@ -80,7 +80,7 @@ impl GridDisplay {
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
-                if cells.is_in_range(iv) && !is_in_radius(pos, size, iv) && is_in_radius(pos, size + 1, iv) {
+                if cells.is_in_range(iv) && !is_in_radius_i(pos, size, iv) && is_in_radius_i(pos, size + 1, iv) {
                     self.set_color(cells, iv, out_image, color, a);
                 }
             }

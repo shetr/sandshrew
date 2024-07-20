@@ -62,7 +62,7 @@ impl CellGrid
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
-                if self.cells.is_in_range(iv) && is_in_radius(pos, size, iv) && (replace_solids || !self.cells[iv].is_solid()) {
+                if self.cells.is_in_range(iv) && is_in_radius_i(pos, size, iv) && (replace_solids || !self.cells[iv].is_solid()) {
                     if self.cells[iv].cell_type != cell_type {
                         self.cells[iv] = self.new_cell(cell_type);
                     }

@@ -149,9 +149,40 @@ impl<T : Clone> IndexMut<IVec3> for Vector3D<T> {
     }
 }
 
+// we suppose that there is only one intersection
+pub fn circle_line_segment_1_intersection(c_origin: Vec2, c_radius: f32, l_pos1: Vec2, l_pos2: Vec2) -> Option<Vec2> {
+
+    None
+}
+
+pub fn triangle_area(pos1: Vec2, pos2: Vec2, pos3: Vec2) -> f32 {
+    0.5 * (pos1.x * pos2.y - pos1.x * pos3.y + pos2.x * pos3.y - pos2.x * pos1.y + pos3.x * pos1.y - pos3.x * pos2.y).abs()
+}
+
+// we suppose that line segment verticies don't lie on the circle origin
+pub fn circle_arc_area(c_origin: Vec2, c_radius: f32, l_pos1: Vec2, l_pos2: Vec2) -> f32 {
+    let dir1 = l_pos1 - c_origin;
+    let dir2 = l_pos2 - c_origin;
+    let angle = dir1.angle_between(dir2).abs();
+    angle * c_radius * c_radius
+}
+
+pub fn circle_arc_cut_area(c_origin: Vec2, c_radius: f32, l_pos1: Vec2, l_pos2: Vec2) -> f32 {
+    circle_arc_area(c_origin, c_radius, l_pos1, l_pos2) - triangle_area(l_pos1, l_pos2, c_origin)
+}
+
+pub fn polygon_area(verts: &[Vec2]) -> f32 {
+    let mut area = 0.0;
+    for i in 2..verts.len() {
+        area += triangle_area(verts[0], verts[i - 1], verts[i]);
+    }
+    area
+}
+
 // area of the pixel is square with size 1
 pub fn circle_area_inside_of_a_pixel(origin: IVec2, radius: i32, pixel_pos: IVec2) -> f32 {
     let origin = origin.as_vec2();
+    let radius = radius as f32;
     let pixel_pos = pixel_pos.as_vec2();
     let pixel_corners = [
         pixel_pos + Vec2::new(-0.5, -0.5),
@@ -159,7 +190,34 @@ pub fn circle_area_inside_of_a_pixel(origin: IVec2, radius: i32, pixel_pos: IVec
         pixel_pos + Vec2::new( 0.5,  0.5),
         pixel_pos + Vec2::new(-0.5,  0.5),
     ];
-    0.0
+    let mut poly_verts = [Vec2::ZERO; 5];
+    let mut intersections = [Vec2::ZERO; 2];
+    let mut poly_verts_count = 0;
+    let mut intersections_count = 0;
+    for i in 0..pixel_corners.len() {
+        if is_in_radius(origin, radius, pixel_corners[i]) {
+            poly_verts[poly_verts_count] = pixel_corners[i];
+            poly_verts_count += 1;
+        }
+        let l_pos1 = pixel_corners[i];
+        let l_pos2 = pixel_corners[(i + 1) % pixel_corners.len()];
+        if let Some(intersection) = circle_line_segment_1_intersection(origin, radius, l_pos1, l_pos2) {
+            poly_verts[poly_verts_count] = intersection;
+            poly_verts_count += 1;
+            intersections[intersections_count] = intersection;
+            intersections_count += 1;
+        }
+    }
+    let mut area = polygon_area(&poly_verts[0..poly_verts_count]);
+    if intersections_count == 2 {
+        area += circle_arc_cut_area(origin, radius, intersections[0], intersections[1]);
+    }
+    // compute intersections with edges - from them compute arc parts of the area
+    //   in simple scenarios there are only 2 intersections, but there could be more, in that case they need to be sorted into the arcs
+    //   maybe because of the precondition of pixel size 1 and circle origin with whole number coordinates these scenarios don't appear
+    //   but that should be proven
+    // create polygon from the edge intersection and pixel corners inside the circle - compute its area
+    area
 }
 
 pub fn circle_distance(origin: IVec2, radius: i32, pos: IVec2) -> f32 {
@@ -195,7 +253,13 @@ pub fn line_round_distance(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2
     .min(line_sharp_distance(pos_from, pos_to, size, pos))
 }
 
-pub fn is_in_radius(origin: IVec2, radius: i32, pos: IVec2) -> bool {
+pub fn is_in_radius(origin: Vec2, radius: f32, pos: Vec2) -> bool {
+    let diff = pos - origin;
+    let diff_sqr = diff * diff;
+    diff_sqr.x + diff_sqr.y < radius * radius
+}
+
+pub fn is_in_radius_i(origin: IVec2, radius: i32, pos: IVec2) -> bool {
     let diff = pos - origin;
     let diff_sqr = diff * diff;
     diff_sqr.x + diff_sqr.y < radius * radius
@@ -221,8 +285,8 @@ pub fn is_in_line_sharp_with_tolerance(mut pos_from: IVec2, mut pos_to: IVec2, s
 }
 
 pub fn is_in_line_round(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -> bool {
-    is_in_radius(pos_from, size, pos) ||
-    is_in_radius(pos_to, size, pos) ||
+    is_in_radius_i(pos_from, size, pos) ||
+    is_in_radius_i(pos_to, size, pos) ||
     is_in_line_sharp(pos_from, pos_to, size, pos)
 }
 
