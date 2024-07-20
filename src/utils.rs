@@ -149,9 +149,38 @@ impl<T : Clone> IndexMut<IVec3> for Vector3D<T> {
     }
 }
 
-// we suppose that there is only one intersection
+// we suppose that there is only one intersection and l_pos1 and l_pos2 are not equal
 pub fn circle_line_segment_1_intersection(c_origin: Vec2, c_radius: f32, l_pos1: Vec2, l_pos2: Vec2) -> Option<Vec2> {
-
+    // circle: (x - c_o.x) ^ 2 + (y - c_o.y) ^ 2 = c_r * c_r
+    let c_o = c_origin;
+    let c_r = c_radius;
+    // line segment: x, y = lo + l_d * t ; t in <0, 1>
+    let l_o = l_pos1;
+    let l_d = l_pos2 - l_pos1;
+    // put together: 
+    // (lo.x + l_d.x * t - c_o.x) ^ 2 + (lo.y + l_d.y * t - c_o.y) ^ 2 = c_r * c_r
+    // lo.x^2 + 2*lo.x*l_d.x*t - 2*lo.x*c_o.x + l_d.x^2*t^2 - 2*c_o.x*l_d.x*t + c_o.x^2 + ... = c_r * c_r
+    // l_d.x^2*t^2 + (2*lo.x*l_d.x - 2*c_o.x*l_d.x)*t + (lo.x^2 + c_o.x^2 - 2*lo.x*c_o.x) + ... = c_r * c_r
+    // (l_d.x^2 + l_d.y^2)*t^2 + (2*lo.x*l_d.x - 2*c_o.x*l_d.x + 2*lo.y*l_d.y - 2*c_o.y*l_d.y)*t + (lo.x^2 + c_o.x^2 - 2*lo.x*c_o.x + lo.y^2 + c_o.y^2 - 2*lo.y*c_o.y) = c_r * c_r
+    // a * t^2 + b * t + c = 0
+    let av = l_d * l_d;
+    let bv = 2.0 * l_o * l_d - 2.0 * c_o * l_d;
+    let cv = l_o * l_o + c_o * c_o - 2.0 * l_o * c_o;
+    let a = av.x + av.y;
+    let b = bv.x + bv.y;
+    let c = cv.x + cv.y - c_r * c_r;
+    let d = b * b - 4.0 * a * c;
+    if d < 0.0 {
+        return None;
+    }
+    let t1 = (-b + d) / (2.0 * a);
+    if t1 >= 0.0 && t1 <= 1.0 {
+        return Some(l_o + l_d * t1);
+    }
+    let t2 = (-b - d) / (2.0 * a);
+    if t2 >= 0.0 && t2 <= 1.0 {
+        return Some(l_o + l_d * t2);
+    }
     None
 }
 
