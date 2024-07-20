@@ -139,8 +139,8 @@ impl GridDisplay {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if cells.is_in_range(iv) &&
-                    !is_in_line_sharp(pos_from, pos_to, size, iv) &&
-                    is_in_line_sharp_with_tolerance(pos_from, pos_to, size + 1, iv, 1) {
+                    !is_in_line_sharp_i(pos_from, pos_to, size, iv) &&
+                    is_in_line_sharp_with_tolerance_i(pos_from, pos_to, size + 1, iv, 1) {
                     self.set_color(cells, iv, out_image, color, a);
                 }
             }

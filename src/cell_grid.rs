@@ -35,7 +35,9 @@ impl CellGrid
             BrushType::Circle => {
                 if let Some(prev_pos) = prev_pos {
                     // TODO: enable again after the set_cells_line_round code is fixed
-                    //self.set_cells_line_round(prev_pos, pos, size, cell_type, replace_solids);
+                    if prev_pos != pos {
+                        //self.set_cells_line_round(prev_pos, pos, size, cell_type, replace_solids);
+                    }
                 } else {
                     self.set_cells_circle(pos, size, cell_type, replace_solids);
                 }
@@ -112,7 +114,7 @@ impl CellGrid
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
-                if self.cells.is_in_range(iv) && is_in_line_sharp(pos_from, pos_to, size, iv) && (replace_solids || !self.cells[iv].is_solid()) {
+                if self.cells.is_in_range(iv) && is_in_line_sharp_i(pos_from, pos_to, size, iv) && (replace_solids || !self.cells[iv].is_solid()) {
                     if self.cells[iv].cell_type != cell_type {
                         self.cells[iv] = self.new_cell(cell_type);
                     }

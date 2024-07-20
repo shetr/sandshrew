@@ -246,6 +246,46 @@ pub fn circle_area_inside_of_a_pixel(origin: IVec2, radius: i32, pixel_pos: IVec
     area
 }
 
+pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: i32, extension: i32, pixel_pos: IVec2) -> f32 {
+    let mut pos_from = pos_from.as_vec2();
+    let mut pos_to = pos_to.as_vec2();
+    let width = width as f32;
+    let pixel_pos = pixel_pos.as_vec2();
+    if extension > 0 {
+        let mut line_dir = pos_to - pos_from;
+        let shift = line_dir.normalize() * (extension as f32);
+        pos_from = pos_from - shift;
+        pos_to = pos_to + shift;
+        line_dir = pos_to - pos_from;
+    }
+    let pixel_corners = [
+        pixel_pos + Vec2::new(-0.5, -0.5),
+        pixel_pos + Vec2::new( 0.5, -0.5),
+        pixel_pos + Vec2::new( 0.5,  0.5),
+        pixel_pos + Vec2::new(-0.5,  0.5),
+    ];
+    let mut poly_verts = [Vec2::ZERO; 5];
+    let mut intersections = [Vec2::ZERO; 2];
+    let mut poly_verts_count = 0;
+    let mut intersections_count = 0;
+    for i in 0..pixel_corners.len() {
+        if is_in_line_sharp(pos_from, pos_to, width, 0.0, pixel_corners[i]) {
+            poly_verts[poly_verts_count] = pixel_corners[i];
+            poly_verts_count += 1;
+        }
+        let l_pos1 = pixel_corners[i];
+        let l_pos2 = pixel_corners[(i + 1) % pixel_corners.len()];
+        // TODO: intersections of all line sharp edges
+        //if let Some(intersection) = circle_line_segment_1_intersection(origin, radius, l_pos1, l_pos2) {
+        //    poly_verts[poly_verts_count] = intersection;
+        //    poly_verts_count += 1;
+        //    intersections[intersections_count] = intersection;
+        //    intersections_count += 1;
+        //}
+    }
+    polygon_area(&poly_verts[0..poly_verts_count])
+}
+
 pub fn circle_distance(origin: IVec2, radius: i32, pos: IVec2) -> f32 {
     let origin = origin.as_vec2();
     let pos = pos.as_vec2();
@@ -291,11 +331,11 @@ pub fn is_in_radius_i(origin: IVec2, radius: i32, pos: IVec2) -> bool {
     diff_sqr.x + diff_sqr.y < radius * radius
 }
 
-pub fn is_in_line_sharp(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -> bool {
-    is_in_line_sharp_with_tolerance(pos_from, pos_to, size, pos, 0)
+pub fn is_in_line_sharp_i(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -> bool {
+    is_in_line_sharp_with_tolerance_i(pos_from, pos_to, size, pos, 0)
 }
 
-pub fn is_in_line_sharp_with_tolerance(mut pos_from: IVec2, mut pos_to: IVec2, size: i32, pos: IVec2, tolerance: i32) -> bool {
+pub fn is_in_line_sharp_with_tolerance_i(mut pos_from: IVec2, mut pos_to: IVec2, size: i32, pos: IVec2, tolerance: i32) -> bool {
     let mut line_dir = pos_to - pos_from;
     if tolerance > 0 {
         let shift = line_dir.as_vec2().normalize().round().as_ivec2() * tolerance;
@@ -310,10 +350,25 @@ pub fn is_in_line_sharp_with_tolerance(mut pos_from: IVec2, mut pos_to: IVec2, s
     pos_on_dir_scaled >= 0 && pos_on_dir_scaled <= line_dir.length_squared() && pos_on_normal <= (size as f32)
 }
 
+pub fn is_in_line_sharp(mut pos_from: Vec2, mut pos_to: Vec2, width: f32, extension: f32, pos: Vec2) -> bool {
+    let mut line_dir = pos_to - pos_from;
+    if extension > 0.0 {
+        let shift = line_dir.normalize() * extension;
+        pos_from = pos_from - shift;
+        pos_to = pos_to + shift;
+        line_dir = pos_to - pos_from;
+    }
+    let line_normal = line_dir.perp().normalize();
+    let rel_pos = pos - pos_from;
+    let pos_on_dir_scaled = line_dir.dot(rel_pos);
+    let pos_on_normal = line_normal.dot(rel_pos).abs();
+    pos_on_dir_scaled >= 0.0 && pos_on_dir_scaled <= line_dir.length_squared() && pos_on_normal <= (width as f32)
+}
+
 pub fn is_in_line_round(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -> bool {
     is_in_radius_i(pos_from, size, pos) ||
     is_in_radius_i(pos_to, size, pos) ||
-    is_in_line_sharp(pos_from, pos_to, size, pos)
+    is_in_line_sharp_i(pos_from, pos_to, size, pos)
 }
 
 pub fn dda<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, mut handle_pos: HandlePos)
