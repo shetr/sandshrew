@@ -219,6 +219,8 @@ pub fn circle_area_inside_of_a_pixel(origin: IVec2, radius: i32, pixel_pos: IVec
         pixel_pos + Vec2::new( 0.5,  0.5),
         pixel_pos + Vec2::new(-0.5,  0.5),
     ];
+    // because all the input values are whole nubers, we don't have to handle some extreme cases,
+    // there are at most 2 intersections with the circle
     let mut poly_verts = [Vec2::ZERO; 5];
     let mut intersections = [Vec2::ZERO; 2];
     let mut poly_verts_count = 0;
@@ -241,11 +243,6 @@ pub fn circle_area_inside_of_a_pixel(origin: IVec2, radius: i32, pixel_pos: IVec
     if intersections_count == 2 {
         area += circle_arc_cut_area(origin, radius, intersections[0], intersections[1]);
     }
-    // compute intersections with edges - from them compute arc parts of the area
-    //   in simple scenarios there are only 2 intersections, but there could be more, in that case they need to be sorted into the arcs
-    //   maybe because of the precondition of pixel size 1 and circle origin with whole number coordinates these scenarios don't appear
-    //   but that should be proven
-    // create polygon from the edge intersection and pixel corners inside the circle - compute its area
     area
 }
 
