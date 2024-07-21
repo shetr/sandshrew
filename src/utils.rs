@@ -194,7 +194,27 @@ pub fn line_segments_intersection(l1_pos1: Vec2, l1_pos2: Vec2, l2_pos1: Vec2, l
     // solve: l1_o + l1_d * t1 = l2_o + l2_d * t2
     // l1_d * t1 - l2_d * t2 = l2_o - l1_o
     // (l1_d; -l2_d)*(t1; t2)^T = l2_o - l1_o
-    None
+    // (a c) (t1)   (e)    [a c | e]
+    // (b d) (t2) = (f) -> [b d | f]
+    let a = l1_d.x;
+    let b = l1_d.y;
+    let c = -l2_d.x;
+    let d = -l2_d.y;
+    let e = l2_o.x - l1_o.x;
+    let f = l2_o.y - l1_o.y;
+    // compute with cramer's rule
+    let det_m = a * d - b * c;
+    if det_m == 0.0 {
+        return None;
+    }
+    let det_t1 = e * d - f * c;
+    let det_t2 = a * f - b * e;
+    let t1 = det_t1 / det_m;
+    let t2 = det_t2 / det_m;
+    if t1 < 0.0 || t1 > 1.0 || t2 < 0.0 || t2 > 1.0 {
+        return None;
+    }
+    Some(l1_o + l1_d * t1)
 }
 
 pub fn triangle_area(pos1: Vec2, pos2: Vec2, pos3: Vec2) -> f32 {
