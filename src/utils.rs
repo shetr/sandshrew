@@ -184,6 +184,19 @@ pub fn circle_line_segment_1_intersection(c_origin: Vec2, c_radius: f32, l_pos1:
     None
 }
 
+pub fn line_segments_intersection(l1_pos1: Vec2, l1_pos2: Vec2, l2_pos1: Vec2, l2_pos2: Vec2) -> Option<Vec2> {
+    // line segment 1: x, y = l1_o + l1_d * t1 ; t1 in <0, 1>
+    let l1_o = l1_pos1;
+    let l1_d = l1_pos2 - l1_pos1;
+    // line segment 2: x, y = l2_o + l2_d * t2 ; t2 in <0, 1>
+    let l2_o = l2_pos1;
+    let l2_d = l2_pos2 - l2_pos1;
+    // solve: l1_o + l1_d * t1 = l2_o + l2_d * t2
+    // l1_d * t1 - l2_d * t2 = l2_o - l1_o
+    // (l1_d; -l2_d)*(t1; t2)^T = l2_o - l1_o
+    None
+}
+
 pub fn triangle_area(pos1: Vec2, pos2: Vec2, pos3: Vec2) -> f32 {
     0.5 * (pos1.x * pos2.y - pos1.x * pos3.y + pos2.x * pos3.y - pos2.x * pos1.y + pos3.x * pos1.y - pos3.x * pos2.y).abs()
 }
@@ -227,12 +240,18 @@ pub fn circle_area_inside_of_a_pixel(origin: IVec2, radius: i32, pixel_pos: IVec
     let mut intersections_count = 0;
     for i in 0..pixel_corners.len() {
         if is_in_radius(origin, radius, pixel_corners[i]) {
+            if poly_verts_count >= poly_verts.len() {
+                break;
+            }
             poly_verts[poly_verts_count] = pixel_corners[i];
             poly_verts_count += 1;
         }
         let l_pos1 = pixel_corners[i];
         let l_pos2 = pixel_corners[(i + 1) % pixel_corners.len()];
         if let Some(intersection) = circle_line_segment_1_intersection(origin, radius, l_pos1, l_pos2) {
+            if poly_verts_count >= poly_verts.len() || intersections_count >= intersections.len() {
+                break;
+            }
             poly_verts[poly_verts_count] = intersection;
             poly_verts_count += 1;
             intersections[intersections_count] = intersection;
@@ -270,6 +289,9 @@ pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: 
     let mut intersections_count = 0;
     for i in 0..pixel_corners.len() {
         if is_in_line_sharp(pos_from, pos_to, width, 0.0, pixel_corners[i]) {
+            if poly_verts_count >= poly_verts.len() {
+                break;
+            }
             poly_verts[poly_verts_count] = pixel_corners[i];
             poly_verts_count += 1;
         }
@@ -284,6 +306,15 @@ pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: 
         //}
     }
     polygon_area(&poly_verts[0..poly_verts_count])
+}
+
+pub fn line_round_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: i32, extension: i32, pixel_pos: IVec2) -> f32 {
+    // this is just an aproximation, but for our purposes it should suffice
+    line_sharp_area_inside_of_a_pixel(pos_from, pos_to, width, extension, pixel_pos).max(
+        circle_area_inside_of_a_pixel(pos_from, width, pixel_pos).max(
+            circle_area_inside_of_a_pixel(pos_to, width, pixel_pos)
+        )
+    )
 }
 
 pub fn circle_distance(origin: IVec2, radius: i32, pos: IVec2) -> f32 {
