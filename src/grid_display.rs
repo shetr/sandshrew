@@ -143,6 +143,12 @@ impl GridDisplay {
                     is_in_line_sharp_with_tolerance_i(pos_from, pos_to, size + 1, iv, 1) {
                     self.set_color(cells, iv, out_image, color, a);
                 }
+                //let intersect_area =
+                //    line_sharp_area_inside_of_a_pixel(pos_from, pos_to, size + 1, 1, iv) -
+                //    line_sharp_area_inside_of_a_pixel(pos_from, pos_to, size, 0, iv);
+                //if cells.is_in_range(iv) && intersect_area > 0.0 {
+                //    self.set_color(cells, iv, out_image, color, a * intersect_area);
+                //}
             }
         }
     }

@@ -305,18 +305,18 @@ pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: 
         pixel_pos + Vec2::new(-0.5,  0.5),
     ];
     let line_sharp_corners = [
-        pos_from - line_normal,
         pos_from + line_normal,
-        pos_from + line_normal + line_dir,
+        pos_from - line_normal,
         pos_from - line_normal + line_dir,
+        pos_from + line_normal + line_dir,
     ];
     let mut poly_verts = [Vec2::ZERO; 8];
     let mut poly_verts_count = 0;
     let mut pixel_corners_pos = 0;
     let mut line_sharp_corners_pos = 0;
     let mut traverse_line_sharp_corners = true;
-    let mut visited_count = 0;
-    while visited_count < (line_sharp_corners.len() + pixel_corners.len()) {
+    let mut pixel_corners_visited_count = 0;
+    while (traverse_line_sharp_corners && line_sharp_corners_pos < line_sharp_corners.len()) || (!traverse_line_sharp_corners && pixel_corners_visited_count < pixel_corners.len()) {
         if traverse_line_sharp_corners {
             while traverse_line_sharp_corners && line_sharp_corners_pos < line_sharp_corners.len() {
                 let l1_pos1 = line_sharp_corners[line_sharp_corners_pos];
@@ -339,10 +339,9 @@ pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: 
                     }
                 }
                 line_sharp_corners_pos += 1;
-                visited_count += 1;
             }
         } else {
-            while !traverse_line_sharp_corners && visited_count < (line_sharp_corners.len() + pixel_corners.len()) {
+            while !traverse_line_sharp_corners && pixel_corners_visited_count < pixel_corners.len() {
                 let l1_pos1 = pixel_corners[pixel_corners_pos];
                 let l1_pos2 = pixel_corners[(pixel_corners_pos + 1) % pixel_corners.len()];
                 if is_in_line_sharp(pos_from, pos_to, width, 0.0, l1_pos1) {
@@ -363,7 +362,7 @@ pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: 
                     }
                 }
                 pixel_corners_pos = (pixel_corners_pos + 1) % pixel_corners.len();
-                visited_count += 1;
+                pixel_corners_visited_count += 1;
             }
         }
     }
