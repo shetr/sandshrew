@@ -290,8 +290,9 @@ pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: 
     let mut pos_to = pos_to.as_vec2();
     let width = width as f32;
     let pixel_pos = pixel_pos.as_vec2();
+    let mut line_dir = pos_to - pos_from;
+    let line_normal = line_dir.perp().normalize();
     if extension > 0 {
-        let mut line_dir = pos_to - pos_from;
         let shift = line_dir.normalize() * (extension as f32);
         pos_from = pos_from - shift;
         pos_to = pos_to + shift;
@@ -303,27 +304,68 @@ pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: 
         pixel_pos + Vec2::new( 0.5,  0.5),
         pixel_pos + Vec2::new(-0.5,  0.5),
     ];
-    let mut poly_verts = [Vec2::ZERO; 5];
-    let mut intersections = [Vec2::ZERO; 2];
+    let line_sharp_corners = [
+        pos_from - line_normal,
+        pos_from + line_normal,
+        pos_from + line_normal + line_dir,
+        pos_from - line_normal + line_dir,
+    ];
+    let mut poly_verts = [Vec2::ZERO; 8];
     let mut poly_verts_count = 0;
-    let mut intersections_count = 0;
-    for i in 0..pixel_corners.len() {
-        if is_in_line_sharp(pos_from, pos_to, width, 0.0, pixel_corners[i]) {
-            if poly_verts_count >= poly_verts.len() {
-                break;
+    let mut pixel_corners_pos = 0;
+    let mut line_sharp_corners_pos = 0;
+    let mut traverse_line_sharp_corners = true;
+    let mut visited_count = 0;
+    while visited_count < (line_sharp_corners.len() + pixel_corners.len()) {
+        if traverse_line_sharp_corners {
+            while traverse_line_sharp_corners && line_sharp_corners_pos < line_sharp_corners.len() {
+                let l1_pos1 = line_sharp_corners[line_sharp_corners_pos];
+                let l1_pos2 = line_sharp_corners[(line_sharp_corners_pos + 1) % line_sharp_corners.len()];
+                if is_in_pixel(pixel_pos, l1_pos1) {
+                    poly_verts[poly_verts_count] = l1_pos1;
+                    poly_verts_count += 1;
+                    if !is_in_pixel(pixel_pos, l1_pos2) {
+                        for i in 0..pixel_corners.len() {
+                            let l2_pos1 = pixel_corners[i];
+                            let l2_pos2 = pixel_corners[(i + 1) % pixel_corners.len()];
+                            if let Some(intersection) = line_segments_intersection(l1_pos1, l1_pos2, l2_pos1, l2_pos2) {
+                                poly_verts[poly_verts_count] = intersection;
+                                poly_verts_count += 1;
+                                traverse_line_sharp_corners = false;
+                                pixel_corners_pos = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                line_sharp_corners_pos += 1;
+                visited_count += 1;
             }
-            poly_verts[poly_verts_count] = pixel_corners[i];
-            poly_verts_count += 1;
+        } else {
+            while !traverse_line_sharp_corners && visited_count < (line_sharp_corners.len() + pixel_corners.len()) {
+                let l1_pos1 = pixel_corners[pixel_corners_pos];
+                let l1_pos2 = pixel_corners[(pixel_corners_pos + 1) % pixel_corners.len()];
+                if is_in_line_sharp(pos_from, pos_to, width, 0.0, l1_pos1) {
+                    poly_verts[poly_verts_count] = l1_pos1;
+                    poly_verts_count += 1;
+                    if !is_in_line_sharp(pos_from, pos_to, width, 0.0, l1_pos2) {
+                        for i in 0..line_sharp_corners.len() {
+                            let l2_pos1 = line_sharp_corners[i];
+                            let l2_pos2 = line_sharp_corners[(i + 1) % line_sharp_corners.len()];
+                            if let Some(intersection) = line_segments_intersection(l1_pos1, l1_pos2, l2_pos1, l2_pos2) {
+                                poly_verts[poly_verts_count] = intersection;
+                                poly_verts_count += 1;
+                                traverse_line_sharp_corners = true;
+                                line_sharp_corners_pos = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                pixel_corners_pos = (pixel_corners_pos + 1) % pixel_corners.len();
+                visited_count += 1;
+            }
         }
-        let l_pos1 = pixel_corners[i];
-        let l_pos2 = pixel_corners[(i + 1) % pixel_corners.len()];
-        // TODO: intersections of all line sharp edges
-        //if let Some(intersection) = circle_line_segment_1_intersection(origin, radius, l_pos1, l_pos2) {
-        //    poly_verts[poly_verts_count] = intersection;
-        //    poly_verts_count += 1;
-        //    intersections[intersections_count] = intersection;
-        //    intersections_count += 1;
-        //}
     }
     polygon_area(&poly_verts[0..poly_verts_count])
 }
@@ -414,6 +456,10 @@ pub fn is_in_line_sharp(mut pos_from: Vec2, mut pos_to: Vec2, width: f32, extens
     let pos_on_dir_scaled = line_dir.dot(rel_pos);
     let pos_on_normal = line_normal.dot(rel_pos).abs();
     pos_on_dir_scaled >= 0.0 && pos_on_dir_scaled <= line_dir.length_squared() && pos_on_normal <= (width as f32)
+}
+
+pub fn is_in_pixel(pixel_pos: Vec2, pos: Vec2) -> bool {
+    pos.x >= pixel_pos.x - 0.5 && pos.x <= pixel_pos.x + 0.5 && pos.y >= pixel_pos.y - 0.5 && pos.y <= pixel_pos.y + 0.5
 }
 
 pub fn is_in_line_round(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -> bool {
