@@ -138,17 +138,17 @@ impl GridDisplay {
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
-                if cells.is_in_range(iv) &&
-                    !is_in_line_sharp_i(pos_from, pos_to, size, iv) &&
-                    is_in_line_sharp_with_tolerance_i(pos_from, pos_to, size + 1, iv, 1) {
-                    self.set_color(cells, iv, out_image, color, a);
-                }
-                //let intersect_area =
-                //    line_sharp_area_inside_of_a_pixel(pos_from, pos_to, size + 1, 1, iv) -
-                //    line_sharp_area_inside_of_a_pixel(pos_from, pos_to, size, 0, iv);
-                //if cells.is_in_range(iv) && intersect_area > 0.0 {
-                //    self.set_color(cells, iv, out_image, color, a * intersect_area);
+                //if cells.is_in_range(iv) &&
+                //    !is_in_line_sharp_i(pos_from, pos_to, size, iv) &&
+                //    is_in_line_sharp_with_tolerance_i(pos_from, pos_to, size + 1, iv, 1) {
+                //    self.set_color(cells, iv, out_image, color, a);
                 //}
+                let intersect_area =
+                    line_sharp_area_inside_of_a_pixel(pos_from, pos_to, size + 1, 1, iv) -
+                    line_sharp_area_inside_of_a_pixel(pos_from, pos_to, size, 0, iv);
+                if cells.is_in_range(iv) && intersect_area > 0.0 {
+                    self.set_color(cells, iv, out_image, color, a * intersect_area);
+                }
             }
         }
     }
