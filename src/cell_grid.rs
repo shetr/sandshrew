@@ -128,7 +128,7 @@ impl CellGrid
         //    }
         //}
 
-        let set_cell = |pos: IVec2| {
+        let mut set_cell = |pos: IVec2| {
             if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
                 if self.cells[pos].cell_type != cell_type {
                     self.cells[pos] = self.new_cell(cell_type);
@@ -136,7 +136,7 @@ impl CellGrid
             }
         };
         
-        dda_thick(pos_from, pos_to, size, set_cell);
+        dda_thick(pos_from, pos_to, size, &mut set_cell);
     }
 
     pub fn update(&mut self, frame_num: usize)

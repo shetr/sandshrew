@@ -496,7 +496,7 @@ pub fn is_in_line_round(pos_from: IVec2, pos_to: IVec2, size: i32, pos: IVec2) -
     is_in_line_sharp_i(pos_from, pos_to, size, pos)
 }
 
-pub fn dda<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, mut handle_pos: HandlePos)
+pub fn dda<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, handle_pos: &mut HandlePos)
 {
     let mut dir = pos_to - pos_from;
     let abs_dir = dir.abs();
@@ -520,7 +520,7 @@ pub fn dda<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, mut 
 }
 
 // can call handle_pos multiple times for the same pos
-pub fn dda_thick<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, thickness: i32, mut handle_pos: HandlePos)
+pub fn dda_thick<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, thickness: i32, handle_pos: &mut HandlePos)
 {
     let mut dir = pos_to - pos_from;
     let abs_dir = dir.abs();
@@ -558,4 +558,40 @@ pub fn dda_thick<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2
             }
         }
     }
+}
+
+pub fn dda_thick_outline<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, thickness: i32, handle_pos: &mut HandlePos)
+{
+    let mut dir = pos_to - pos_from;
+    let abs_dir = dir.abs();
+    let swap_xy = abs_dir.y > abs_dir.x;
+    if swap_xy {
+        pos_from = pos_from.yx();
+        pos_to = pos_to.yx();
+        dir = dir.yx();
+    }
+    let swap_from_to = pos_from.x > pos_to.x;
+    if swap_from_to {
+        swap(&mut pos_from, &mut pos_to);
+        dir = -dir;
+    }
+    let dir_norm = dir.as_vec2().normalize();
+    let ky = (dir.y as f32) / (dir.x as f32);
+    let kx = -ky;
+    let y_shift = ((thickness as f32) * dir_norm).x.round() as i32;
+    
+    let mut start_pos1 = IVec2::new(pos_from.x + ((kx * (-y_shift as f32)).round() as i32), pos_from.y - y_shift);
+    let mut start_pos2 = IVec2::new(pos_from.x + ((kx * (y_shift as f32)).round() as i32), pos_from.y + y_shift);
+    let mut end_pos1 = IVec2::new(start_pos1.x + dir.x, start_pos1.y + ((ky * (dir.x as f32)).round() as i32));
+    let mut end_pos2 = IVec2::new(start_pos2.x + dir.x, start_pos2.y + ((ky * (dir.x as f32)).round() as i32));
+    if swap_xy { 
+        start_pos1 = start_pos1.yx();
+        start_pos2 = start_pos2.yx();
+        end_pos1 = end_pos1.yx();
+        end_pos2 = end_pos2.yx();
+    }
+    dda(start_pos1, start_pos2, handle_pos);
+    dda(start_pos1, end_pos1, handle_pos);
+    dda(start_pos2, end_pos2, handle_pos);
+    dda(end_pos1, end_pos2, handle_pos);
 }
