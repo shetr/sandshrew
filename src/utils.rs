@@ -538,16 +538,21 @@ pub fn dda_thick<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2
     let dir_norm = dir.as_vec2().normalize();
     let ky = (dir.y as f32) / (dir.x as f32);
     let kx = -ky;
-    let y_shift = ((thickness as f32) * dir_norm).x.round() as i32;
+    //let y_shift = ((thickness as f32) * dir_norm).x.round() as i32;
     for yi in -thickness..=thickness {
-        //let start_pos = IVec2::new(pos_from.x + ((kx * (yi as f32)).round() as i32), pos_from.y + yi);
-        let start_pos = IVec2::new(pos_from.x, pos_from.y + yi);
+        //let start_pos = IVec2::new(pos_from.x, pos_from.y + yi);
         // TODO: the y pattern should be the same as the x pattern
-        let x_shift = -((yi as f32) * dir_norm.y * dir_norm.x).round() as i32;
-        for xi in x_shift..=(dir.x + x_shift) {
-            let mut pos = IVec2::new(start_pos.x + xi, start_pos.y + ((ky * (xi as f32)).round() as i32));
-            if swap_xy { pos = pos.yx(); }
-            handle_pos(pos);
+        //let x_shift = -((yi as f32) * dir_norm.y * dir_norm.x).round() as i32;
+        for x_shift in 0..2 {
+            if yi == -thickness && x_shift == 1 {
+                continue;
+            }
+            let start_pos = IVec2::new(pos_from.x + ((kx * (yi as f32)).round() as i32) + x_shift, pos_from.y + yi);
+            for xi in 0..=(dir.x - x_shift) {
+                let mut pos = IVec2::new(start_pos.x + xi, start_pos.y + ((ky * (xi as f32)).round() as i32));
+                if swap_xy { pos = pos.yx(); }
+                handle_pos(pos);
+            }
         }
     }
 }
