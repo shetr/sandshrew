@@ -519,7 +519,7 @@ pub fn dda<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, mut 
     }
 }
 
-// incorrect, has holes inside
+// can call handle_pos multiple times for the same pos
 pub fn dda_thick<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2, thickness: i32, mut handle_pos: HandlePos)
 {
     let mut dir = pos_to - pos_from;
@@ -538,14 +538,17 @@ pub fn dda_thick<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2
     let dir_norm = dir.as_vec2().normalize();
     let ky = (dir.y as f32) / (dir.x as f32);
     let kx = -ky;
-    //let y_shift = ((thickness as f32) * dir_norm).x.round() as i32;
-    for yi in -thickness..=thickness {
-        //let start_pos = IVec2::new(pos_from.x, pos_from.y + yi);
-        // TODO: the y pattern should be the same as the x pattern
-        //let x_shift = -((yi as f32) * dir_norm.y * dir_norm.x).round() as i32;
+    let y_shift = ((thickness as f32) * dir_norm).x.round() as i32;
+    let sign_equal = !((dir.x > 0 && dir.y < 0) || (dir.x < 0 && dir.y > 0));
+    for yi in -y_shift..=y_shift {
         for x_shift in 0..2 {
-            if yi == -thickness && x_shift == 1 {
-                continue;
+            if x_shift == 1 {
+                if yi == -y_shift && sign_equal {
+                    continue;
+                }
+                if yi == y_shift && !sign_equal {
+                    continue;
+                }
             }
             let start_pos = IVec2::new(pos_from.x + ((kx * (yi as f32)).round() as i32) + x_shift, pos_from.y + yi);
             for xi in 0..=(dir.x - x_shift) {
