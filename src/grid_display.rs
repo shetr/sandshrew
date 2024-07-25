@@ -121,18 +121,28 @@ impl GridDisplay {
         let pos_to = IVec2 { x: pos_to.x, y: cells.sizes.y - pos_to.y - 1 };
         let color = self.brush_edge_color.rgb_to_vec3();
         let a = self.brush_edge_color.a();
-        let start_pos = (pos_from - size - 1).min(pos_to - size - 1);
-        let end_pos = (pos_from + size + 2).max(pos_to + size + 2);
-        for y in start_pos.y..end_pos.y {
-            for x in start_pos.x..end_pos.x {
-                let iv = IVec2::new(x, y);
-                if cells.is_in_range(iv) &&
-                    !is_in_line_round(pos_from, pos_to, size, iv) &&
-                    is_in_line_round(pos_from, pos_to, size + 1, iv) {
-                    self.set_color(cells, iv, out_image, color, a);
-                }
+        //let start_pos = (pos_from - size - 1).min(pos_to - size - 1);
+        //let end_pos = (pos_from + size + 2).max(pos_to + size + 2);
+        //for y in start_pos.y..end_pos.y {
+        //    for x in start_pos.x..end_pos.x {
+        //        let iv = IVec2::new(x, y);
+        //        if cells.is_in_range(iv) &&
+        //            !is_in_line_round(pos_from, pos_to, size, iv) &&
+        //            is_in_line_round(pos_from, pos_to, size + 1, iv) {
+        //            self.set_color(cells, iv, out_image, color, a);
+        //        }
+        //    }
+        //}
+        
+        let mut set_color = |pos: IVec2| {
+            if cells.is_in_range(pos) {
+                self.set_color(cells, pos, out_image, color, a);
             }
-        }
+        };
+        
+        dda_thick_outline(pos_from, pos_to, size, &mut set_color);
+        bresenham_circle_edge(pos_from, size, &mut set_color);
+        bresenham_circle_edge(pos_to, size, &mut set_color);
     }
 
     pub fn draw_brush_edge_line_sharp(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos_from: IVec2, pos_to: IVec2, size: i32)
