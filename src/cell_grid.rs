@@ -60,19 +60,29 @@ impl CellGrid
 
     pub fn set_cells_circle(&mut self, pos: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
     {
-        let start_pos = pos - size;
-        let end_pos = pos + size + 1;
-        for y in start_pos.y..end_pos.y {
-            for x in start_pos.x..end_pos.x {
-                let iv = IVec2::new(x, y);
-                let intersect_area = circle_area_inside_of_a_pixel(pos, size, iv);
-                if self.cells.is_in_range(iv) && intersect_area == 1.0 && (replace_solids || !self.cells[iv].is_solid()) {
-                    if self.cells[iv].cell_type != cell_type {
-                        self.cells[iv] = self.new_cell(cell_type);
-                    }
+        //let start_pos = pos - size;
+        //let end_pos = pos + size + 1;
+        //for y in start_pos.y..end_pos.y {
+        //    for x in start_pos.x..end_pos.x {
+        //        let iv = IVec2::new(x, y);
+        //        let intersect_area = circle_area_inside_of_a_pixel(pos, size, iv);
+        //        if self.cells.is_in_range(iv) && intersect_area == 1.0 && (replace_solids || !self.cells[iv].is_solid()) {
+        //            if self.cells[iv].cell_type != cell_type {
+        //                self.cells[iv] = self.new_cell(cell_type);
+        //            }
+        //        }
+        //    }
+        //}
+
+        let mut set_cell = |pos: IVec2| {
+            if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
+                if self.cells[pos].cell_type != cell_type {
+                    self.cells[pos] = self.new_cell(cell_type);
                 }
             }
-        }
+        };
+        
+        bresenham_circle_fill(pos, size, &mut set_cell);
     }
 
     pub fn set_cells_square(&mut self, pos: IVec2, size: i32, cell_type: CellType, replace_solids: bool)

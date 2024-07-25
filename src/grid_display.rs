@@ -75,19 +75,27 @@ impl GridDisplay {
         let pos = IVec2 { x: pos.x, y: cells.sizes.y - pos.y - 1 };
         let color = self.brush_edge_color.rgb_to_vec3();
         let a = self.brush_edge_color.a();
-        let start_pos = pos - size - 1;
-        let end_pos = pos + size + 2;
-        for y in start_pos.y..end_pos.y {
-            for x in start_pos.x..end_pos.x {
-                let iv = IVec2::new(x, y);
-                let intersect_area =
-                    circle_area_inside_of_a_pixel(pos, size + 1, iv) -
-                    circle_area_inside_of_a_pixel(pos, size, iv);
-                if cells.is_in_range(iv) && intersect_area > 0.0 {
-                    self.set_color(cells, iv, out_image, color, a * intersect_area);
-                }
+        //let start_pos = pos - size - 1;
+        //let end_pos = pos + size + 2;
+        //for y in start_pos.y..end_pos.y {
+        //    for x in start_pos.x..end_pos.x {
+        //        let iv = IVec2::new(x, y);
+        //        let intersect_area =
+        //            circle_area_inside_of_a_pixel(pos, size + 1, iv) -
+        //            circle_area_inside_of_a_pixel(pos, size, iv);
+        //        if cells.is_in_range(iv) && intersect_area > 0.0 {
+        //            self.set_color(cells, iv, out_image, color, a * intersect_area);
+        //        }
+        //    }
+        //}
+
+        let mut set_color = |pos: IVec2| {
+            if cells.is_in_range(pos) {
+                self.set_color(cells, pos, out_image, color, a);
             }
-        }
+        };
+        
+        bresenham_circle_edge(pos, size, &mut set_color);
     }
 
     pub fn draw_brush_edge_square(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, size: i32)
@@ -133,8 +141,8 @@ impl GridDisplay {
         let pos_to = IVec2 { x: pos_to.x, y: cells.sizes.y - pos_to.y - 1 };
         let color = self.brush_edge_color.rgb_to_vec3();
         let a = self.brush_edge_color.a();
-        let start_pos = (pos_from - size - 1).min(pos_to - size - 1);
-        let end_pos = (pos_from + size + 2).max(pos_to + size + 2);
+        //let start_pos = (pos_from - size - 1).min(pos_to - size - 1);
+        //let end_pos = (pos_from + size + 2).max(pos_to + size + 2);
         //for y in start_pos.y..end_pos.y {
         //    for x in start_pos.x..end_pos.x {
         //        let iv = IVec2::new(x, y);

@@ -595,3 +595,69 @@ pub fn dda_thick_outline<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_t
     dda(start_pos2, end_pos2, handle_pos);
     dda(end_pos1, end_pos2, handle_pos);
 }
+
+pub fn bresenham_circle_edge<HandlePos: FnMut(IVec2)>(origin: IVec2, radius: i32, handle_pos: &mut HandlePos)
+{
+    let mut step = IVec2::new(0, radius);
+    let mut p = 3 - 2*radius;
+    let mut four = IVec2::new(0, 4*radius);
+
+    while step.x <= step.y {
+        //8-way filling of the buffer
+        for iy in (-1..=1).step_by(2) {
+            for ix in (-1..=1).step_by(2) {
+                let i = IVec2::new(ix, iy);
+                handle_pos(origin + i * step);
+                handle_pos(origin + i * step.yx());
+            }
+        }
+        
+        if p > 0 {
+            p = p - four.y + 4;
+            four.y -= 4;
+            step.y = step.y - 1; 
+        }
+
+        p += four.x + 6;
+        four.x += 4;
+        step.x += 1;
+    }
+}
+
+pub fn bresenham_circle_fill<HandlePos: FnMut(IVec2)>(origin: IVec2, radius: i32, handle_pos: &mut HandlePos)
+{
+    let mut step = IVec2::new(0, radius);
+    let mut p = 3 - 2*radius;
+    let mut four = IVec2::new(0, 4*radius);
+
+    while step.x <= step.y {
+        //8-way filling of the buffer
+        for iy in (-1..=1).step_by(2) {
+            let x_from = origin.x - step.x;
+            let x_to = origin.x + step.x;
+
+            let y = origin.y + iy * step.y;
+            for x in x_from..=x_to {
+                handle_pos(IVec2::new(x, y));
+            }
+
+            let x_from = origin.x - step.y;
+            let x_to = origin.x + step.y;
+
+            let y = origin.y + iy * step.x;
+            for x in x_from..=x_to {
+                handle_pos(IVec2::new(x, y));
+            }
+        }
+        
+        if p > 0 {
+            p = p - four.y + 4;
+            four.y -= 4;
+            step.y = step.y - 1; 
+        }
+
+        p += four.x + 6;
+        four.x += 4;
+        step.x += 1;
+    }
+}
