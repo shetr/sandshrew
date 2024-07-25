@@ -578,7 +578,7 @@ pub fn dda_thick_outline<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_t
     let dir_norm = dir.as_vec2().normalize();
     let ky = (dir.y as f32) / (dir.x as f32);
     let kx = -ky;
-    let y_shift = ((thickness as f32 + 0.5) * dir_norm).x.round() as i32;
+    let y_shift = (thickness as f32 * dir_norm).x.round() as i32;
     
     let mut start_pos1 = IVec2::new(pos_from.x + ((kx * (-y_shift as f32)).round() as i32), pos_from.y - y_shift);
     let mut start_pos2 = IVec2::new(pos_from.x + ((kx * (y_shift as f32)).round() as i32), pos_from.y + y_shift);
