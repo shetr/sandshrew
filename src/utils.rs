@@ -603,19 +603,22 @@ pub fn bresenham_circle_edge<HandlePos: FnMut(IVec2)>(origin: IVec2, radius: i32
     let mut four = IVec2::new(0, 4*radius);
 
     while step.x <= step.y {
+        let x_to = if step.x > 0 { 1 } else { -1 };
         //8-way filling of the buffer
         for iy in (-1..=1).step_by(2) {
-            for ix in (-1..=1).step_by(2) {
+            for ix in (-1..=x_to).step_by(2) {
                 let i = IVec2::new(ix, iy);
                 handle_pos(origin + i * step);
-                handle_pos(origin + i * step.yx());
+                if step.x != step.y {
+                    handle_pos(origin + i.yx() * step.yx());
+                }
             }
         }
         
         if p > 0 {
             p = p - four.y + 4;
             four.y -= 4;
-            step.y = step.y - 1; 
+            step.y -= 1;
         }
 
         p += four.x + 6;
@@ -653,7 +656,7 @@ pub fn bresenham_circle_fill<HandlePos: FnMut(IVec2)>(origin: IVec2, radius: i32
         if p > 0 {
             p = p - four.y + 4;
             four.y -= 4;
-            step.y = step.y - 1; 
+            step.y -= 1;
         }
 
         p += four.x + 6;
