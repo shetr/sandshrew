@@ -103,8 +103,8 @@ impl GridDisplay {
         let pos = IVec2 { x: pos.x, y: cells.sizes.y - pos.y - 1 };
         let color = self.brush_edge_color.rgb_to_vec3();
         let a = self.brush_edge_color.a();
-        let start_pos = pos - size - 1;
-        let end_pos = pos + size + 2;
+        let start_pos = pos - size;
+        let end_pos = pos + size + 1;
         for y in start_pos.y..end_pos.y {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);

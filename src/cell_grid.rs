@@ -34,9 +34,8 @@ impl CellGrid
         match brush {
             BrushType::Circle => {
                 if let Some(prev_pos) = prev_pos {
-                    // TODO: enable again after the set_cells_line_round code is fixed
                     if prev_pos != pos {
-                        //self.set_cells_line_round(prev_pos, pos, size, cell_type, replace_solids);
+                        self.set_cells_line_round(prev_pos, pos, size, cell_type, replace_solids);
                     }
                 } else {
                     self.set_cells_circle(pos, size, cell_type, replace_solids);
