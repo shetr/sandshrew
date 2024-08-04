@@ -285,16 +285,6 @@ pub fn circle_area_inside_of_a_pixel(origin: IVec2, radius: i32, pixel_pos: IVec
     area
 }
 
-pub fn polygons_intersection(p1: &[Vec2], p2: &[Vec2], intersection: &[Vec2])
-{
-    let i1 = 0;
-    let i2 = 0;
-    while i1 < p1.len() || i2 < p2.len() {
-        
-    }
-
-}
-
 pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: i32, extension: i32, pixel_pos: IVec2) -> f32 {
     let mut pos_from = pos_from.as_vec2();
     let mut pos_to = pos_to.as_vec2();
@@ -339,62 +329,6 @@ pub fn line_sharp_area_inside_of_a_pixel(pos_from: IVec2, pos_to: IVec2, width: 
             }
         }
     }
-    /*
-    let mut pixel_corners_pos = 0;
-    let mut line_sharp_corners_pos = 0;
-    let mut traverse_line_sharp_corners = true;
-    let mut pixel_corners_visited_count = 0;
-    while (traverse_line_sharp_corners && line_sharp_corners_pos < line_sharp_corners.len()) || (!traverse_line_sharp_corners && pixel_corners_visited_count < pixel_corners.len()) {
-        if traverse_line_sharp_corners {
-            while traverse_line_sharp_corners && line_sharp_corners_pos < line_sharp_corners.len() {
-                let l1_pos1 = line_sharp_corners[line_sharp_corners_pos];
-                let l1_pos2 = line_sharp_corners[(line_sharp_corners_pos + 1) % line_sharp_corners.len()];
-                if is_in_pixel(pixel_pos, l1_pos1) {
-                    poly_verts[poly_verts_count] = l1_pos1;
-                    poly_verts_count += 1;
-                    if !is_in_pixel(pixel_pos, l1_pos2) {
-                        for i in 0..pixel_corners.len() {
-                            let l2_pos1 = pixel_corners[i];
-                            let l2_pos2 = pixel_corners[(i + 1) % pixel_corners.len()];
-                            if let Some(intersection) = line_segments_intersection(l1_pos1, l1_pos2, l2_pos1, l2_pos2) {
-                                poly_verts[poly_verts_count] = intersection;
-                                poly_verts_count += 1;
-                                traverse_line_sharp_corners = false;
-                                pixel_corners_pos = i;
-                                break;
-                            }
-                        }
-                    }
-                }
-                line_sharp_corners_pos += 1;
-            }
-        } else {
-            while !traverse_line_sharp_corners && pixel_corners_visited_count < pixel_corners.len() {
-                let l1_pos1 = pixel_corners[pixel_corners_pos];
-                let l1_pos2 = pixel_corners[(pixel_corners_pos + 1) % pixel_corners.len()];
-                if is_in_line_sharp(pos_from, pos_to, width, 0.0, l1_pos1) {
-                    poly_verts[poly_verts_count] = l1_pos1;
-                    poly_verts_count += 1;
-                    if !is_in_line_sharp(pos_from, pos_to, width, 0.0, l1_pos2) {
-                        for i in 0..line_sharp_corners.len() {
-                            let l2_pos1 = line_sharp_corners[i];
-                            let l2_pos2 = line_sharp_corners[(i + 1) % line_sharp_corners.len()];
-                            if let Some(intersection) = line_segments_intersection(l1_pos1, l1_pos2, l2_pos1, l2_pos2) {
-                                poly_verts[poly_verts_count] = intersection;
-                                poly_verts_count += 1;
-                                traverse_line_sharp_corners = true;
-                                line_sharp_corners_pos = i;
-                                break;
-                            }
-                        }
-                    }
-                }
-                pixel_corners_pos = (pixel_corners_pos + 1) % pixel_corners.len();
-                pixel_corners_visited_count += 1;
-            }
-        }
-    }
-     */
     polygon_area(&poly_verts[0..poly_verts_count])
 }
 

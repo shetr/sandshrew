@@ -59,20 +59,6 @@ impl CellGrid
 
     pub fn set_cells_circle(&mut self, pos: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
     {
-        //let start_pos = pos - size;
-        //let end_pos = pos + size + 1;
-        //for y in start_pos.y..end_pos.y {
-        //    for x in start_pos.x..end_pos.x {
-        //        let iv = IVec2::new(x, y);
-        //        let intersect_area = circle_area_inside_of_a_pixel(pos, size, iv);
-        //        if self.cells.is_in_range(iv) && intersect_area == 1.0 && (replace_solids || !self.cells[iv].is_solid()) {
-        //            if self.cells[iv].cell_type != cell_type {
-        //                self.cells[iv] = self.new_cell(cell_type);
-        //            }
-        //        }
-        //    }
-        //}
-
         let mut set_cell = |pos: IVec2| {
             if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
                 if self.cells[pos].cell_type != cell_type {
@@ -102,19 +88,6 @@ impl CellGrid
 
     pub fn set_cells_line_round(&mut self, pos_from: IVec2, pos_to: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
     {
-        //let start_pos = (pos_from - size).min(pos_to - size);
-        //let end_pos = (pos_from + size + 1).max(pos_to + size + 1);
-        //for y in start_pos.y..end_pos.y {
-        //    for x in start_pos.x..end_pos.x {
-        //        let iv = IVec2::new(x, y);
-        //        if self.cells.is_in_range(iv) && is_in_line_round(pos_from, pos_to, size, iv) && (replace_solids || !self.cells[iv].is_solid()) {
-        //            if self.cells[iv].cell_type != cell_type {
-        //                self.cells[iv] = self.new_cell(cell_type);
-        //            }
-        //        }
-        //    }
-        //}
-
         let mut set_cell = |pos: IVec2| {
             if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
                 if self.cells[pos].cell_type != cell_type {
@@ -130,25 +103,6 @@ impl CellGrid
 
     pub fn set_cells_line_sharp(&mut self, pos_from: IVec2, pos_to: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
     {
-        //let start_pos = (pos_from - size).min(pos_to - size);
-        //let end_pos = (pos_from + size + 1).max(pos_to + size + 1);
-        //for y in start_pos.y..end_pos.y {
-        //    for x in start_pos.x..end_pos.x {
-        //        let iv = IVec2::new(x, y);
-        //        //if self.cells.is_in_range(iv) && is_in_line_sharp_i(pos_from, pos_to, size, iv) && (replace_solids || !self.cells[iv].is_solid()) {
-        //        //    if self.cells[iv].cell_type != cell_type {
-        //        //        self.cells[iv] = self.new_cell(cell_type);
-        //        //    }
-        //        //}
-        //        let intersect_area = line_sharp_area_inside_of_a_pixel(pos_from, pos_to, size, 0, iv);
-        //        if self.cells.is_in_range(iv) && intersect_area == 1.0 && (replace_solids || !self.cells[iv].is_solid()) {
-        //            if self.cells[iv].cell_type != cell_type {
-        //                self.cells[iv] = self.new_cell(cell_type);
-        //            }
-        //        }
-        //    }
-        //}
-
         let mut set_cell = |pos: IVec2| {
             if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
                 if self.cells[pos].cell_type != cell_type {
