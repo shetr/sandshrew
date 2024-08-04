@@ -36,13 +36,23 @@ impl CellGrid
                 if let Some(prev_pos) = prev_pos {
                     if prev_pos != pos {
                         self.set_cells_line_round(prev_pos, pos, size, cell_type, replace_solids);
+                    } else {
+                        self.set_cells_circle(pos, size, cell_type, replace_solids);
                     }
                 } else {
                     self.set_cells_circle(pos, size, cell_type, replace_solids);
                 }
             },
             BrushType::Square => {
-                self.set_cells_square(pos, size, cell_type, replace_solids);
+                if let Some(prev_pos) = prev_pos {
+                    if prev_pos != pos {
+                        self.set_cells_square_line(prev_pos, pos, size, cell_type, replace_solids);
+                    } else {
+                        self.set_cells_square(pos, size, cell_type, replace_solids);
+                    }
+                } else {
+                    self.set_cells_square(pos, size, cell_type, replace_solids);
+                }
             },
             BrushType::LineRound => {
                 if let Some(prev_pos) = prev_pos {
@@ -86,6 +96,21 @@ impl CellGrid
         }
     }
 
+    pub fn set_cells_square_line(&mut self, pos_from: IVec2, pos_to: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
+    {
+        let mut set_cell = |pos: IVec2| {
+            if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
+                if self.cells[pos].cell_type != cell_type {
+                    self.cells[pos] = self.new_cell(cell_type);
+                }
+            }
+        };
+        
+        dda_square_line(pos_from, pos_to, size, &mut set_cell);
+        self.set_cells_square(pos_from, size, cell_type, replace_solids);
+        self.set_cells_square(pos_to, size, cell_type, replace_solids);
+    }
+
     pub fn set_cells_line_round(&mut self, pos_from: IVec2, pos_to: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
     {
         let mut set_cell = |pos: IVec2| {
@@ -103,6 +128,10 @@ impl CellGrid
 
     pub fn set_cells_line_sharp(&mut self, pos_from: IVec2, pos_to: IVec2, size: i32, cell_type: CellType, replace_solids: bool)
     {
+        if pos_from == pos_to {
+            return;
+        }
+
         let mut set_cell = |pos: IVec2| {
             if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
                 if self.cells[pos].cell_type != cell_type {

@@ -108,11 +108,11 @@ pub fn update_input(
                 globals.curr_cursor_pos = maybe_cursor_pos;
             }
         } else {
-            if mouse_button.just_pressed(MouseButton::Left) {
+            if mouse_button.just_released(MouseButton::Left) {
                 if Some(MouseButton::Left) == globals.prev_mouse_press {
                     globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, place_cell_type, replace_solids);
                 }
-            } else if mouse_button.just_pressed(MouseButton::Right) {
+            } else if mouse_button.just_released(MouseButton::Right) {
                 if Some(MouseButton::Right) == globals.prev_mouse_press {
                     globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, CellType::Air, true);
                 }
