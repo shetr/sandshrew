@@ -7,6 +7,9 @@ use crate::cell::*;
 pub struct FpsText;
 
 #[derive(Component)]
+pub struct BrushSizeText;
+
+#[derive(Component)]
 pub struct SaveButton;
 
 #[derive(Component)]
@@ -409,7 +412,41 @@ fn brush_size(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-
+    parent.spawn(NodeBundle {
+        style: Style {
+            flex_direction: FlexDirection::Column,
+            width: Val::Percent(100.0),
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            padding: SUBSECTION_PADDING,
+            row_gap: SUBSECTION_ROW_GAP,
+            ..default()
+        },
+        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        ..default()
+    })
+    .with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            "Brush size",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 40.0,
+                color: TEXT_LIGHT,
+                ..default()
+            },
+        ));
+    
+        parent.spawn((TextBundle::from_section(
+            " 15 px",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 20.0,
+                color: TEXT_DIMM,
+                ..default()
+            },
+        ), BrushSizeText
+        ));
+    });
 }
 
 fn toggle_settings(
