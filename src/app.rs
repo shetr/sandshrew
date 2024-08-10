@@ -205,32 +205,30 @@ fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     }
     material.color_texture = Some(globals.render_image.clone());
 
-    if maybe_cursor_pos.is_some() {
-        if globals.brush_type == BrushType::Circle || globals.brush_type == BrushType::Square {
-            if mouse_button.pressed(MouseButton::Left) || mouse_button.pressed(MouseButton::Right) {
-                globals.prev_cursor_pos = globals.curr_cursor_pos;
-            } else {
-                globals.prev_cursor_pos = None;
-            }
-            if mouse_button.pressed(MouseButton::Left) {
-                globals.prev_mouse_press = Some(MouseButton::Left);
-            } else if mouse_button.pressed(MouseButton::Right) {
-                globals.prev_mouse_press = Some(MouseButton::Right);
-            } else {
-                globals.prev_mouse_press = None;
-            }
+    if globals.brush_type == BrushType::Circle || globals.brush_type == BrushType::Square {
+        if mouse_button.pressed(MouseButton::Left) || mouse_button.pressed(MouseButton::Right) {
+            globals.prev_cursor_pos = globals.curr_cursor_pos;
         } else {
-            if mouse_button.just_released(MouseButton::Left) || mouse_button.just_released(MouseButton::Right) {
-                globals.prev_cursor_pos = None;
-            }
-            if mouse_button.just_pressed(MouseButton::Left) || mouse_button.just_pressed(MouseButton::Right) {
-                globals.prev_cursor_pos = globals.curr_cursor_pos;
-            }
-            if mouse_button.just_pressed(MouseButton::Left) {
-                globals.prev_mouse_press = Some(MouseButton::Left);
-            } else if mouse_button.just_pressed(MouseButton::Right) {
-                globals.prev_mouse_press = Some(MouseButton::Right);
-            }
+            globals.prev_cursor_pos = None;
+        }
+        if mouse_button.pressed(MouseButton::Left) {
+            globals.prev_mouse_press = Some(MouseButton::Left);
+        } else if mouse_button.pressed(MouseButton::Right) {
+            globals.prev_mouse_press = Some(MouseButton::Right);
+        } else {
+            globals.prev_mouse_press = None;
+        }
+    } else {
+        if mouse_button.just_released(MouseButton::Left) || mouse_button.just_released(MouseButton::Right) {
+            globals.prev_cursor_pos = None;
+        }
+        if mouse_button.just_pressed(MouseButton::Left) || mouse_button.just_pressed(MouseButton::Right) {
+            globals.prev_cursor_pos = globals.curr_cursor_pos;
+        }
+        if mouse_button.just_pressed(MouseButton::Left) {
+            globals.prev_mouse_press = Some(MouseButton::Left);
+        } else if mouse_button.just_pressed(MouseButton::Right) {
+            globals.prev_mouse_press = Some(MouseButton::Right);
         }
     }
 }

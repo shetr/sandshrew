@@ -125,6 +125,8 @@ pub fn update_input(
                 globals.curr_cursor_pos = maybe_cursor_pos;
             }
         }
+    } else {
+        globals.curr_cursor_pos = None;
     }
 
     for touch in touches.iter_just_pressed() {
