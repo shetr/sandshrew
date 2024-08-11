@@ -495,7 +495,7 @@ pub fn dda_thick<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2
     let ky = (dir.y as f32) / (dir.x as f32);
     let kx = -ky;
     let y_shift = if thickness <= 2 { thickness as f32 } else { (thickness as f32 * dir_norm).x };
-    let y_shift_i = y_shift.round() as i32 + 1;
+    let y_shift_i = y_shift.round() as i32;
     let sign_equal = !((dir.x > 0 && dir.y < 0) || (dir.x < 0 && dir.y > 0));
     for yi in -y_shift_i..=y_shift_i {
         for x_shift in 0..2 {
@@ -507,13 +507,7 @@ pub fn dda_thick<HandlePos: FnMut(IVec2)>(mut pos_from: IVec2, mut pos_to: IVec2
                     continue;
                 }
             }
-            let mut yi = yi;
-            let mut yf = yi as f32;
-            if yi.abs() == y_shift_i {
-                yi = yi.signum() * (y_shift_i - 1);
-                yf = (yi.signum() as f32) * y_shift;
-            }
-            let start_pos = IVec2::new(pos_from.x + ((kx * yf).round() as i32) + x_shift, pos_from.y + yi);
+            let start_pos = IVec2::new(pos_from.x + ((kx * (yi as f32)).round() as i32) + x_shift, pos_from.y + yi);
             for xi in 0..=(dir.x - x_shift) {
                 let mut pos = IVec2::new(start_pos.x + xi, start_pos.y + ((ky * (xi as f32)).round() as i32));
                 if swap_xy { pos = pos.yx(); }
