@@ -149,6 +149,24 @@ impl<T : Clone> IndexMut<IVec3> for Vector3D<T> {
     }
 }
 
+pub fn fill_img_color(color: Color, out_image: &mut Image)
+{
+    for y in 0..out_image.size().y {
+        for x in 0..out_image.size().x {
+            set_img_color(UVec2::new(x, y), color, out_image);
+        }
+    }
+}
+
+pub fn set_img_color(pos: UVec2, color: Color, out_image: &mut Image)
+{
+    let i = (pos.x + pos.y * out_image.size().x) as usize;
+    let color = color.as_rgba_u8();
+    for ch in 0..4 {
+        out_image.data[i*4 + ch] = color[ch];
+    }
+}
+
 // we suppose that there is only one intersection and l_pos1 and l_pos2 are not equal
 pub fn circle_line_segment_1_intersection(c_origin: Vec2, c_radius: f32, l_pos1: Vec2, l_pos2: Vec2) -> Option<Vec2> {
     // circle: (x - c_o.x) ^ 2 + (y - c_o.y) ^ 2 = c_r * c_r

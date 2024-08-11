@@ -2,6 +2,7 @@ use bevy::{prelude::*, ui::RelativeCursorPosition};
 use enum_map::{Enum, EnumMap};
 
 use crate::cell::*;
+use crate::brush_icons::*;
 
 #[derive(Component)]
 pub struct FpsText;
@@ -129,6 +130,7 @@ pub fn setup_ui(
     asset_server: &Res<AssetServer>,
     out_tex_size: u32,
     img_handle: Handle<Image>,
+    images: &mut ResMut<Assets<Image>>,
     buttons_config: &Vec<CellTypeButtonConfig>,
     cell_properties: &EnumMap<CellType, CellTypeProperties>,
 ) {
@@ -266,7 +268,7 @@ pub fn setup_ui(
                 })
                 .with_children(|parent| {
                     // Brush type
-                    brush_type(parent, asset_server);
+                    brush_type(parent, asset_server, images);
                     // Brush size
                     brush_size(parent, asset_server);
                     // Toggle settings
@@ -331,6 +333,7 @@ fn fps_counter(
 fn brush_type(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
+    images: &mut ResMut<Assets<Image>>,
 ) {
     parent.spawn(NodeBundle {
         style: Style {
@@ -368,10 +371,10 @@ fn brush_type(
         })
         .with_children(|parent| {
             // buttons
-            add_brush_type_button(parent, asset_server, BrushType::Circle, "Ci");
-            add_brush_type_button(parent, asset_server, BrushType::Square, "Sq");
-            add_brush_type_button(parent, asset_server, BrushType::LineRound, "LR");
-            add_brush_type_button(parent, asset_server, BrushType::LineSharp, "LS");
+            add_brush_type_button(parent, asset_server, images, BrushType::Circle);
+            add_brush_type_button(parent, asset_server, images, BrushType::Square);
+            add_brush_type_button(parent, asset_server, images, BrushType::LineRound);
+            add_brush_type_button(parent, asset_server, images, BrushType::LineSharp);
         });
     });
 }
@@ -379,33 +382,28 @@ fn brush_type(
 fn add_brush_type_button(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
+    images: &mut ResMut<Assets<Image>>,
     brush_type: BrushType,
-    name: &str,
 ) {
+    let brush_button_size = 50;
+    let img = brush_icon(brush_type, brush_button_size);
+    let img_handle = images.add(img);
+    let basic_tint = Color::rgba_from_array(BASIC_BUTTON_BACKGROUND_COLOR.rgba_to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.rgba_to_vec4());
     parent.spawn((ButtonBundle {
         style: Style {
-            width: Val::Px(50.0),
-            height: Val::Px(50.0),
+            width: Val::Px(brush_button_size as f32),
+            height: Val::Px(brush_button_size as f32),
             border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             ..default()
         },
         border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+        background_color: basic_tint.into(),
+        image: UiImage::new(img_handle),
         ..default()
     }, brush_type
-    ))
-    .with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            name,
-            TextStyle {
-                font: asset_server.load(TEXT_FONT),
-                font_size: 20.0,
-                color: BASIC_BUTTON_TEXT_COLOR,
-            },
-        ));
-    });
+    ));
 }
 
 fn brush_size(
@@ -690,8 +688,6 @@ fn add_cell_type_button(
     button_config: &CellTypeButtonConfig
 ) {
     let cell_color = cell_properties[button_config.cell_type].get_default_color();
-    //let rgb = 1.0 - cell_color.rgb_to_vec3();
-    //let text_color = Color::rgb(rgb.x, rgb.y, rgb.z);
     parent.spawn((ButtonBundle {
         style: Style {
             width: Val::Px(150.0),

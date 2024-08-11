@@ -7,5 +7,6 @@ mod ui;
 mod input;
 mod grid_config;
 mod ui_control;
+mod brush_icons;
 
 pub use app::*;

@@ -137,7 +137,7 @@ fn setup(
 
     let buttons_config = get_cell_type_buttons_config();
 
-    setup_ui(&mut commands, &asset_server, out_tex_size, img_handle.clone(), &buttons_config, &grid.cell_properties);           
+    setup_ui(&mut commands, &asset_server, out_tex_size, img_handle.clone(), &mut images, &buttons_config, &grid.cell_properties);           
 
 
     let display = GridDisplay {
