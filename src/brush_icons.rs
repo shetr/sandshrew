@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::{render_asset::RenderAssetUsages, render_resource::{self, Extent3d, TextureDimension}}};
+use bevy::{prelude::*, render::{render_asset::RenderAssetUsages, render_resource::{self, Extent3d, TextureDimension}, texture::{ImageSampler, ImageSamplerDescriptor}}};
 
 use crate::utils::*;
 use crate::ui::*;
@@ -25,6 +25,11 @@ pub fn circle_brush_icon(img_size: u32) -> Image
         render_resource::TextureFormat::Rgba8Unorm,
         RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD
     );
+
+    img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
+        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        ..default()
+    });
 
     fill_img_color(BASIC_BUTTON_BACKGROUND_COLOR, &mut img);
     
@@ -55,6 +60,11 @@ pub fn square_brush_icon(img_size: u32) -> Image
         RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD
     );
 
+    img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
+        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        ..default()
+    });
+
     fill_img_color(BASIC_BUTTON_BACKGROUND_COLOR, &mut img);
     
     for y in from.y..to.y {
@@ -81,6 +91,11 @@ pub fn line_round_brush_icon(img_size: u32) -> Image
         render_resource::TextureFormat::Rgba8Unorm,
         RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD
     );
+
+    img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
+        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        ..default()
+    });
 
     fill_img_color(BASIC_BUTTON_BACKGROUND_COLOR, &mut img);
     
@@ -113,6 +128,11 @@ pub fn line_sharp_brush_icon(img_size: u32) -> Image
         render_resource::TextureFormat::Rgba8Unorm,
         RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD
     );
+
+    img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
+        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        ..default()
+    });
 
     fill_img_color(BASIC_BUTTON_BACKGROUND_COLOR, &mut img);
     

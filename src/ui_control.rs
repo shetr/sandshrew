@@ -64,7 +64,7 @@ pub fn brush_type_button_interactions(
         let basic_tint = Color::rgba_from_array(BASIC_BUTTON_BACKGROUND_COLOR.rgba_to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.rgba_to_vec4());
         match *interaction {
             Interaction::Pressed => {
-                *color = basic_tint.into();
+                *color = Color::WHITE.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 globals.brush_type = *brush_type;
                 globals.prev_cursor_pos = None;
