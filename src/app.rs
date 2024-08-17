@@ -44,7 +44,10 @@ pub fn run_sandshrew_app() {
             FrameTimeDiagnosticsPlugin::default(),
             //LogDiagnosticsPlugin::default(),
         ))
-        .add_systems(Startup, setup)
+        .add_systems(Startup, (
+            setup,
+            init_brush_size_slider_value
+        ).chain())
         .add_systems(Update, (
             update_input,
             cell_type_button_interactions,

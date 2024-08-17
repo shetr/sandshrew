@@ -81,6 +81,11 @@ pub const BUTTON_BORDER: UiRect = UiRect::all(Val::Px(3.0));
 pub const SECTION_ROW_GAP: Val = Val::Px(10.);
 pub const SUBSECTION_ROW_GAP: Val = Val::Px(10.);
 
+pub const SLIDER_BUTTON_SIZE: f32 = 32.;
+pub const SLIDER_BORDER: f32 = 3.;
+pub const SLIDER_PADDING: f32 = 5.;
+pub const SLIDER_BUTTON_BORDER: f32 = 3.;
+
 pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
 {
     vec![
@@ -461,11 +466,6 @@ fn brush_size(
         ));
     });
 }
-
-pub const SLIDER_BUTTON_SIZE: f32 = 32.;
-pub const SLIDER_BORDER: f32 = 3.;
-pub const SLIDER_PADDING: f32 = 5.;
-pub const SLIDER_BUTTON_BORDER: f32 = 3.;
 
 fn brush_size_slider(
     parent: &mut ChildBuilder,

@@ -270,6 +270,18 @@ pub fn top_gass_leak_button_interactions(
     }
 }
 
+pub fn init_brush_size_slider_value(
+    globals_query: Query<&GameGlobals>,
+    mut brush_size_text_query: Query<&mut Text, With<BrushSizeText>>,
+    mut slider_style_query: Query<&mut Style, With<BrushSizeSliderButton>>
+)
+{
+    let globals = globals_query.single();
+    let mut slider_style = slider_style_query.single_mut();
+    let size_normalized = globals.brush_size as f32 / (globals.max_brush_size as f32);
+    update_brush_size_slider_value(size_normalized, &globals, &mut slider_style, &mut brush_size_text_query);
+}
+
 pub fn update_brush_size_slider_value(
     size_normalized: f32,
     globals: &GameGlobals,
@@ -294,11 +306,11 @@ pub fn brush_size_mouse_scroll(
     mut globals_query: Query<&mut GameGlobals>,
     mut mouse_wheel_events: EventReader<MouseWheel>,
     mut brush_size_text_query: Query<&mut Text, With<BrushSizeText>>,
-    mut brush_size_slider_button_style_query: Query<&mut Style, With<BrushSizeSliderButton>>
+    mut slider_style_query: Query<&mut Style, With<BrushSizeSliderButton>>
 )
 {
     let mut globals = globals_query.single_mut();
-    let mut brush_size_slider_button_style = brush_size_slider_button_style_query.single_mut();
+    let mut slider_style = slider_style_query.single_mut();
 
     for event in mouse_wheel_events.read() {
         let dir = clamp(event.y as i32, -3, 3);
@@ -308,9 +320,10 @@ pub fn brush_size_mouse_scroll(
         } else if globals.brush_size > globals.max_brush_size {
             globals.brush_size = globals.max_brush_size;
         }
+
+        let size_normalized = globals.brush_size as f32 / (globals.max_brush_size as f32);
+        update_brush_size_slider_value(size_normalized, &globals, &mut slider_style, &mut brush_size_text_query);
     }
-    let size_normalized = globals.brush_size as f32 / (globals.max_brush_size as f32);
-    update_brush_size_slider_value(size_normalized, &globals, &mut brush_size_slider_button_style, &mut brush_size_text_query);
 }
 
 pub fn brush_size_slider_button_interactions(
