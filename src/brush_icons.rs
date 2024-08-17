@@ -40,7 +40,8 @@ pub fn circle_brush_icon(img_size: u32) -> Image
         }
     };
     
-    bresenham_circle_fill(center, radius, &mut set_color);
+    //bresenham_circle_fill(center, radius, &mut set_color);
+    bresenham_circle_edge(center, radius, &mut set_color);
     
     img
 }
@@ -69,7 +70,9 @@ pub fn square_brush_icon(img_size: u32) -> Image
     
     for y in from.y..to.y {
         for x in from.x..to.x {
-            set_img_color(UVec2::new(x, y), BASIC_BUTTON_TEXT_COLOR, &mut img);
+            if x == from.x || y == from.y || x == to.x - 1 || y == to.y - 1 {
+                set_img_color(UVec2::new(x, y), BASIC_BUTTON_TEXT_COLOR, &mut img);
+            }
         }
     }
     
@@ -106,9 +109,13 @@ pub fn line_round_brush_icon(img_size: u32) -> Image
         }
     };
 
-    dda_thick(pos_from, pos_to, size, &mut set_color);
-    bresenham_circle_fill(pos_from, size, &mut set_color);
-    bresenham_circle_fill(pos_to, size, &mut set_color);
+    //dda_thick(pos_from, pos_to, size, &mut set_color);
+    //bresenham_circle_fill(pos_from, size, &mut set_color);
+    //bresenham_circle_fill(pos_to, size, &mut set_color);
+
+    dda_thick_outline(pos_from, pos_to, size, &mut set_color);
+    bresenham_circle_edge(pos_from, size, &mut set_color);
+    bresenham_circle_edge(pos_to, size, &mut set_color);
     
     img
 }
@@ -143,7 +150,8 @@ pub fn line_sharp_brush_icon(img_size: u32) -> Image
         }
     };
 
-    dda_thick(pos_from, pos_to, size, &mut set_color);
+    //dda_thick(pos_from, pos_to, size, &mut set_color);
+    dda_thick_outline(pos_from, pos_to, size, &mut set_color);
     
     img
 }

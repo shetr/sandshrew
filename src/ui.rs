@@ -386,7 +386,7 @@ fn add_brush_type_button(
     brush_type: BrushType,
 ) {
     let brush_button_size = 64;
-    let img = brush_icon(brush_type, brush_button_size / 4);
+    let img = brush_icon(brush_type, brush_button_size / 2);
     let img_handle = images.add(img);
     let basic_tint = Color::rgba_from_array(BASIC_BUTTON_BACKGROUND_COLOR.rgba_to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.rgba_to_vec4());
     parent.spawn((ButtonBundle {
