@@ -40,7 +40,6 @@ pub fn circle_brush_icon(img_size: u32) -> Image
         }
     };
     
-    //bresenham_circle_fill(center, radius, &mut set_color);
     bresenham_circle_edge(center, radius, &mut set_color);
     
     img
@@ -109,10 +108,6 @@ pub fn line_round_brush_icon(img_size: u32) -> Image
         }
     };
 
-    //dda_thick(pos_from, pos_to, size, &mut set_color);
-    //bresenham_circle_fill(pos_from, size, &mut set_color);
-    //bresenham_circle_fill(pos_to, size, &mut set_color);
-
     dda_thick_outline(pos_from, pos_to, size, &mut set_color);
     bresenham_circle_edge(pos_from, size, &mut set_color);
     bresenham_circle_edge(pos_to, size, &mut set_color);
@@ -150,7 +145,6 @@ pub fn line_sharp_brush_icon(img_size: u32) -> Image
         }
     };
 
-    //dda_thick(pos_from, pos_to, size, &mut set_color);
     dda_thick_outline(pos_from, pos_to, size, &mut set_color);
     
     img
