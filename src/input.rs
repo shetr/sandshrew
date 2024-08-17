@@ -1,6 +1,6 @@
 use bevy::{input::{mouse::MouseWheel, touch::Touch}, math::*, prelude::*, ui::RelativeCursorPosition, window::{PrimaryWindow, Window}};
 
-use crate::{cell::CellType, ui::{BrushSizeText, BrushType}, utils::*, GameGlobals};
+use crate::{cell::CellType, ui::{BrushSizeText, BrushType, DrawingCanvas}, utils::*, GameGlobals};
 
 pub fn get_out_img_cursor_pos(relative_cursor_position: &RelativeCursorPosition, globals: &GameGlobals) -> Option<IVec2>
 {
@@ -34,11 +34,9 @@ pub fn update_input(
     mut globals_query: Query<&mut GameGlobals>,
     mouse_button: Res<ButtonInput<MouseButton>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut mouse_wheel_events: EventReader<MouseWheel>,
     touches: Res<Touches>,
     windows: Query<&Window, With<PrimaryWindow>>,
-    relative_cursor_position_query: Query<&RelativeCursorPosition>,
-    mut brush_size_text_query: Query<&mut Text, With<BrushSizeText>>,
+    relative_cursor_position_query: Query<&RelativeCursorPosition, With<DrawingCanvas>>,
 ) {
     //let start = Instant::now();
     let mut globals = globals_query.single_mut();
@@ -75,19 +73,6 @@ pub fn update_input(
     }
     else if keyboard_input.pressed(KeyCode::Digit9) {
         globals.place_cell_type = CellType::Glass;
-    }
-
-    for event in mouse_wheel_events.read() {
-        let dir = clamp(event.y as i32, -3, 3);
-        globals.brush_size += dir;
-        if globals.brush_size < 0 {
-            globals.brush_size = 0;
-        } else if globals.brush_size > 50 {
-            globals.brush_size = 50;
-        }
-        for mut text in &mut brush_size_text_query {
-            text.sections[0].value = format!("{:3} px", globals.brush_size * 2 + 1);
-        }
     }
 
     let brush_type = globals.brush_type;

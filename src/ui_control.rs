@@ -1,7 +1,7 @@
 
-use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, prelude::*, tasks::{block_on}};
+use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, input::mouse::MouseWheel, prelude::*, tasks::block_on, ui::RelativeCursorPosition};
 
-use crate::{cell::CellType, input::*, ui::*, FpsDisplayTimer, GameGlobals};
+use crate::{cell::CellType, input::*, ui::*, utils::clamp, FpsDisplayTimer, GameGlobals};
 
 use rfd::AsyncFileDialog;
 
@@ -265,6 +265,95 @@ pub fn top_gass_leak_button_interactions(
                     border_color.0 = BASIC_BUTTON_BORDER_COLOR;
                 }
                 globals.top_gass_leak_button_pressed = false;
+            }
+        }
+    }
+}
+
+pub fn update_brush_size_slider_value(
+    size_normalized: f32,
+    globals: &GameGlobals,
+    slider_style: &mut Style,
+    brush_size_text_query: &mut Query<&mut Text, With<BrushSizeText>>,
+)
+{
+    let button_offset = SLIDER_BUTTON_SIZE + SLIDER_BUTTON_BORDER * 2. + SLIDER_PADDING * 2.;
+    let slider_size = (globals.max_brush_size * 4) as f32 + button_offset;
+    let min = 0.;
+    let max = slider_size - button_offset;
+    let value = clamp(size_normalized * max, min, max);
+    let pos = SLIDER_PADDING + value;
+    slider_style.left = Val::Px(pos);
+
+    for mut text in brush_size_text_query {
+        text.sections[0].value = format!("{:3} px", globals.brush_size * 2 + 1);
+    }
+}
+
+pub fn brush_size_mouse_scroll(
+    mut globals_query: Query<&mut GameGlobals>,
+    mut mouse_wheel_events: EventReader<MouseWheel>,
+    mut brush_size_text_query: Query<&mut Text, With<BrushSizeText>>,
+    mut brush_size_slider_button_style_query: Query<&mut Style, With<BrushSizeSliderButton>>
+)
+{
+    let mut globals = globals_query.single_mut();
+    let mut brush_size_slider_button_style = brush_size_slider_button_style_query.single_mut();
+
+    for event in mouse_wheel_events.read() {
+        let dir = clamp(event.y as i32, -3, 3);
+        globals.brush_size += dir;
+        if globals.brush_size < 0 {
+            globals.brush_size = 0;
+        } else if globals.brush_size > globals.max_brush_size {
+            globals.brush_size = globals.max_brush_size;
+        }
+    }
+    let size_normalized = globals.brush_size as f32 / (globals.max_brush_size as f32);
+    update_brush_size_slider_value(size_normalized, &globals, &mut brush_size_slider_button_style, &mut brush_size_text_query);
+}
+
+pub fn brush_size_slider_button_interactions(
+    mut globals_query: Query<&mut GameGlobals>,
+    relative_cursor_position_query: Query<&RelativeCursorPosition, With<BrushSizeSlider>>,
+    mut brush_size_text_query: Query<&mut Text, With<BrushSizeText>>,
+    mut interaction_query: Query<
+        (
+            &Interaction,
+            &mut BackgroundColor,
+            &mut BorderColor,
+            &mut Style,
+            &BrushSizeSliderButton
+        ),
+        With<Button>,
+    >
+) {
+    let mut globals = globals_query.single_mut();
+    let relative_cursor_position = relative_cursor_position_query.single();
+    for (interaction, mut color, mut border_color, mut style, _) in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
+                if let Some(rel_cursor_position) = relative_cursor_position.normalized {
+                    let offset = SLIDER_BUTTON_SIZE * 0.5 + SLIDER_BUTTON_BORDER + SLIDER_PADDING;
+                    let button_offset = SLIDER_BUTTON_SIZE + SLIDER_BUTTON_BORDER * 2. + SLIDER_PADDING * 2.;
+                    let slider_size = (globals.max_brush_size * 4) as f32 + button_offset;
+                    let min = 0.;
+                    let max = slider_size - button_offset;
+                    let value = clamp(rel_cursor_position.x * slider_size - offset, min, max);
+                    let amount = value / max;
+                    globals.brush_size = (globals.max_brush_size as f32 * amount).round() as i32;  
+                    update_brush_size_slider_value(amount, &globals, &mut style, &mut brush_size_text_query);
+                }
+            }
+            Interaction::Hovered => {
+                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
+                border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
+            }
+            Interaction::None => {
+                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                border_color.0 = BASIC_BUTTON_BORDER_COLOR;
             }
         }
     }

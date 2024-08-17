@@ -53,6 +53,8 @@ pub fn run_sandshrew_app() {
             load_button_interactions,
             replace_solids_button_interactions,
             top_gass_leak_button_interactions,
+            brush_size_mouse_scroll,
+            brush_size_slider_button_interactions,
             update_fps,
             update_cells,
             draw_to_out_img,
@@ -71,6 +73,7 @@ pub struct GameGlobals
     pub frame_num: usize,
     pub brush_type: BrushType,
     pub brush_size: i32,
+    pub max_brush_size: i32,
     pub prev_cursor_pos: Option<IVec2>,
     pub curr_cursor_pos: Option<IVec2>,
     pub prev_mouse_press: Option<MouseButton>,
@@ -135,10 +138,7 @@ fn setup(
     
     let grid = get_default_cell_grid(img_size);
 
-    let buttons_config = get_cell_type_buttons_config();
-
-    setup_ui(&mut commands, &asset_server, out_tex_size, img_handle.clone(), &mut images, &buttons_config, &grid.cell_properties);           
-
+    let buttons_config = get_cell_type_buttons_config();           
 
     let display = GridDisplay {
         //shallow_water_color: Color::rgb_u8(27, 52, 135),
@@ -146,29 +146,33 @@ fn setup(
         brush_edge_color: Color::rgba(1.0, 1.0, 1.0, 0.1),
     };
 
-    commands.spawn((
-        GameGlobals {
-            render_image: img_handle,
-            material_handle,
-            buttons_config,
-            img_size,
-            out_tex_size,
-            frame_num: 0,
-            brush_type: BrushType::Circle,
-            brush_size: 7,
-            prev_cursor_pos: None,
-            curr_cursor_pos: None,
-            prev_mouse_press: None,
-            replace_solids_button_pressed: false,
-            top_gass_leak_button_pressed: false,
-            save_button_pressed: false,
-            load_button_pressed: false,
-            grid,
-            display,
-            place_cell_type: CellType::Sand,
-            replace_solids: false,
-        },
-    ));
+    let globals = GameGlobals {
+        render_image: img_handle.clone(),
+        material_handle,
+        buttons_config,
+        img_size,
+        out_tex_size,
+        frame_num: 0,
+        brush_type: BrushType::Circle,
+        brush_size: 7,
+        max_brush_size: 50,
+        prev_cursor_pos: None,
+        curr_cursor_pos: None,
+        prev_mouse_press: None,
+        replace_solids_button_pressed: false,
+        top_gass_leak_button_pressed: false,
+        save_button_pressed: false,
+        load_button_pressed: false,
+        grid,
+        display,
+        place_cell_type: CellType::Sand,
+        replace_solids: false,
+    };
+    
+    setup_ui(&mut commands, &asset_server, out_tex_size, img_handle, &mut images, &globals);
+
+    commands.spawn(globals);
+
 }
 
 fn update_cells(mut globals_query: Query<&mut GameGlobals>)
@@ -188,7 +192,7 @@ fn update_cells(mut globals_query: Query<&mut GameGlobals>)
 fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<CustomMaterial>>,
     mut globals_query: Query<&mut GameGlobals>,
-    relative_cursor_position_query: Query<&RelativeCursorPosition>,
+    relative_cursor_position_query: Query<&RelativeCursorPosition, With<DrawingCanvas>>,
     mouse_button: Res<ButtonInput<MouseButton>>,
     ) {
     //let start = Instant::now();

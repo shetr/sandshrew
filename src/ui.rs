@@ -1,8 +1,18 @@
+use bevy::render::globals;
 use bevy::{prelude::*, ui::RelativeCursorPosition};
 use enum_map::{Enum, EnumMap};
 
-use crate::cell::*;
+use crate::{cell::*, GameGlobals};
 use crate::brush_icons::*;
+
+#[derive(Component)]
+pub struct DrawingCanvas;
+
+#[derive(Component)]
+pub struct BrushSizeSlider;
+
+#[derive(Component)]
+pub struct BrushSizeSliderButton;
 
 #[derive(Component)]
 pub struct FpsText;
@@ -131,9 +141,10 @@ pub fn setup_ui(
     out_tex_size: u32,
     img_handle: Handle<Image>,
     images: &mut ResMut<Assets<Image>>,
-    buttons_config: &Vec<CellTypeButtonConfig>,
-    cell_properties: &EnumMap<CellType, CellTypeProperties>,
+    globals: &GameGlobals,
 ) {
+    let buttons_config = &globals.buttons_config;
+    let cell_properties = &globals.grid.cell_properties;
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -234,6 +245,7 @@ pub fn setup_ui(
                         },
                         UiImage::new(img_handle.clone()),
                         RelativeCursorPosition::default(),
+                        DrawingCanvas,
                     ));
                 });
             });
@@ -270,7 +282,7 @@ pub fn setup_ui(
                     // Brush type
                     brush_type(parent, asset_server, images);
                     // Brush size
-                    brush_size(parent, asset_server);
+                    brush_size(parent, asset_server, globals);
                     // Toggle settings
                     toggle_settings(parent, asset_server);
                     // Save & Load buttons
@@ -409,6 +421,7 @@ fn add_brush_type_button(
 fn brush_size(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
+    globals: &GameGlobals,
 ) {
     parent.spawn(NodeBundle {
         style: Style {
@@ -433,6 +446,8 @@ fn brush_size(
                 ..default()
             },
         ));
+
+        brush_size_slider(parent, asset_server, globals);
     
         parent.spawn((TextBundle::from_section(
             " 15 px",
@@ -443,6 +458,48 @@ fn brush_size(
                 ..default()
             },
         ), BrushSizeText
+        ));
+    });
+}
+
+pub const SLIDER_BUTTON_SIZE: f32 = 32.;
+pub const SLIDER_BORDER: f32 = 3.;
+pub const SLIDER_PADDING: f32 = 5.;
+pub const SLIDER_BUTTON_BORDER: f32 = 3.;
+
+fn brush_size_slider(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    globals: &GameGlobals,
+) {
+    let button_offset = SLIDER_BUTTON_SIZE + SLIDER_BUTTON_BORDER * 2. + SLIDER_PADDING * 2.;
+    parent.spawn((NodeBundle {
+        style: Style {
+            width: Val::Px((globals.max_brush_size * 4) as f32 + button_offset),
+            // TODO: padding + button size + button border
+            height: Val::Px(button_offset),
+            border: UiRect::all(Val::Px(SLIDER_BORDER)),
+            padding: UiRect::all(Val::Px(SLIDER_PADDING)),
+            ..default()
+        },
+        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+        ..default()
+    }, BrushSizeSlider, RelativeCursorPosition::default()))
+    .with_children(|parent| {
+        parent.spawn((ButtonBundle {
+            style: Style {
+                width: Val::Px(SLIDER_BUTTON_SIZE),
+                height: Val::Px(SLIDER_BUTTON_SIZE),
+                border: UiRect::all(Val::Px(SLIDER_BUTTON_BORDER)),
+                position_type: PositionType::Absolute,
+                left: Val::Px(0.),
+                ..default()
+            },
+            border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+            background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+            ..default()
+        }, BrushSizeSliderButton
         ));
     });
 }
