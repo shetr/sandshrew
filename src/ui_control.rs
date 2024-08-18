@@ -346,7 +346,7 @@ pub fn brush_size_slider_button_interactions(
     for (interaction, mut color, mut border_color, mut style, _) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                *color = BASIC_BUTTON_SELECTED_BORDER_COLOR.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 if let Some(rel_cursor_position) = relative_cursor_position.normalized {
                     let offset = SLIDER_BUTTON_SIZE * 0.5 + SLIDER_BUTTON_BORDER + SLIDER_PADDING;
@@ -361,11 +361,11 @@ pub fn brush_size_slider_button_interactions(
                 }
             }
             Interaction::Hovered => {
-                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
+                *color = BASIC_BUTTON_HOVER_BORDER_COLOR.into();
                 border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
             }
             Interaction::None => {
-                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                *color = BASIC_BUTTON_BORDER_COLOR.into();
                 border_color.0 = BASIC_BUTTON_BORDER_COLOR;
             }
         }
