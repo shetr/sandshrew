@@ -52,7 +52,7 @@ pub fn brush_type_button_interactions(
     mut interaction_query: Query<
         (
             &Interaction,
-            &mut BackgroundColor,
+            &mut UiImage,
             &mut BorderColor,
             &BrushType
         ),
@@ -60,20 +60,20 @@ pub fn brush_type_button_interactions(
     >
 ) {
     let mut globals = globals_query.single_mut();
-    for (interaction, mut color, mut border_color, brush_type) in &mut interaction_query {
-        let basic_tint = Color::LinearRgba( LinearRgba::from_vec4(
+    for (interaction, mut ui_image, mut border_color, brush_type) in &mut interaction_query {
+        let basic_tint: Color = LinearRgba::from_vec4(
             BASIC_BUTTON_BACKGROUND_COLOR.to_linear().to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.to_linear().to_vec4()
-        ));
+        ).into();
         match *interaction {
             Interaction::Pressed => {
-                *color = Color::WHITE.into();
+                ui_image.color = Color::WHITE.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 globals.brush_type = *brush_type;
                 globals.prev_cursor_pos = None;
                 globals.prev_mouse_press = None;
             }
             Interaction::Hovered => {
-                *color = Color::WHITE.into();
+                ui_image.color = Color::WHITE.into();
                 if globals.brush_type == *brush_type {
                     border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
@@ -81,7 +81,7 @@ pub fn brush_type_button_interactions(
                 }
             }
             Interaction::None => {
-                *color = basic_tint.into();
+                ui_image.color = basic_tint.into();
                 if globals.brush_type == *brush_type {
                     border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
@@ -109,7 +109,7 @@ pub fn save_button_interactions(
     for (interaction, mut color, mut border_color, _) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 if !globals.save_button_pressed {
                     globals.save_button_pressed = true;
@@ -154,7 +154,7 @@ pub fn load_button_interactions(
     for (interaction, mut color, mut border_color, _) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 if !globals.load_button_pressed {
                     globals.load_button_pressed = true;
@@ -190,7 +190,7 @@ pub fn replace_solids_button_interactions(
     for (interaction, mut color, mut border_color, _) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
                 if !globals.replace_solids_button_pressed {
                     globals.replace_solids = !globals.replace_solids;
                     globals.replace_solids_button_pressed = true;
@@ -198,7 +198,7 @@ pub fn replace_solids_button_interactions(
                 if globals.replace_solids {
                     border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
-                    border_color.0 = BASIC_BUTTON_BORDER_COLOR;
+                    border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
                 }
             }
             Interaction::Hovered => {
@@ -239,7 +239,7 @@ pub fn top_gass_leak_button_interactions(
     for (interaction, mut color, mut border_color, _) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
                 if !globals.top_gass_leak_button_pressed {
                     globals.grid.top_gass_leak = !globals.grid.top_gass_leak;
                     globals.top_gass_leak_button_pressed = true;
@@ -247,7 +247,7 @@ pub fn top_gass_leak_button_interactions(
                 if globals.grid.top_gass_leak {
                     border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
-                    border_color.0 = BASIC_BUTTON_BORDER_COLOR;
+                    border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
                 }
             }
             Interaction::Hovered => {
