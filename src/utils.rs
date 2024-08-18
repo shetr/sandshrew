@@ -161,7 +161,7 @@ pub fn fill_img_color(color: Color, out_image: &mut Image)
 pub fn set_img_color(pos: UVec2, color: Color, out_image: &mut Image)
 {
     let i = (pos.x + pos.y * out_image.size().x) as usize;
-    let color = color.as_rgba_u8();
+    let color = color.to_linear().to_u8_array();
     for ch in 0..4 {
         out_image.data[i*4 + ch] = color[ch];
     }

@@ -40,6 +40,9 @@ pub fn update_input(
 ) {
     //let start = Instant::now();
     let mut globals = globals_query.single_mut();
+    if windows.is_empty() {
+        return;
+    }
     let window = windows.single();
     let relative_cursor_position = relative_cursor_position_query.single();
     //info!("Window size: {}x{}", window.width(), window.height());

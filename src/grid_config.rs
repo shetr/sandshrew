@@ -1,4 +1,4 @@
-use bevy::{math::IVec2, render::color::Color};
+use bevy::prelude::*;
 use enum_map::enum_map;
 
 use crate::{cell::*, cell_grid::*, utils::*};
@@ -24,7 +24,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
         cell_properties: enum_map! {
             CellType::Air => CellTypeProperties {
                 density: 0.5,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(34, 51, 81) },
+                colors: CellColors::CentricRGB { color: Color::srgb_u8(34, 51, 81) },
                 color_rand_radius: 0.0,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -36,7 +36,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Smoke => CellTypeProperties {
                 density: 0.2,
-                colors: CellColors::DurationGradient { from: Color::rgba(0.3, 0.3, 0.3, 0.35), to: Color::rgba(0.1, 0.1, 0.1, 1.0) },
+                colors: CellColors::DurationGradient { from: Color::srgba(0.3, 0.3, 0.3, 0.35), to: Color::srgba(0.1, 0.1, 0.1, 1.0) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.02,
                 movement_prob: 0.3,
@@ -48,7 +48,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::FlammableGass => CellTypeProperties {
                 density: 0.3,
-                colors: CellColors::CentricRGBA { color: Color::rgba(0.3, 0.6, 0.3, 0.2) },
+                colors: CellColors::CentricRGBA { color: Color::srgba(0.3, 0.6, 0.3, 0.2) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.03,
                 movement_prob: 0.15,
@@ -60,7 +60,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Fire => CellTypeProperties {
                 density: 0.1,
-                colors: CellColors::Gradient { from: Color::rgb_u8(88, 56, 14), to: Color::rgb_u8(81, 24, 10) },
+                colors: CellColors::Gradient { from: Color::srgb_u8(88, 56, 14), to: Color::srgb_u8(81, 24, 10) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.1,
                 movement_prob: 0.3,
@@ -72,7 +72,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Water => CellTypeProperties {
                 density: 2.0,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(18, 35, 90) },
+                colors: CellColors::CentricRGB { color: Color::srgb_u8(18, 35, 90) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.01,
                 movement_prob: 0.9,
@@ -84,7 +84,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Oil => CellTypeProperties {
                 density: 1.5,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(54, 41, 24) },
+                colors: CellColors::CentricRGB { color: Color::srgb_u8(54, 41, 24) },
                 color_rand_radius: 0.1,
                 color_change_prob: 0.01,
                 movement_prob: 0.5,
@@ -96,7 +96,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Acid => CellTypeProperties {
                 density: 1.0,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(42, 79, 30) },
+                colors: CellColors::CentricRGB { color: Color::srgb_u8(42, 79, 30) },
                 color_rand_radius: 0.1,
                 color_change_prob: 0.1,
                 movement_prob: 0.8,
@@ -108,7 +108,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Stone => CellTypeProperties {
                 density: 10.0,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(32, 32, 32) },
+                colors: CellColors::CentricRGB { color: Color::srgb_u8(32, 32, 32) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -120,7 +120,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Wood => CellTypeProperties {
                 density: 10.0,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(31, 20, 5) },
+                colors: CellColors::CentricRGB { color: Color::srgb_u8(31, 20, 5) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -132,7 +132,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Glass => CellTypeProperties {
                 density: 10.0,
-                colors: CellColors::CentricA { color: Color::rgba(0.85, 0.85, 1.0, 0.1) },
+                colors: CellColors::CentricA { color: Color::srgba(0.85, 0.85, 1.0, 0.1) },
                 color_rand_radius: 1.0,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -144,7 +144,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Sand => CellTypeProperties {
                 density: 10.0,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(83, 69, 28) },
+                colors: CellColors::CentricRGB { color: Color::srgb_u8(83, 69, 28) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 0.95,
@@ -156,7 +156,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             },
             CellType::Coal => CellTypeProperties {
                 density: 10.0,
-                colors: CellColors::CentricRGB { color: Color::rgb_u8(10, 10, 10) },
+                colors: CellColors::CentricRGB { color: Color::srgb_u8(10, 10, 10) },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 0.1,

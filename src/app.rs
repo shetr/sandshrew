@@ -1,7 +1,7 @@
 // TODO: time not supported for wasm, find som alternative
 //use std::time::{Duration, Instant};
 use bevy::{
-    diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, input::{mouse::MouseWheel, touch::Touch}, log::tracing_subscriber::field::display, prelude::*, reflect::TypePath, render::{
+    color::palettes::css::PURPLE, diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, input::{mouse::MouseWheel, touch::Touch}, log::tracing_subscriber::field::display, prelude::*, reflect::TypePath, render::{
         render_asset::RenderAssetUsages,
         render_resource::{
             self,
@@ -39,7 +39,6 @@ pub fn run_sandshrew_app() {
                 }),
                 ..default()
             }),
-            Material2dPlugin::<CustomMaterial>::default(),
             // uncomment to diagnose FPS
             FrameTimeDiagnosticsPlugin::default(),
             //LogDiagnosticsPlugin::default(),
@@ -68,8 +67,7 @@ pub fn run_sandshrew_app() {
 #[derive(Component)]
 pub struct GameGlobals
 {
-    pub render_image: Handle<Image>,
-    pub material_handle: Handle<CustomMaterial>,
+    pub render_image: AssetId<Image>,
     pub buttons_config: Vec<CellTypeButtonConfig>,
     pub img_size: u32,
     pub out_tex_size: u32,
@@ -99,7 +97,6 @@ pub struct FpsDisplayTimer {
 fn setup(
     mut commands: Commands,
     mut images: ResMut<Assets<Image>>,
-    mut materials: ResMut<Assets<CustomMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
     // let render_texture: Handle<Image> = asset_server.load("textures/green_tex.png");
@@ -127,11 +124,6 @@ fn setup(
     // camera
     commands.spawn(Camera2dBundle::default());
 
-    let material_handle = materials.add(CustomMaterial {
-        color: Color::PURPLE,
-        color_texture: Some(img_handle.clone()),
-    });
-
     let out_tex_size = 4*img_size;
 
     commands.spawn(FpsDisplayTimer { timer: Timer::from_seconds(
@@ -145,13 +137,12 @@ fn setup(
 
     let display = GridDisplay {
         //shallow_water_color: Color::rgb_u8(27, 52, 135),
-        shallow_water_color: Color::rgb_u8(31, 61, 157),
-        brush_edge_color: Color::rgba(1.0, 1.0, 1.0, 0.1),
+        shallow_water_color: Srgba::from_u8_array_no_alpha([31, 61, 157]).into(),
+        brush_edge_color: Srgba::new(1.0, 1.0, 1.0, 0.1).into(),
     };
 
     let globals = GameGlobals {
-        render_image: img_handle.clone(),
-        material_handle,
+        render_image: img_handle.id(),
         buttons_config,
         img_size,
         out_tex_size,
@@ -193,24 +184,21 @@ fn update_cells(mut globals_query: Query<&mut GameGlobals>)
 }
 
 fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
-    mut materials: ResMut<Assets<CustomMaterial>>,
     mut globals_query: Query<&mut GameGlobals>,
     relative_cursor_position_query: Query<&RelativeCursorPosition, With<DrawingCanvas>>,
     mouse_button: Res<ButtonInput<MouseButton>>,
     ) {
     //let start = Instant::now();
     let mut globals = globals_query.single_mut();
-    let image = images.get_mut(globals.render_image.clone()).unwrap();
+    let image = images.get_mut(globals.render_image).unwrap();
     let relative_cursor_position = relative_cursor_position_query.single();
 
-    let material = materials.get_mut(globals.material_handle.clone()).unwrap();
     globals.display.display(&globals.grid.cells, &globals.grid.cell_properties, image);
     let prev_cursor_pos = globals.prev_cursor_pos;
     let maybe_cursor_pos = get_out_img_cursor_pos(relative_cursor_position, &globals);
     if let Some(cursor_pos) = maybe_cursor_pos {
         globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, prev_cursor_pos, globals.brush_type, globals.brush_size);
     }
-    material.color_texture = Some(globals.render_image.clone());
 
     if globals.brush_type == BrushType::Circle || globals.brush_type == BrushType::Square {
         if mouse_button.pressed(MouseButton::Left) || mouse_button.pressed(MouseButton::Right) {
@@ -237,23 +225,5 @@ fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
         } else if mouse_button.just_pressed(MouseButton::Right) {
             globals.prev_mouse_press = Some(MouseButton::Right);
         }
-    }
-}
-
-// This is the struct that will be passed to your shader
-#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-struct CustomMaterial {
-    #[uniform(0)]
-    color: Color,
-    #[texture(1)]
-    #[sampler(2)]
-    color_texture: Option<Handle<Image>>,
-}
-
-/// The Material2d trait is very configurable, but comes with sensible defaults for all methods.
-/// You only need to implement functions for features that need non-default behavior. See the Material2d api docs for details!
-impl Material2d for CustomMaterial {
-    fn fragment_shader() -> ShaderRef {
-        "shaders/display_shader.wgsl".into()
     }
 }

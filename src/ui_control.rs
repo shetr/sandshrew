@@ -61,7 +61,9 @@ pub fn brush_type_button_interactions(
 ) {
     let mut globals = globals_query.single_mut();
     for (interaction, mut color, mut border_color, brush_type) in &mut interaction_query {
-        let basic_tint = Color::rgba_from_array(BASIC_BUTTON_BACKGROUND_COLOR.rgba_to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.rgba_to_vec4());
+        let basic_tint = Color::LinearRgba( LinearRgba::from_vec4(
+            BASIC_BUTTON_BACKGROUND_COLOR.to_linear().to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.to_linear().to_vec4()
+        ));
         match *interaction {
             Interaction::Pressed => {
                 *color = Color::WHITE.into();

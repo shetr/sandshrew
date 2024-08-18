@@ -240,35 +240,35 @@ impl CellTypeProperties {
         let dt = (timer as f32) / (self.timer as f32);
         match self.colors {
             CellColors::CentricRGB { color } => {
-                let rgb = color.rgb_to_vec3() * color_scale;
+                let rgb = color.to_linear().to_vec3() * color_scale;
                 Vec4::new(rgb.x, rgb.y, rgb.z, 1.0)
             },
             CellColors::CentricRGBA { color } => {
-                color.rgba_to_vec4() * color_scale
+                color.to_linear().to_vec4() * color_scale
             },
             CellColors::CentricA { color } => {
-                let mut rgba = color.rgba_to_vec4();
+                let mut rgba = color.to_linear().to_vec4();
                 rgba.w *= color_scale;
                 rgba
             },
             CellColors::Gradient { from, to } => {
                 let t = self.color_scale_to_t(color_scale);
-                from.rgba_to_vec4() * (1.0 - t) + to.rgba_to_vec4() * t
+                from.to_linear().to_vec4() * (1.0 - t) + to.to_linear().to_vec4() * t
             },
             CellColors::DurationGradient { from, to } => {
-                (from.rgba_to_vec4() * (1.0 - dt) + to.rgba_to_vec4() * dt) * color_scale
+                (from.to_linear().to_vec4() * (1.0 - dt) + to.to_linear().to_vec4() * dt) * color_scale
             },
         }
     }
 
     pub fn get_default_color_scaled(&self, color_scale: f32) -> Color {
         let rgba = self.get_color_rgba(color_scale, self.timer);
-        Color::Rgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }
+        LinearRgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }.into()
     }
 
     pub fn get_default_color(&self) -> Color {
         let rgba = self.get_color_rgba(1.0, self.timer);
-        Color::Rgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }
+        LinearRgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }.into()
     }
 
     fn color_scale_to_t(&self, color_scale: f32) -> f32 {

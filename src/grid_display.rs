@@ -73,8 +73,9 @@ impl GridDisplay {
     pub fn draw_brush_edge_circle(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, size: i32)
     {
         let pos = IVec2 { x: pos.x, y: cells.sizes.y - pos.y - 1 };
-        let color = self.brush_edge_color.rgb_to_vec3();
-        let a = self.brush_edge_color.a();
+        let lin_color = self.brush_edge_color.to_linear();
+        let color = lin_color.to_vec3();
+        let a = lin_color.alpha;
 
         let mut set_color = |pos: IVec2| {
             if cells.is_in_range(pos) {
@@ -88,8 +89,9 @@ impl GridDisplay {
     pub fn draw_brush_edge_square(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, size: i32)
     {
         let pos = IVec2 { x: pos.x, y: cells.sizes.y - pos.y - 1 };
-        let color = self.brush_edge_color.rgb_to_vec3();
-        let a = self.brush_edge_color.a();
+        let lin_color = self.brush_edge_color.to_linear();
+        let color = lin_color.to_vec3();
+        let a = lin_color.alpha;
         let start_pos = pos - size;
         let end_pos = pos + size + 1;
         for y in start_pos.y..end_pos.y {
@@ -106,8 +108,9 @@ impl GridDisplay {
     {
         let pos_from = IVec2 { x: pos_from.x, y: cells.sizes.y - pos_from.y - 1 };
         let pos_to = IVec2 { x: pos_to.x, y: cells.sizes.y - pos_to.y - 1 };
-        let color = self.brush_edge_color.rgb_to_vec3();
-        let a = self.brush_edge_color.a();
+        let lin_color = self.brush_edge_color.to_linear();
+        let color = lin_color.to_vec3();
+        let a = lin_color.alpha;
         
         let mut set_color = |pos: IVec2| {
             if cells.is_in_range(pos) {
@@ -124,8 +127,9 @@ impl GridDisplay {
     {
         let pos_from = IVec2 { x: pos_from.x, y: cells.sizes.y - pos_from.y - 1 };
         let pos_to = IVec2 { x: pos_to.x, y: cells.sizes.y - pos_to.y - 1 };
-        let color = self.brush_edge_color.rgb_to_vec3();
-        let a = self.brush_edge_color.a();
+        let lin_color = self.brush_edge_color.to_linear();
+        let color = lin_color.to_vec3();
+        let a = lin_color.alpha;
 
         let mut set_color = |pos: IVec2| {
             if cells.is_in_range(pos) {
