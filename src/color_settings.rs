@@ -5,7 +5,7 @@ use crate::cell::*;
 
 type ColorSettings = EnumMap<CellType, CellColors>;
 
-pub fn base_colors() -> ColorSettings {
+pub fn base_colors_palette() -> ColorSettings {
     enum_map! {
         CellType::Air => CellColors::CentricRGB { color: Color::srgb_u8(34, 51, 81) },
         CellType::Smoke => CellColors::DurationGradient { from: Color::srgba(0.3, 0.3, 0.3, 0.35), to: Color::srgba(0.1, 0.1, 0.1, 1.0) },
@@ -22,7 +22,7 @@ pub fn base_colors() -> ColorSettings {
     }
 }
 
-pub fn base_colors_linear() -> ColorSettings {
+pub fn base_colors_linear_palette() -> ColorSettings {
     enum_map! {
         CellType::Air => CellColors::CentricRGB { color: LinearRgba::from_u8_array_no_alpha([34, 51, 81]).into() },
         CellType::Smoke => CellColors::DurationGradient { from: LinearRgba::new(0.3, 0.3, 0.3, 0.35).into(), to: LinearRgba::new(0.1, 0.1, 0.1, 1.0).into() },
@@ -39,7 +39,8 @@ pub fn base_colors_linear() -> ColorSettings {
     }
 }
 
-pub fn lospec500() -> ColorSettings {
+pub fn lospec500_palette() -> ColorSettings {
+    // most of the colors taken from https://lospec.com/palette-list/lospec500
     enum_map! {
         CellType::Air => CellColors::CentricRGB { color: Srgba::hex("3388de").unwrap().into() },
         CellType::Smoke => CellColors::DurationGradient { from: LinearRgba::new(0.3, 0.3, 0.3, 0.35).into(), to: LinearRgba::new(0.1, 0.1, 0.1, 1.0).into() },
@@ -48,10 +49,46 @@ pub fn lospec500() -> ColorSettings {
         CellType::Water => CellColors::CentricRGB { color: Srgba::hex("3859b3").unwrap().into() },
         CellType::Oil => CellColors::CentricRGB { color: Srgba::hex("a26d3f").unwrap().into() },
         CellType::Acid => CellColors::CentricRGB { color: Srgba::hex("9de64e").unwrap().into() },
-        CellType::Stone => CellColors::CentricRGB { color: LinearRgba::from_u8_array_no_alpha([26, 26, 26]).into() },
+        CellType::Stone => CellColors::CentricRGB { color: Srgba::hex("646365").unwrap().into() },
         CellType::Wood => CellColors::CentricRGB { color: Srgba::hex("6e4c30").unwrap().into() },
         CellType::Glass => CellColors::CentricA { color: LinearRgba::new(0.95, 0.95, 0.9, 0.15).into() },
         CellType::Sand => CellColors::CentricRGB { color: Srgba::hex("dab163").unwrap().into() },
         CellType::Coal => CellColors::CentricRGB { color: LinearRgba::from_u8_array_no_alpha([10, 10, 10]).into() },
+    }
+}
+
+pub fn cc_29_palette() -> ColorSettings {
+    // most of the colors taken from https://lospec.com/palette-list/cc-29
+    enum_map! {
+        CellType::Air => CellColors::CentricRGB { color: Srgba::hex("b8b5b9").unwrap().into() },
+        CellType::Smoke => CellColors::DurationGradient { from: LinearRgba::new(0.3, 0.3, 0.3, 0.35).into(), to: LinearRgba::new(0.1, 0.1, 0.1, 1.0).into() },
+        CellType::FlammableGass => CellColors::CentricRGBA { color: Srgba::hex("b2b47e").unwrap().into() },
+        CellType::Fire => CellColors::Gradient { from: Srgba::hex("b45252").unwrap().into(), to: Srgba::hex("d3a068").unwrap().into() },
+        CellType::Water => CellColors::CentricRGB { color: Srgba::hex("4b80ca").unwrap().into() },
+        CellType::Oil => CellColors::CentricRGB { color: Srgba::hex("7b7243").unwrap().into() },
+        CellType::Acid => CellColors::CentricRGB { color: Srgba::hex("c2d368").unwrap().into() },
+        CellType::Stone => CellColors::CentricRGB { color: Srgba::hex("646365").unwrap().into() },
+        CellType::Wood => CellColors::CentricRGB { color: Srgba::hex("a77b5b").unwrap().into() },
+        CellType::Glass => CellColors::CentricA { color: LinearRgba::new(0.95, 0.95, 0.9, 0.15).into() },
+        CellType::Sand => CellColors::CentricRGB { color: Srgba::hex("ede19e").unwrap().into() },
+        CellType::Coal => CellColors::CentricRGB { color: Srgba::hex("212123").unwrap().into() },
+    }
+}
+
+pub fn resurrect64_palette() -> ColorSettings {
+    // most of the colors taken from https://lospec.com/palette-list/resurrect-64
+    enum_map! {
+        CellType::Air => CellColors::CentricRGB { color: Srgba::hex("2e222f").unwrap().into() },
+        CellType::Smoke => CellColors::DurationGradient { from: LinearRgba::new(0.3, 0.3, 0.3, 0.35).into(), to: LinearRgba::new(0.1, 0.1, 0.1, 1.0).into() },
+        CellType::FlammableGass => CellColors::CentricRGBA { color: Srgba::hex("91db69").unwrap().into() },
+        CellType::Fire => CellColors::Gradient { from: Srgba::hex("e83b3b").unwrap().into(), to: Srgba::hex("f79617").unwrap().into() },
+        CellType::Water => CellColors::CentricRGB { color: Srgba::hex("4d65b4").unwrap().into() },
+        CellType::Oil => CellColors::CentricRGB { color: Srgba::hex("4c3e24").unwrap().into() },
+        CellType::Acid => CellColors::CentricRGB { color: Srgba::hex("cddf6c").unwrap().into() },
+        CellType::Stone => CellColors::CentricRGB { color: Srgba::hex("625565").unwrap().into() },
+        CellType::Wood => CellColors::CentricRGB { color: Srgba::hex("4c3e24").unwrap().into() },
+        CellType::Glass => CellColors::CentricA { color: LinearRgba::new(0.95, 0.95, 0.9, 0.15).into() },
+        CellType::Sand => CellColors::CentricRGB { color: Srgba::hex("fbff86").unwrap().into() },
+        CellType::Coal => CellColors::CentricRGB { color: Srgba::hex("3e3546").unwrap().into() },
     }
 }

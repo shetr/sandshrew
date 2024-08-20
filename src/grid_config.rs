@@ -5,7 +5,7 @@ use crate::{cell::*, cell_grid::*, color_settings::*, utils::*};
 
 pub fn get_default_cell_grid(img_size: u32) -> CellGrid
 {
-    let colors = lospec500();
+    let colors = lospec500_palette();
 
     CellGrid {
         top_gass_leak: true,
