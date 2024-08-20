@@ -8,5 +8,6 @@ mod input;
 mod grid_config;
 mod ui_control;
 mod brush_icons;
+mod color_settings;
 
 pub use app::*;

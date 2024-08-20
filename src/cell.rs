@@ -210,6 +210,7 @@ impl Cell {
     }
 }
 
+#[derive(Clone)]
 pub struct CellTypeProperties
 {
     pub density: f32,
@@ -225,6 +226,7 @@ pub struct CellTypeProperties
     pub fire_color_prob: f32,
 }
 
+#[derive(Clone)]
 pub enum CellColors
 {
     CentricRGB { color: Color },
