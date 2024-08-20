@@ -3,6 +3,7 @@ use bevy::render::globals;
 use bevy::{prelude::*, ui::RelativeCursorPosition};
 use enum_map::{Enum, EnumMap};
 
+use crate::utils::*;
 use crate::{cell::*, GameGlobals};
 use crate::brush_icons::*;
 
@@ -746,8 +747,8 @@ fn add_cell_type_button(
     cell_properties: &EnumMap<CellType, CellTypeProperties>,
     button_config: &CellTypeButtonConfig
 ) {
-    let cell_color = cell_properties[button_config.cell_type].get_default_color();
-    let text_color: Color =  Srgba::from_vec3(1. - cell_color.to_srgba().to_vec3()).into();
+    let cell_color = cell_properties[button_config.cell_type].get_default_color().with_alpha(1.);
+    let text_color = distant_color_black_white_no_alpha(cell_color);
     parent.spawn((ButtonBundle {
         style: Style {
             width: Val::Px(150.0),

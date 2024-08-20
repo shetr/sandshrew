@@ -149,7 +149,7 @@ fn setup(
         frame_num: 0,
         brush_type: BrushType::Circle,
         brush_size: 7,
-        max_brush_size: 50,
+        max_brush_size: 64,
         prev_cursor_pos: None,
         curr_cursor_pos: None,
         prev_mouse_press: None,

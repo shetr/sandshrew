@@ -66,23 +66,15 @@ impl GridDisplay {
 
     pub fn set_brush_color(&self, cells: &Vector2D<Cell>, iv: IVec2, out_image: &mut Image, color: Vec3, a: f32)
     {
-        //let color = color.to_array();
-        //let i = 4 * cells.vec_to_index(iv);
-        //let mut avg = 0.;
-        //for c in 0..3 {
-        //    avg += (out_image.data[i + c] as f32) / 255.;
-        //}
-        //avg /= 3.;
-        //let invert = avg >= 0.5;
-        //for c in 0..3 {
-        //    let color = if invert { 1. - color[c] } else { color[c] };
-        //    let a = if invert { 1. - a } else { a };
-        //    out_image.data[i + c] = (a * color * 255.0 + (out_image.data[i + c] as f32) * (1.0 - a)) as u8;
-        //}
         let i = 4 * cells.vec_to_index(iv);
-        for c in 0..3 {
-            out_image.data[i + c] = (255.0 - (out_image.data[i + c] as f32)) as u8;
-        }
+        let in_color: Color = LinearRgba::from_u8_array_no_alpha([
+            out_image.data[i + 0],
+            out_image.data[i + 1],
+            out_image.data[i + 2]
+        ]).into();
+        
+        let col = distant_color_black_white_no_alpha(in_color);
+        set_img_color(iv.as_uvec2(), col.mix(&in_color, 0.8), out_image);
     }
 
     pub fn draw_brush_edge_circle(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, size: i32)

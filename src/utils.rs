@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{color::palettes::css::{BLACK, WHITE}, prelude::*};
 use std::{mem::swap, ops::{Index, IndexMut}};
 
 #[derive(Clone)]
@@ -164,6 +164,33 @@ pub fn set_img_color(pos: UVec2, color: Color, out_image: &mut Image)
     let color = color.to_linear().to_u8_array();
     for ch in 0..4 {
         out_image.data[i*4 + ch] = color[ch];
+    }
+}
+
+pub fn distant_color_no_alpha(color: Color) -> Color
+{
+    let vals = color.to_srgba().to_f32_array_no_alpha();
+    let mut out_vals = [0.; 3];
+    for c in 0..3 {
+        if vals[c] < 0.5 {
+            out_vals[c] = 1.0;
+        }
+    }
+    Srgba::from_f32_array_no_alpha(out_vals).into()
+}
+
+pub fn distant_color_black_white_no_alpha(color: Color) -> Color
+{
+    let vals = color.to_srgba().to_f32_array_no_alpha();
+    let mut avg = 0.0;
+    for c in 0..3 {
+        avg += vals[c];
+    }
+    avg /= 3.;
+    if avg < 0.5 {
+        WHITE.into()
+    } else {
+        BLACK.into()
     }
 }
 
