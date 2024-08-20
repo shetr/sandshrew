@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use bevy::prelude::*;
 use enum_map::EnumMap;
 
@@ -62,12 +64,25 @@ impl GridDisplay {
         }
     }
 
-    pub fn set_color(&self, cells: &Vector2D<Cell>, iv: IVec2, out_image: &mut Image, color: Vec3, a: f32)
+    pub fn set_brush_color(&self, cells: &Vector2D<Cell>, iv: IVec2, out_image: &mut Image, color: Vec3, a: f32)
     {
-        let i = cells.vec_to_index(iv);
-        out_image.data[i*4 + 0] = (a * color.x * 255.0 + (out_image.data[i*4 + 0] as f32) * (1.0 - a)) as u8;
-        out_image.data[i*4 + 1] = (a * color.y * 255.0 + (out_image.data[i*4 + 1] as f32) * (1.0 - a)) as u8;
-        out_image.data[i*4 + 2] = (a * color.z * 255.0 + (out_image.data[i*4 + 2] as f32) * (1.0 - a)) as u8;
+        //let color = color.to_array();
+        //let i = 4 * cells.vec_to_index(iv);
+        //let mut avg = 0.;
+        //for c in 0..3 {
+        //    avg += (out_image.data[i + c] as f32) / 255.;
+        //}
+        //avg /= 3.;
+        //let invert = avg >= 0.5;
+        //for c in 0..3 {
+        //    let color = if invert { 1. - color[c] } else { color[c] };
+        //    let a = if invert { 1. - a } else { a };
+        //    out_image.data[i + c] = (a * color * 255.0 + (out_image.data[i + c] as f32) * (1.0 - a)) as u8;
+        //}
+        let i = 4 * cells.vec_to_index(iv);
+        for c in 0..3 {
+            out_image.data[i + c] = (255.0 - (out_image.data[i + c] as f32)) as u8;
+        }
     }
 
     pub fn draw_brush_edge_circle(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, size: i32)
@@ -77,13 +92,18 @@ impl GridDisplay {
         let color = lin_color.to_vec3();
         let a = lin_color.alpha;
 
+        let mut positions = HashSet::<IVec2>::new();
         let mut set_color = |pos: IVec2| {
             if cells.is_in_range(pos) {
-                self.set_color(cells, pos, out_image, color, a);
+                positions.insert(pos);
             }
         };
         
         bresenham_circle_edge(pos, size, &mut set_color);
+
+        for pos in positions {
+            self.set_brush_color(cells, pos, out_image, color, a);
+        }
     }
 
     pub fn draw_brush_edge_square(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos: IVec2, size: i32)
@@ -98,7 +118,7 @@ impl GridDisplay {
             for x in start_pos.x..end_pos.x {
                 let iv = IVec2::new(x, y);
                 if cells.is_in_range(iv) && (x == start_pos.x || y == start_pos.y || x == end_pos.x - 1 || y == end_pos.y - 1) {
-                    self.set_color(cells, iv, out_image, color, a);
+                    self.set_brush_color(cells, iv, out_image, color, a);
                 }
             }
         }
@@ -112,15 +132,20 @@ impl GridDisplay {
         let color = lin_color.to_vec3();
         let a = lin_color.alpha;
         
+        let mut positions = HashSet::<IVec2>::new();
         let mut set_color = |pos: IVec2| {
             if cells.is_in_range(pos) {
-                self.set_color(cells, pos, out_image, color, a);
+                positions.insert(pos);
             }
         };
         
         dda_thick_outline(pos_from, pos_to, size, &mut set_color);
         bresenham_circle_edge(pos_from, size, &mut set_color);
         bresenham_circle_edge(pos_to, size, &mut set_color);
+        
+        for pos in positions {
+            self.set_brush_color(cells, pos, out_image, color, a);
+        }
     }
 
     pub fn draw_brush_edge_line_sharp(&self, cells: &Vector2D<Cell>, out_image: &mut Image, pos_from: IVec2, pos_to: IVec2, size: i32)
@@ -131,13 +156,18 @@ impl GridDisplay {
         let color = lin_color.to_vec3();
         let a = lin_color.alpha;
 
+        let mut positions = HashSet::<IVec2>::new();
         let mut set_color = |pos: IVec2| {
             if cells.is_in_range(pos) {
-                self.set_color(cells, pos, out_image, color, a);
+                positions.insert(pos);
             }
         };
         
         dda_thick_outline(pos_from, pos_to, size, &mut set_color);
+
+        for pos in positions {
+            self.set_brush_color(cells, pos, out_image, color, a);
+        }
     }
 
 }

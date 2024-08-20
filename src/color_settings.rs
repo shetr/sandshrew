@@ -38,3 +38,20 @@ pub fn base_colors_linear() -> ColorSettings {
         CellType::Coal => CellColors::CentricRGB { color: LinearRgba::from_u8_array_no_alpha([10, 10, 10]).into() },
     }
 }
+
+pub fn lospec500() -> ColorSettings {
+    enum_map! {
+        CellType::Air => CellColors::CentricRGB { color: Srgba::hex("3388de").unwrap().into() },
+        CellType::Smoke => CellColors::DurationGradient { from: LinearRgba::new(0.3, 0.3, 0.3, 0.35).into(), to: LinearRgba::new(0.1, 0.1, 0.1, 1.0).into() },
+        CellType::FlammableGass => CellColors::CentricRGBA { color: Srgba::hex("62a477").unwrap().into() },
+        CellType::Fire => CellColors::Gradient { from: Srgba::hex("f3a833").unwrap().into(), to: Srgba::hex("de5d3a").unwrap().into() },
+        CellType::Water => CellColors::CentricRGB { color: Srgba::hex("3859b3").unwrap().into() },
+        CellType::Oil => CellColors::CentricRGB { color: Srgba::hex("a26d3f").unwrap().into() },
+        CellType::Acid => CellColors::CentricRGB { color: Srgba::hex("9de64e").unwrap().into() },
+        CellType::Stone => CellColors::CentricRGB { color: LinearRgba::from_u8_array_no_alpha([26, 26, 26]).into() },
+        CellType::Wood => CellColors::CentricRGB { color: Srgba::hex("6e4c30").unwrap().into() },
+        CellType::Glass => CellColors::CentricA { color: LinearRgba::new(0.95, 0.95, 0.9, 0.15).into() },
+        CellType::Sand => CellColors::CentricRGB { color: Srgba::hex("dab163").unwrap().into() },
+        CellType::Coal => CellColors::CentricRGB { color: LinearRgba::from_u8_array_no_alpha([10, 10, 10]).into() },
+    }
+}

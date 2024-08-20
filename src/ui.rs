@@ -108,7 +108,7 @@ pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
         },
         CellTypeButtonConfig {
             cell_type: CellType::FlammableGass,
-            name: String::from("FGass"),
+            name: String::from("F. Gass"),
         },
         CellTypeButtonConfig {
             cell_type: CellType::Oil,
@@ -747,6 +747,7 @@ fn add_cell_type_button(
     button_config: &CellTypeButtonConfig
 ) {
     let cell_color = cell_properties[button_config.cell_type].get_default_color();
+    let text_color: Color =  Srgba::from_vec3(1. - cell_color.to_srgba().to_vec3()).into();
     parent.spawn((ButtonBundle {
         style: Style {
             width: Val::Px(150.0),
@@ -769,7 +770,7 @@ fn add_cell_type_button(
             TextStyle {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
-                color: CELL_BUTTON_TEXT_COLOR,
+                color: text_color,
             },
         ));
     });

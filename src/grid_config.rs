@@ -5,7 +5,7 @@ use crate::{cell::*, cell_grid::*, color_settings::*, utils::*};
 
 pub fn get_default_cell_grid(img_size: u32) -> CellGrid
 {
-    let colors = base_colors_linear();
+    let colors = lospec500();
 
     CellGrid {
         top_gass_leak: true,
@@ -135,7 +135,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Glass => CellTypeProperties {
                 density: 10.0,
                 colors: colors[CellType::Glass].clone(),
-                color_rand_radius: 1.0,
+                color_rand_radius: 0.15,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
                 fallthroug_prob: 0.0,
