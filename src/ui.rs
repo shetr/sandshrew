@@ -108,20 +108,24 @@ pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
             name: String::from("Stone"),
         },
         CellTypeButtonConfig {
-            cell_type: CellType::FlammableGass,
-            name: String::from("F. Gass"),
+            cell_type: CellType::Wood,
+            name: String::from("Wood"),
         },
         CellTypeButtonConfig {
-            cell_type: CellType::Oil,
-            name: String::from("Oil"),
+            cell_type: CellType::Coal,
+            name: String::from("Coal"),
         },
         CellTypeButtonConfig {
             cell_type: CellType::Fire,
             name: String::from("Fire"),
         },
         CellTypeButtonConfig {
-            cell_type: CellType::Wood,
-            name: String::from("Wood"),
+            cell_type: CellType::Oil,
+            name: String::from("Oil"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::FlammableGass,
+            name: String::from("F. Gass"),
         },
         CellTypeButtonConfig {
             cell_type: CellType::Acid,
@@ -130,10 +134,6 @@ pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
         CellTypeButtonConfig {
             cell_type: CellType::Glass,
             name: String::from("Glass"),
-        },
-        CellTypeButtonConfig {
-            cell_type: CellType::Coal,
-            name: String::from("Coal"),
         },
         //CellTypeButtonConfig {
         //    cell_type: CellType::Smoke,
