@@ -747,7 +747,9 @@ fn add_cell_type_button(
     cell_properties: &EnumMap<CellType, CellTypeProperties>,
     button_config: &CellTypeButtonConfig
 ) {
-    let cell_color = cell_properties[button_config.cell_type].get_default_color().with_alpha(1.);
+    let cell_color = cell_properties[button_config.cell_type].get_default_color();
+    let background_color = cell_properties[CellType::Air].get_default_color();
+    let cell_color = background_color.mix(&cell_color, cell_color.alpha());
     let text_color = distant_color_black_white_no_alpha(cell_color);
     parent.spawn((ButtonBundle {
         style: Style {

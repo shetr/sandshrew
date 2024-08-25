@@ -19,15 +19,19 @@ pub fn cell_type_button_interactions(
 ) {
     let mut globals = globals_query.single_mut();
     for (interaction, mut color, mut border_color, cell_type) in &mut interaction_query {
-        let cell_color = globals.grid.cell_properties[*cell_type].get_default_color();
+        let background_color = globals.grid.cell_properties[CellType::Air].get_default_color();
         match *interaction {
             Interaction::Pressed => {
-                *color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.5).into();
+                let cell_color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.5);
+                let cell_color = background_color.mix(&cell_color, cell_color.alpha());
+                *color = cell_color.into();
                 border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 globals.place_cell_type = *cell_type;
             }
             Interaction::Hovered => {
-                *color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.25).into();
+                let cell_color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.25);
+                let cell_color = background_color.mix(&cell_color, cell_color.alpha());
+                *color = cell_color.into();
                 if globals.place_cell_type == *cell_type {
                     border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
@@ -35,6 +39,8 @@ pub fn cell_type_button_interactions(
                 }
             }
             Interaction::None => {
+                let cell_color = globals.grid.cell_properties[*cell_type].get_default_color();
+                let cell_color = background_color.mix(&cell_color, cell_color.alpha());
                 *color = cell_color.into();
                 if globals.place_cell_type == *cell_type {
                     border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
