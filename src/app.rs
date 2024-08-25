@@ -22,7 +22,9 @@ use bevy::{
             MaterialMesh2dBundle
         }, ui::RelativeCursorPosition, utils::hashbrown::Equivalent, window::PrimaryWindow, winit::WinitWindows
 };
-use winit::{platform::windows::IconExtWindows, window::Icon};
+
+#[cfg(not(target_arch = "wasm32"))]
+use winit::{window::Icon};
 
 use crate::{grid_config::*, input::*, ui::*, ui_control::*, utils::*};
 use crate::cell::*;
@@ -183,6 +185,7 @@ fn setup(
 
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn set_window_icon(
     mut ev_asset: EventReader<AssetEvent<Image>>,
     mut images: ResMut<Assets<Image>>,
@@ -204,6 +207,10 @@ fn set_window_icon(
             _ => {},
         }
     }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn set_window_icon() {
 }
 
 fn update_cells(mut globals_query: Query<&mut GameGlobals>)
