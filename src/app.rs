@@ -1,7 +1,10 @@
+use core::fmt;
+use std::borrow::BorrowMut;
+
 // TODO: time not supported for wasm, find som alternative
 //use std::time::{Duration, Instant};
 use bevy::{
-    color::palettes::css::PURPLE, diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, input::{mouse::MouseWheel, touch::Touch}, log::tracing_subscriber::field::display, prelude::*, reflect::TypePath, render::{
+    asset::{AssetPath, LoadState}, color::palettes::css::PURPLE, diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, input::{mouse::MouseWheel, touch::Touch}, log::tracing_subscriber::field::display, prelude::*, reflect::TypePath, render::{
         render_asset::RenderAssetUsages,
         render_resource::{
             self,
@@ -17,8 +20,9 @@ use bevy::{
             Material2d,
             Material2dPlugin,
             MaterialMesh2dBundle
-        }, ui::RelativeCursorPosition, utils::hashbrown::Equivalent, window::PrimaryWindow
+        }, ui::RelativeCursorPosition, utils::hashbrown::Equivalent, window::PrimaryWindow, winit::WinitWindows
 };
+use winit::{platform::windows::IconExtWindows, window::Icon};
 
 use crate::{grid_config::*, input::*, ui::*, ui_control::*, utils::*};
 use crate::cell::*;
@@ -48,6 +52,7 @@ pub fn run_sandshrew_app() {
             init_brush_size_slider_value
         ).chain())
         .add_systems(Update, (
+            set_window_icon,
             update_input,
             cell_type_button_interactions,
             brush_type_button_interactions,
@@ -93,6 +98,11 @@ pub struct FpsDisplayTimer {
     pub timer: Timer,
 }
 
+#[derive(Resource)]
+struct IconImage {
+    handle: Handle<Image>,
+}
+
 // Setup a simple 2d scene
 fn setup(
     mut commands: Commands,
@@ -100,6 +110,10 @@ fn setup(
     asset_server: Res<AssetServer>,
 ) {
     // let render_texture: Handle<Image> = asset_server.load("textures/green_tex.png");
+    
+    let icon_handle: Handle<Image> = asset_server.load("sandshrew.png");
+
+    commands.insert_resource(IconImage {handle: icon_handle});
 
     let img_size = 200u32;
     #[cfg(debug_assertions)]
@@ -167,6 +181,29 @@ fn setup(
 
     commands.spawn(globals);
 
+}
+
+fn set_window_icon(
+    mut ev_asset: EventReader<AssetEvent<Image>>,
+    mut images: ResMut<Assets<Image>>,
+    icon_img: Res<IconImage>,
+    windows: NonSend<WinitWindows>,
+) {
+    for ev in ev_asset.read() {
+        match ev {
+            AssetEvent::LoadedWithDependencies { id } => {
+                if *id == icon_img.handle.id() {
+                    let img = images.get_mut(*id).unwrap();
+                    let icon = Icon::from_rgba(img.data.clone(), img.width(), img.height()).unwrap();
+                
+                    for window in windows.windows.values() {
+                        window.set_window_icon(Some(icon.clone()));
+                    }
+                }
+            },
+            _ => {},
+        }
+    }
 }
 
 fn update_cells(mut globals_query: Query<&mut GameGlobals>)
