@@ -27,6 +27,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Air => CellTypeProperties {
                 density: 0.5,
                 colors: colors[CellType::Air].clone(),
+                rand_color_pattern: RandColorPattern::None,
                 color_rand_radius: 0.0,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -39,6 +40,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Smoke => CellTypeProperties {
                 density: 0.2,
                 colors: colors[CellType::Smoke].clone(),
+                rand_color_pattern: RandColorPattern::None,
                 color_rand_radius: 0.25,
                 color_change_prob: 0.02,
                 movement_prob: 0.3,
@@ -51,6 +53,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::FlammableGass => CellTypeProperties {
                 density: 0.3,
                 colors: colors[CellType::FlammableGass].clone(),
+                rand_color_pattern: RandColorPattern::None,
                 color_rand_radius: 0.25,
                 color_change_prob: 0.03,
                 movement_prob: 0.15,
@@ -63,6 +66,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Fire => CellTypeProperties {
                 density: 0.1,
                 colors: colors[CellType::Fire].clone(),
+                rand_color_pattern: RandColorPattern::None,
                 color_rand_radius: 0.25,
                 color_change_prob: 0.1,
                 movement_prob: 0.3,
@@ -75,6 +79,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Water => CellTypeProperties {
                 density: 2.0,
                 colors: colors[CellType::Water].clone(),
+                rand_color_pattern: RandColorPattern::None,
                 color_rand_radius: 0.25,
                 color_change_prob: 0.01,
                 movement_prob: 0.9,
@@ -87,6 +92,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Oil => CellTypeProperties {
                 density: 1.5,
                 colors: colors[CellType::Oil].clone(),
+                rand_color_pattern: RandColorPattern::None,
                 color_rand_radius: 0.1,
                 color_change_prob: 0.01,
                 movement_prob: 0.5,
@@ -99,6 +105,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Acid => CellTypeProperties {
                 density: 1.0,
                 colors: colors[CellType::Acid].clone(),
+                rand_color_pattern: RandColorPattern::None,
                 color_rand_radius: 0.1,
                 color_change_prob: 0.1,
                 movement_prob: 0.8,
@@ -111,6 +118,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Stone => CellTypeProperties {
                 density: 10.0,
                 colors: colors[CellType::Stone].clone(),
+                rand_color_pattern: RandColorPattern::Stretched { amount: 2, use_x: true, orig_prob: 0.1 },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -123,6 +131,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Wood => CellTypeProperties {
                 density: 10.0,
                 colors: colors[CellType::Wood].clone(),
+                rand_color_pattern: RandColorPattern::Stretched { amount: 2, use_x: false, orig_prob: 0.05 },
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -135,6 +144,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Glass => CellTypeProperties {
                 density: 10.0,
                 colors: colors[CellType::Glass].clone(),
+                rand_color_pattern: RandColorPattern::Stretched { amount: 5, use_x: false, orig_prob: 0.01 },
                 color_rand_radius: 0.15,
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
@@ -147,6 +157,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Sand => CellTypeProperties {
                 density: 10.0,
                 colors: colors[CellType::Sand].clone(),
+                rand_color_pattern: RandColorPattern::None,
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 0.95,
@@ -159,6 +170,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
             CellType::Coal => CellTypeProperties {
                 density: 10.0,
                 colors: colors[CellType::Coal].clone(),
+                rand_color_pattern: RandColorPattern::None,
                 color_rand_radius: 0.25,
                 color_change_prob: 0.0,
                 movement_prob: 0.1,

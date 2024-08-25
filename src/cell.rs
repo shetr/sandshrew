@@ -3,6 +3,8 @@ use rand::prelude::*;
 
 use enum_map::Enum;
 
+use crate::utils::rand_from_pos_i8;
+
 pub const CELL_TYPE_IS_SOLID_BIT: u8 = 0x80;
 pub const CELL_TYPE_IS_LIQUID_BIT: u8 = 0x40;
 pub const CELL_TYPE_IS_POWDER_BIT: u8 = 0x40;
@@ -83,18 +85,9 @@ impl Cell {
         Cell { cell_type: CellType::Air, color_offset: 0, custom_data: CELL_CUSTOM_DATA_INIT }
     }
 
-    pub fn new(cell_type: CellType, custom_data: u16, rand_radius: f32) -> Self
+    pub fn new(cell_type: CellType, custom_data: u16, color_offset: i8) -> Self
     {
-        let color_offset = Self::gen_color_offset(rand_radius);
         Cell { cell_type, color_offset, custom_data }
-    }
-
-    pub fn gen_color_offset(rand_radius: f32) -> i8 {
-        ((rand::thread_rng().gen::<i8>() as f32) * rand_radius) as i8
-    }
-
-    pub fn gen_color_offset_shifted(rand_radius: f32, shift_by: i8) -> i8 {
-        Self::gen_color_offset(rand_radius).saturating_add(shift_by)
     }
 
     pub fn color_scale(&self) -> f32 {
@@ -215,6 +208,7 @@ pub struct CellTypeProperties
 {
     pub density: f32,
     pub colors: CellColors,
+    pub rand_color_pattern: RandColorPattern,
     pub color_rand_radius: f32,
     pub color_change_prob: f32,
     pub movement_prob: f32,
@@ -224,6 +218,48 @@ pub struct CellTypeProperties
     pub timer: u16,
     pub smoke_after_burnout: bool,
     pub fire_color_prob: f32,
+}
+
+#[derive(Clone)]
+pub enum RandColorPattern
+{
+    None,
+    Stretched { amount: i32, use_x: bool, orig_prob: f32 },
+}
+
+impl CellTypeProperties {
+    pub fn gen_color_offset(&self, pos: IVec2) -> i8
+    {
+        match self.rand_color_pattern {
+            RandColorPattern::None => {
+                ((rand::thread_rng().gen::<i8>() as f32) * self.color_rand_radius) as i8
+            },
+            RandColorPattern::Stretched { amount, use_x, orig_prob } => {
+                let pos = if rand::thread_rng().gen_bool(orig_prob as f64) {
+                    pos
+                } else {
+                    if use_x {
+                        if pos.y % amount == 0 {
+                            IVec2::new(pos.x / amount, pos.y)
+                        } else {
+                            IVec2::new((pos.x + 1) / amount, pos.y)
+                        }
+                    } else {
+                        if pos.x % amount == 0 {
+                            IVec2::new(pos.x, pos.y / amount)
+                        } else {
+                            IVec2::new(pos.x, (pos.y + 1) / amount)
+                        }
+                    }
+                };
+                ((rand_from_pos_i8(pos.as_uvec2()) as f32) * self.color_rand_radius) as i8
+            },
+        }
+    }
+
+    pub fn gen_color_offset_shifted(&self, pos: IVec2, shift_by: i8) -> i8 {
+        self.gen_color_offset(pos).saturating_add(shift_by)
+    }
 }
 
 #[derive(Clone)]

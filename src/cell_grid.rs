@@ -72,7 +72,7 @@ impl CellGrid
         let mut set_cell = |pos: IVec2| {
             if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
                 if self.cells[pos].cell_type != cell_type {
-                    self.cells[pos] = self.new_cell(cell_type);
+                    self.cells[pos] = self.new_cell(cell_type, pos);
                 }
             }
         };
@@ -89,7 +89,7 @@ impl CellGrid
                 let iv = IVec2::new(x, y);
                 if self.cells.is_in_range(iv) && (replace_solids || !self.cells[iv].is_solid()) {
                     if self.cells[iv].cell_type != cell_type {
-                        self.cells[iv] = self.new_cell(cell_type);
+                        self.cells[iv] = self.new_cell(cell_type, iv);
                     }
                 }
             }
@@ -101,7 +101,7 @@ impl CellGrid
         let mut set_cell = |pos: IVec2| {
             if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
                 if self.cells[pos].cell_type != cell_type {
-                    self.cells[pos] = self.new_cell(cell_type);
+                    self.cells[pos] = self.new_cell(cell_type, pos);
                 }
             }
         };
@@ -116,7 +116,7 @@ impl CellGrid
         let mut set_cell = |pos: IVec2| {
             if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
                 if self.cells[pos].cell_type != cell_type {
-                    self.cells[pos] = self.new_cell(cell_type);
+                    self.cells[pos] = self.new_cell(cell_type, pos);
                 }
             }
         };
@@ -135,7 +135,7 @@ impl CellGrid
         let mut set_cell = |pos: IVec2| {
             if self.cells.is_in_range(pos) && (replace_solids || !self.cells[pos].is_solid()) {
                 if self.cells[pos].cell_type != cell_type {
-                    self.cells[pos] = self.new_cell(cell_type);
+                    self.cells[pos] = self.new_cell(cell_type, pos);
                 }
             }
         };
@@ -206,7 +206,7 @@ impl CellGrid
 
     fn update_color_cell_type(&mut self, pos: IVec2, cell_type: CellType) {
         if rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].color_change_prob {
-            self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[cell_type].color_rand_radius);
+            self.cells[pos].color_offset = self.cell_properties[cell_type].gen_color_offset(pos);
         }
     }
 
@@ -219,7 +219,7 @@ impl CellGrid
         }
         // water extinguishing flame
         if self.cells[from_pos].cell_type == CellType::Water && self.cells[to_pos].cell_type == CellType::Fire {
-            self.cells[to_pos] = self.new_cell(CellType::Smoke);
+            self.cells[to_pos] = self.new_cell(CellType::Smoke, to_pos);
         }
         // swap
         let temp_cell = self.cells[from_pos];
@@ -230,8 +230,8 @@ impl CellGrid
         self.cells[to_pos].move_update(move_update_bits);
     }
 
-    fn new_cell(&self, cell_type: CellType) -> Cell {
-        let mut cell = Cell::new(cell_type, CELL_CUSTOM_DATA_INIT, self.cell_properties[cell_type].color_rand_radius);
+    fn new_cell(&self, cell_type: CellType, pos: IVec2) -> Cell {
+        let mut cell = Cell::new(cell_type, CELL_CUSTOM_DATA_INIT, self.cell_properties[cell_type].gen_color_offset(pos));
         cell.set_timer(self.cell_properties[cell_type].timer);
         if cell_type == CellType::Fire {
             cell.ignite();
@@ -379,7 +379,7 @@ impl CellGrid
         // neutralize with water
         if rand::thread_rng().gen::<f32>() < self.neutralize_acid_prob {
             if self.cells.is_in_range(down_pos) && self.cells[down_pos].cell_type == CellType::Water {
-                self.cells[pos] = self.new_cell(CellType::Water);
+                self.cells[pos] = self.new_cell(CellType::Water, pos);
                 return;
             }
         }
@@ -391,9 +391,9 @@ impl CellGrid
         let side_pos = [down_pos, left_pos, right_pos, diag_left_pos, diag_right_pos];
         let choose_pos = side_pos[rand::thread_rng().gen_range(0..side_pos.len())];
         if self.cells.is_in_range(choose_pos) && self.cells[choose_pos].is_dissolvable() {
-            self.cells[pos] = self.new_cell(CellType::FlammableGass);
+            self.cells[pos] = self.new_cell(CellType::FlammableGass, pos);
             if self.cells[choose_pos].cell_type == CellType::Water {
-                self.cells[choose_pos] = self.new_cell(CellType::Fire);
+                self.cells[choose_pos] = self.new_cell(CellType::Fire, pos);
             } else {
                 self.cells[choose_pos] = Cell::default_air();
             }
@@ -408,11 +408,11 @@ impl CellGrid
             if rand::thread_rng().gen::<f32>() < self.cell_properties[CellType::Fire].color_change_prob {
                 if rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].fire_color_prob {
                     self.cells[pos].use_fire_color();
-                    self.cells[pos].color_offset = Cell::gen_color_offset(self.cell_properties[CellType::Fire].color_rand_radius);
+                    self.cells[pos].color_offset = self.cell_properties[CellType::Fire].gen_color_offset(pos);
                 } else {
                     self.cells[pos].dont_use_fire_color();
                     let shift = (-63.0* (1.0 - (self.cells[pos].get_timer() as f32) / (self.cell_properties[cell_type].timer as f32))) as i8;
-                    self.cells[pos].color_offset = Cell::gen_color_offset_shifted(self.cell_properties[cell_type].color_rand_radius, shift);
+                    self.cells[pos].color_offset = self.cell_properties[CellType::Fire].gen_color_offset_shifted(pos, shift);
                 }
             }
             // ignite neigborhood
@@ -434,7 +434,7 @@ impl CellGrid
                     }
                     if cell_type == CellType::Air {
                         if self.cells[pos].cell_type != CellType::Fire {
-                            self.cells[ignite_pos] = self.new_cell(CellType::Fire);
+                            self.cells[ignite_pos] = self.new_cell(CellType::Fire, ignite_pos);
                         }
                     } else {
                         self.cells[ignite_pos].ignite();
@@ -463,9 +463,9 @@ impl CellGrid
                 //} else {
                 //    self.cells[pos] = self.new_cell(CellType::Smoke);
                 //}
-                self.cells[pos] = self.new_cell(CellType::Smoke);
+                self.cells[pos] = self.new_cell(CellType::Smoke, pos);
             } else {
-                self.cells[pos] = self.new_cell(CellType::Air);
+                self.cells[pos] = self.new_cell(CellType::Air, pos);
             }
         } else {
             self.cells[pos].set_timer(flame_timer as u16);

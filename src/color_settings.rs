@@ -51,7 +51,7 @@ pub fn lospec500_palette() -> ColorSettings {
         CellType::Acid => CellColors::CentricRGB { color: Srgba::hex("9de64e").unwrap().into() },
         CellType::Stone => CellColors::CentricRGB { color: Srgba::hex("646365").unwrap().into() },
         CellType::Wood => CellColors::CentricRGB { color: Srgba::hex("6e4c30").unwrap().into() },
-        CellType::Glass => CellColors::CentricA { color: LinearRgba::new(0.95, 0.95, 0.9, 0.15).into() },
+        CellType::Glass => CellColors::CentricA { color: LinearRgba::new(0.95, 0.95, 0.9, 0.1).into() },
         CellType::Sand => CellColors::CentricRGB { color: Srgba::hex("dab163").unwrap().into() },
         CellType::Coal => CellColors::CentricRGB { color: LinearRgba::from_u8_array_no_alpha([10, 10, 10]).into() },
     }

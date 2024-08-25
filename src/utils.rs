@@ -194,6 +194,47 @@ pub fn distant_color_black_white_no_alpha(color: Color) -> Color
     }
 }
 
+fn interleave_u32(pos: UVec2) -> u32
+{
+    let mut x = pos.x & 0x0000ffff;
+    x = (x | (x << 8)) & 0x00FF00FF;
+    x = (x | (x << 4)) & 0x0F0F0F0F;
+    x = (x | (x << 2)) & 0x33333333;
+    x = (x | (x << 1)) & 0x55555555;
+
+    let mut y = pos.y & 0x0000ffff;
+    y = (y | (y << 8)) & 0x00FF00FF;
+    y = (y | (y << 4)) & 0x0F0F0F0F;
+    y = (y | (y << 2)) & 0x33333333;
+    y = (y | (y << 1)) & 0x55555555;
+
+    return x | (y << 1);
+}
+
+fn block_cipher_tea(mut v0: u32, mut v1: u32) -> UVec2
+{
+    let iterations: u32 = 16;
+    let mut sum = 0;
+    const DELTA: u32 = 0x9e3779b9;
+    const K: [u32; 4] = [0xa341316c, 0xc8013ea4, 0xad90777d, 0x7e95761e ];
+    for _ in 0..iterations {
+        sum += DELTA;
+        v0 += ((v1 << 4) + K[0]) ^ (v1 + sum) ^ ((v1 >> 5) + K[1]);
+        v1 += ((v0 << 4) + K[2]) ^ (v0 + sum) ^ ((v0 >> 5) + K[3]);
+    }
+    return UVec2::new(v0, v1);
+}
+
+pub fn rand_from_pos_u32(pos: UVec2) -> u32
+{
+    block_cipher_tea(interleave_u32(pos), 0).x
+}
+
+pub fn rand_from_pos_i8(pos: UVec2) -> i8
+{
+    (rand_from_pos_u32(pos) % 256 - 128) as i8
+}
+
 // we suppose that there is only one intersection and l_pos1 and l_pos2 are not equal
 pub fn circle_line_segment_1_intersection(c_origin: Vec2, c_radius: f32, l_pos1: Vec2, l_pos2: Vec2) -> Option<Vec2> {
     // circle: (x - c_o.x) ^ 2 + (y - c_o.y) ^ 2 = c_r * c_r
