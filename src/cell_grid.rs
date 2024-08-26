@@ -391,10 +391,10 @@ impl CellGrid
         let side_pos = [down_pos, left_pos, right_pos, diag_left_pos, diag_right_pos];
         let choose_pos = side_pos[rand::thread_rng().gen_range(0..side_pos.len())];
         if self.cells.is_in_range(choose_pos) && self.cells[choose_pos].is_dissolvable() {
-            self.cells[pos] = self.new_cell(CellType::FlammableGass, pos);
             if self.cells[choose_pos].cell_type == CellType::Water {
-                self.cells[choose_pos] = self.new_cell(CellType::Fire, pos);
+                self.cells[pos] = self.new_cell(CellType::Smoke, pos);
             } else {
+                self.cells[pos] = self.new_cell(CellType::FlammableGass, pos);
                 self.cells[choose_pos] = Cell::default_air();
             }
         }
