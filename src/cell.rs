@@ -36,14 +36,17 @@ pub enum CellType {
     Smoke = 1,
     FlammableGass = 2,
     Fire = 3,
+    Steam = 4,
     // liquids
     Acid = CELL_TYPE_IS_LIQUID_BIT | 0,
     Water = CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_LIQUID_BIT | 0,
     Oil = CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_LIQUID_BIT | 1,
+    Lava = CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_LIQUID_BIT | 2,
     // solids - stable
     Glass = CELL_TYPE_IS_SOLID_BIT | 0,
     Stone = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | 0,
     Wood = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | 1,
+    Ice = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | 2,
     // solids - powders
     Sand = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_POWDER_BIT | 0,
     Coal = CELL_TYPE_IS_SOLID_BIT | CELL_TYPE_IS_DISSOLVABLE_BIT | CELL_TYPE_IS_POWDER_BIT | 1,
@@ -279,7 +282,7 @@ impl CellTypeProperties {
         match self.colors {
             CellColors::CentricRGB { color } => {
                 let rgb = color.to_linear().to_vec3() * color_scale;
-                Vec4::new(rgb.x, rgb.y, rgb.z, 1.0)
+                Vec4::new(rgb.x, rgb.y, rgb.z, color.alpha())
             },
             CellColors::CentricRGBA { color } => {
                 color.to_linear().to_vec4() * color_scale
