@@ -104,12 +104,12 @@ pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
             name: String::from("Water"),
         },
         CellTypeButtonConfig {
-            cell_type: CellType::Stone,
-            name: String::from("Stone"),
-        },
-        CellTypeButtonConfig {
             cell_type: CellType::Wood,
             name: String::from("Wood"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Stone,
+            name: String::from("Stone"),
         },
         CellTypeButtonConfig {
             cell_type: CellType::Coal,
@@ -120,20 +120,20 @@ pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
             name: String::from("Fire"),
         },
         CellTypeButtonConfig {
-            cell_type: CellType::Oil,
-            name: String::from("Oil"),
-        },
-        CellTypeButtonConfig {
             cell_type: CellType::FlammableGass,
             name: String::from("F. Gass"),
         },
         CellTypeButtonConfig {
-            cell_type: CellType::Acid,
-            name: String::from("Acid"),
+            cell_type: CellType::Oil,
+            name: String::from("Oil"),
         },
         CellTypeButtonConfig {
             cell_type: CellType::Glass,
             name: String::from("Glass"),
+        },
+        CellTypeButtonConfig {
+            cell_type: CellType::Acid,
+            name: String::from("Acid"),
         },
         //CellTypeButtonConfig {
         //    cell_type: CellType::Smoke,
@@ -193,26 +193,55 @@ pub fn setup_ui(
                     ..default()
                 })
                 .with_children(|parent| {
-                    // text
-                    parent.spawn((
-                        TextBundle::from_section(
-                            "Material",
-                            TextStyle {
-                                font: asset_server.load(TEXT_FONT),
-                                font_size: 40.0,
-                                color: TEXT_LIGHT,
+                    parent.spawn(NodeBundle {
+                        style: Style {
+                            flex_direction: FlexDirection::Column,
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            padding: SUBSECTION_PADDING,
+                            row_gap: SUBSECTION_ROW_GAP,
+                            ..default()
+                        },
+                        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+                        ..default()
+                    })
+                    .with_children(|parent| {
+                        // text
+                        parent.spawn((
+                            TextBundle::from_section(
+                                "Material",
+                                TextStyle {
+                                    font: asset_server.load(TEXT_FONT),
+                                    font_size: 40.0,
+                                    color: TEXT_LIGHT,
+                                    ..default()
+                                },
+                            ),
+                            // Because this is a distinct label widget and
+                            // not button/list item text, this is necessary
+                            // for accessibility to treat the text accordingly.
+                            Label,
+                        ));
+                        // Buttons grid
+                        parent.spawn(NodeBundle {
+                            style: Style {
+                                display: Display::Grid,
+                                grid_template_columns: RepeatedGridTrack::flex(2, 1.0),
+                                //grid_template_rows: RepeatedGridTrack::flex(10, 1.0),
+                                row_gap: Val::Px(10.),
+                                column_gap: Val::Px(10.0),
                                 ..default()
                             },
-                        ),
-                        // Because this is a distinct label widget and
-                        // not button/list item text, this is necessary
-                        // for accessibility to treat the text accordingly.
-                        Label,
-                    ));
-                    // add buttons
-                    for button_config in buttons_config {
-                        add_cell_type_button(parent, &asset_server, cell_properties, button_config);
-                    }
+                            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+                            ..default()
+                        })
+                        .with_children(|parent| {
+                            // add buttons
+                            for button_config in buttons_config {
+                                add_cell_type_button(parent, &asset_server, cell_properties, button_config);
+                            }
+                        });
+                    });
                 });
             });
             // render cell grid image
