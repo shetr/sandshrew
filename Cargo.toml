@@ -34,3 +34,6 @@ lto = "fat"
 # When building crates, optimize larger chunks at a time
 # Slows compile times, marginal improvements
 codegen-units = 1
+
+[build-dependencies]
+winresource = "0.1.17"
