@@ -19,6 +19,7 @@ pub struct CellGrid
     pub neutralize_acid_prob: f32,
     pub steam_liquify_prob: f32,
     pub freeze_prob: f32,
+    pub lava_cooldown_prob: f32,
     pub fire_decrease_prob: f32,
     pub fire_solid_extinguish_prob: f32,
     pub smoke_decrease_prob: f32,
@@ -192,6 +193,8 @@ impl CellGrid
                 self.update_acid(pos);
             } else if self.cells[pos].cell_type == CellType::Lava {
                 self.update_lava(pos);
+            } else if self.cells[pos].cell_type == CellType::Water {
+                self.update_water(pos);
             }
         } else if self.cells[pos].cell_type != CellType::Air { // is gass, but not air
             if self.cells[pos].cell_type == CellType::Smoke {
@@ -404,9 +407,45 @@ impl CellGrid
             } else if self.cells[choose_pos].cell_type == CellType::Ice {
                 self.cells[pos] = self.new_cell(CellType::Smoke, pos);
                 self.cells[choose_pos] = self.new_cell(CellType::Water, choose_pos);
+            } else if self.cells[choose_pos].cell_type == CellType::Lava {
+                self.cells[pos] = self.new_cell(CellType::FlammableGass, pos);
+                self.cells[choose_pos] = self.new_cell(CellType::Fire, choose_pos);
             } else {
                 self.cells[pos] = self.new_cell(CellType::FlammableGass, pos);
                 self.cells[choose_pos] = Cell::default_air();
+            }
+        }
+    }
+
+    fn ignite_neighborhood(&mut self, pos: IVec2, is_gass_neirby: &mut bool)
+    {
+        for y in -1..2 {
+            for x in -1..2 {
+                let ignite_pos = pos + IVec2::new(x, y);
+                if x == 0 && y == 0 || !self.cells.is_in_range(ignite_pos) {
+                    continue;
+                }
+                if self.cells[ignite_pos].is_gass() {
+                    *is_gass_neirby = true;
+                }
+                if self.cells[ignite_pos].is_on_fire() {
+                    continue;
+                }
+                let cell_type = self.cells[ignite_pos].cell_type;
+                if rand::thread_rng().gen::<f32>() > self.cell_properties[cell_type].ignite_prob {
+                    continue;
+                }
+                if cell_type == CellType::Air {
+                    if self.cells[pos].cell_type != CellType::Fire {
+                        self.cells[ignite_pos] = self.new_cell(CellType::Fire, ignite_pos);
+                    }
+                } else if cell_type == CellType::Water {
+                    self.cells[ignite_pos] = self.new_cell(CellType::Steam, ignite_pos);
+                } else if cell_type == CellType::Ice {
+                    self.cells[ignite_pos] = self.new_cell(CellType::Water, ignite_pos);
+                } else {
+                    self.cells[ignite_pos].ignite();
+                }
             }
         }
     }
@@ -426,36 +465,7 @@ impl CellGrid
                     self.cells[pos].color_offset = self.cell_properties[CellType::Fire].gen_color_offset_shifted(pos, shift);
                 }
             }
-            // ignite neigborhood
-            for y in -1..2 {
-                for x in -1..2 {
-                    let ignite_pos = pos + IVec2::new(x, y);
-                    if x == 0 && y == 0 || !self.cells.is_in_range(ignite_pos) {
-                        continue;
-                    }
-                    if self.cells[ignite_pos].is_gass() {
-                        is_gass_neirby = true;
-                    }
-                    if self.cells[ignite_pos].is_on_fire() {
-                        continue;
-                    }
-                    let cell_type = self.cells[ignite_pos].cell_type;
-                    if rand::thread_rng().gen::<f32>() > self.cell_properties[cell_type].ignite_prob {
-                        continue;
-                    }
-                    if cell_type == CellType::Air {
-                        if self.cells[pos].cell_type != CellType::Fire {
-                            self.cells[ignite_pos] = self.new_cell(CellType::Fire, ignite_pos);
-                        }
-                    } else if cell_type == CellType::Water {
-                        self.cells[ignite_pos] = self.new_cell(CellType::Steam, ignite_pos);
-                    } else if cell_type == CellType::Ice {
-                        self.cells[ignite_pos] = self.new_cell(CellType::Water, ignite_pos);
-                    } else {
-                        self.cells[ignite_pos].ignite();
-                    }
-                }
-            }
+            self.ignite_neighborhood(pos, &mut is_gass_neirby);
         } else {
             is_gass_neirby = true;
         }
@@ -520,17 +530,46 @@ impl CellGrid
     }
 
     fn update_lava(&mut self, pos: IVec2) {
-        
+        self.ignite_neighborhood(pos, &mut false);
     }
 
     fn update_steam(&mut self, pos: IVec2) {
+        let up_pos = pos + IVec2::new(0, 1);
+        let in_range = self.cells.is_in_range(up_pos);
+        if in_range && self.cells[up_pos].cell_type == CellType::Ice {
+            if rand::thread_rng().gen::<f32>() > 3.0 * self.steam_liquify_prob {
+                return;
+            }
+            self.cells[pos] = self.new_cell(CellType::Water, pos);
+        }
         if rand::thread_rng().gen::<f32>() > self.steam_liquify_prob {
             return;
         }
-        let up_pos = pos + IVec2::new(0, 1);
-        let in_range = self.cells.is_in_range(up_pos);
         if in_range && self.cells[up_pos].is_solid() || !in_range && !self.top_gass_leak {
             self.cells[pos] = self.new_cell(CellType::Water, pos);
+        }
+    }
+
+    fn update_water(&mut self, pos: IVec2) {
+        if rand::thread_rng().gen::<f32>() > self.lava_cooldown_prob {
+            return;
+        }
+        let mut ys = [-1, 0, 1];
+        let mut xs = [-1, 0, 1];
+        ys.shuffle(&mut thread_rng());
+        xs.shuffle(&mut thread_rng());
+        for y in ys {
+            for x in xs {
+                let lava_pos = pos + IVec2::new(x, y);
+                if x == 0 && y == 0 || !self.cells.is_in_range(lava_pos) {
+                    continue;
+                }
+                if self.cells[lava_pos].cell_type == CellType::Lava {
+                    self.cells[pos] = self.new_cell(CellType::Stone, pos);
+                    self.cells[lava_pos] = self.new_cell(CellType::Stone, lava_pos);
+                    break;
+                }
+            }
         }
     }
 }
