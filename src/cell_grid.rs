@@ -20,6 +20,7 @@ pub struct CellGrid
     pub steam_liquify_prob: f32,
     pub freeze_prob: f32,
     pub lava_cooldown_prob: f32,
+    pub lava_ignite_prob: f32,
     pub fire_decrease_prob: f32,
     pub fire_solid_extinguish_prob: f32,
     pub smoke_decrease_prob: f32,
@@ -530,6 +531,9 @@ impl CellGrid
     }
 
     fn update_lava(&mut self, pos: IVec2) {
+        if rand::thread_rng().gen::<f32>() > self.lava_ignite_prob {
+            return;
+        }
         self.ignite_neighborhood(pos, &mut false);
     }
 

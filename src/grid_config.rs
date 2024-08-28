@@ -16,6 +16,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
         steam_liquify_prob: 0.005,
         freeze_prob: 0.0025,
         lava_cooldown_prob: 0.005,
+        lava_ignite_prob: 0.1,
         fire_decrease_prob: 0.05,
         fire_solid_extinguish_prob: 0.1,
         smoke_decrease_prob: 0.2,
