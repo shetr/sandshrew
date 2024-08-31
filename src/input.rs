@@ -6,10 +6,8 @@ pub fn get_out_img_cursor_pos(relative_cursor_position: &RelativeCursorPosition,
 {
     if let Some(rel_cursor_position) = relative_cursor_position.normalized {
         let cell_pos = (rel_cursor_position * (globals.img_size as f32)).as_ivec2();
-        if cell_pos.x >= 0 && cell_pos.y >= 0 && cell_pos.x < (globals.img_size as i32) && cell_pos.y < (globals.img_size as i32) {
-            let cursor_pos = IVec2::new(cell_pos.x, (globals.img_size as i32) - cell_pos.y - 1);
-            return Some(cursor_pos);
-        }
+        let cursor_pos = IVec2::new(cell_pos.x, (globals.img_size as i32) - cell_pos.y - 1);
+        return Some(cursor_pos);
     }
     return None;
 }
@@ -83,10 +81,12 @@ pub fn update_input(
     let maybe_cursor_pos = get_out_img_cursor_pos(relative_cursor_position, &globals);
     let prev_cursor_pos = globals.prev_cursor_pos;
 
-    if mouse_button.just_pressed(MouseButton::Left) && relative_cursor_position.mouse_over() {
+    let mouse_over = relative_cursor_position.mouse_over();
+
+    if mouse_button.just_pressed(MouseButton::Left) && mouse_over {
         globals.left_pressed_on_canvas = true;
     }
-    if mouse_button.just_pressed(MouseButton::Right) && relative_cursor_position.mouse_over() {
+    if mouse_button.just_pressed(MouseButton::Right) && mouse_over {
         globals.right_pressed_on_canvas = true;
     }
     if mouse_button.just_released(MouseButton::Left) {
@@ -123,7 +123,7 @@ pub fn update_input(
                     globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, CellType::Air, true);
                 }
             }
-            if mouse_button.just_pressed(MouseButton::Left) || mouse_button.just_pressed(MouseButton::Right) {
+            if (mouse_button.just_pressed(MouseButton::Left) || mouse_button.just_pressed(MouseButton::Right)) && mouse_over {
                 globals.curr_cursor_pos = maybe_cursor_pos;
             }
         }

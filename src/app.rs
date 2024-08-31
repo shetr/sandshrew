@@ -240,6 +240,7 @@ fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     let mut globals = globals_query.single_mut();
     let image = images.get_mut(globals.render_image).unwrap();
     let relative_cursor_position = relative_cursor_position_query.single();
+    let mouse_over = relative_cursor_position.mouse_over();
 
     globals.display.display(&globals.grid.cells, &globals.grid.cell_properties, image);
     let prev_cursor_pos = globals.prev_cursor_pos;
@@ -265,13 +266,15 @@ fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
         if mouse_button.just_released(MouseButton::Left) || mouse_button.just_released(MouseButton::Right) {
             globals.prev_cursor_pos = None;
         }
-        if mouse_button.just_pressed(MouseButton::Left) || mouse_button.just_pressed(MouseButton::Right) {
-            globals.prev_cursor_pos = globals.curr_cursor_pos;
-        }
-        if mouse_button.just_pressed(MouseButton::Left) {
-            globals.prev_mouse_press = Some(MouseButton::Left);
-        } else if mouse_button.just_pressed(MouseButton::Right) {
-            globals.prev_mouse_press = Some(MouseButton::Right);
+        if mouse_over {
+            if mouse_button.just_pressed(MouseButton::Left) || mouse_button.just_pressed(MouseButton::Right) {
+                globals.prev_cursor_pos = globals.curr_cursor_pos;
+            }
+            if mouse_button.just_pressed(MouseButton::Left) {
+                globals.prev_mouse_press = Some(MouseButton::Left);
+            } else if mouse_button.just_pressed(MouseButton::Right) {
+                globals.prev_mouse_press = Some(MouseButton::Right);
+            }
         }
     }
 }
