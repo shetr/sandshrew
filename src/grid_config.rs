@@ -192,7 +192,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
                 color_change_prob: 0.0,
                 movement_prob: 1.0,
                 fallthroug_prob: 0.0,
-                ignite_prob: 0.01,
+                ignite_prob: 0.5,
                 timer: 0,
                 smoke_after_burnout: true,
                 fire_color_prob: 0.0,
