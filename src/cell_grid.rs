@@ -437,7 +437,7 @@ impl CellGrid
                     continue;
                 }
                 if cell_type == CellType::Air {
-                    if self.cells[pos].cell_type != CellType::Fire {
+                    if self.cells[pos].cell_type != CellType::Fire && self.cells[pos].cell_type != CellType::Lava {
                         self.cells[ignite_pos] = self.new_cell(CellType::Fire, ignite_pos);
                     }
                 } else if cell_type == CellType::Water {
@@ -471,7 +471,7 @@ impl CellGrid
             is_gass_neirby = true;
         }
         // extinguish solids without gass neirby
-        if self.cells[pos].is_solid() && !is_gass_neirby && rand::thread_rng().gen::<f32>() < self.fire_solid_extinguish_prob {
+        if !self.cells[pos].is_gass() && !is_gass_neirby && rand::thread_rng().gen::<f32>() < self.fire_solid_extinguish_prob {
             self.cells[pos].extinguish();
             return;
         }
