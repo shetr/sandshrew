@@ -83,6 +83,20 @@ pub fn update_input(
     let maybe_cursor_pos = get_out_img_cursor_pos(relative_cursor_position, &globals);
     let prev_cursor_pos = globals.prev_cursor_pos;
 
+    if mouse_button.just_pressed(MouseButton::Left) && relative_cursor_position.mouse_over() {
+        globals.left_pressed_on_canvas = true;
+    }
+    if mouse_button.just_pressed(MouseButton::Right) && relative_cursor_position.mouse_over() {
+        globals.right_pressed_on_canvas = true;
+    }
+    if mouse_button.just_released(MouseButton::Left) {
+        globals.left_pressed_on_canvas = false;
+    }
+    if mouse_button.just_released(MouseButton::Right) {
+        globals.right_pressed_on_canvas = false;
+    }
+
+
     // add cells with mouse
     if let Some(cursor_pos) = maybe_cursor_pos {
         //info!("cursor pos {}, {}", cursor_pos.x, cursor_pos.y);
@@ -91,12 +105,12 @@ pub fn update_input(
         let replace_solids = if place_cell_type != CellType::Air { globals.replace_solids } else { true };
 
         if brush_type == BrushType::Circle || brush_type == BrushType::Square {
-            if mouse_button.pressed(MouseButton::Left) {
+            if globals.left_pressed_on_canvas {
                 globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, place_cell_type, replace_solids);
-            } else if mouse_button.pressed(MouseButton::Right) {
+            } else if globals.right_pressed_on_canvas {
                 globals.grid.set_cells(cursor_pos, prev_cursor_pos, brush_type, brush_size, CellType::Air, true);
             }
-            if mouse_button.pressed(MouseButton::Left) || mouse_button.pressed(MouseButton::Right) {
+            if globals.left_pressed_on_canvas || globals.right_pressed_on_canvas {
                 globals.curr_cursor_pos = maybe_cursor_pos;
             }
         } else {

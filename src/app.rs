@@ -85,6 +85,8 @@ pub struct GameGlobals
     pub prev_cursor_pos: Option<IVec2>,
     pub curr_cursor_pos: Option<IVec2>,
     pub prev_mouse_press: Option<MouseButton>,
+    pub left_pressed_on_canvas: bool,
+    pub right_pressed_on_canvas: bool,
     pub replace_solids_button_pressed: bool,
     pub top_gass_leak_button_pressed: bool,
     pub save_button_pressed: bool,
@@ -169,6 +171,8 @@ fn setup(
         prev_cursor_pos: None,
         curr_cursor_pos: None,
         prev_mouse_press: None,
+        left_pressed_on_canvas: false,
+        right_pressed_on_canvas: false,
         replace_solids_button_pressed: false,
         top_gass_leak_button_pressed: false,
         save_button_pressed: false,
@@ -245,14 +249,14 @@ fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     }
 
     if globals.brush_type == BrushType::Circle || globals.brush_type == BrushType::Square {
-        if mouse_button.pressed(MouseButton::Left) || mouse_button.pressed(MouseButton::Right) {
+        if globals.left_pressed_on_canvas || globals.right_pressed_on_canvas {
             globals.prev_cursor_pos = globals.curr_cursor_pos;
         } else {
             globals.prev_cursor_pos = None;
         }
-        if mouse_button.pressed(MouseButton::Left) {
+        if globals.left_pressed_on_canvas {
             globals.prev_mouse_press = Some(MouseButton::Left);
-        } else if mouse_button.pressed(MouseButton::Right) {
+        } else if globals.right_pressed_on_canvas {
             globals.prev_mouse_press = Some(MouseButton::Right);
         } else {
             globals.prev_mouse_press = None;
