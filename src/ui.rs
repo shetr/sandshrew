@@ -16,6 +16,10 @@ pub struct BrushSizeSlider;
 #[derive(Component)]
 pub struct BrushSizeSliderButton;
 
+
+#[derive(Component)]
+pub struct BrushSizeSliderLine;
+
 #[derive(Component)]
 pub struct FpsText;
 
@@ -87,6 +91,8 @@ pub const SLIDER_BUTTON_SIZE: f32 = 32.;
 pub const SLIDER_BORDER: f32 = 3.;
 pub const SLIDER_PADDING: f32 = 5.;
 pub const SLIDER_BUTTON_BORDER: f32 = 3.;
+
+pub const SLIDER_BUTTON_COLOR: Color = Color::rgb(0.35, 0.35, 0.35);
 
 pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
 {
@@ -497,17 +503,29 @@ fn brush_size(
         ));
 
         brush_size_slider(parent, asset_server, globals);
-    
-        parent.spawn((TextBundle::from_section(
-            " 15 px",
-            TextStyle {
-                font: asset_server.load(TEXT_FONT),
-                font_size: 20.0,
-                color: TEXT_DIMM,
+
+        parent.spawn(NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::Column,
+                width: Val::Percent(100.0),
+                align_items: AlignItems::FlexEnd,
+                padding: UiRect::right(Val::Px(10.0)),
                 ..default()
             },
-        ), BrushSizeText
-        ));
+            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+            ..default()
+        }).with_children(|parent| {
+            parent.spawn((TextBundle::from_section(
+                " 15 px",
+                TextStyle {
+                    font: asset_server.load(TEXT_FONT),
+                    font_size: 20.0,
+                    color: TEXT_DIMM,
+                    ..default()
+                },
+            ), BrushSizeText
+            ));
+        });
     });
 }
 
@@ -524,6 +542,8 @@ fn brush_size_slider(
             height: Val::Px(button_offset),
             border: UiRect::all(Val::Px(SLIDER_BORDER)),
             padding: UiRect::all(Val::Px(SLIDER_PADDING)),
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Center,
             ..default()
         },
         border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
@@ -531,6 +551,17 @@ fn brush_size_slider(
         ..default()
     }, BrushSizeSlider, RelativeCursorPosition::default()))
     .with_children(|parent| {
+        parent.spawn((NodeBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Px(SLIDER_BORDER),
+                ..default()
+            },
+            background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+            z_index: ZIndex::Local(0),
+            ..default()
+        }, BrushSizeSliderLine
+        ));
         parent.spawn((NodeBundle {
             style: Style {
                 width: Val::Px(SLIDER_BUTTON_SIZE),
@@ -542,6 +573,7 @@ fn brush_size_slider(
             },
             border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
             background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+            z_index: ZIndex::Local(1),
             ..default()
         }, BrushSizeSliderButton, RelativeCursorPosition::default()
         ));

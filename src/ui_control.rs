@@ -346,12 +346,14 @@ pub fn brush_size_slider_interactions(
         ),
         With<Button>,
     >,
-    mut button: Query<(&mut Style, &mut BackgroundColor, &mut BorderColor), With<BrushSizeSliderButton>>
+    mut button: Query<(&mut Style, &mut BackgroundColor, &mut BorderColor), With<BrushSizeSliderButton>>,
+    mut line: Query<(&mut BackgroundColor, &BrushSizeSliderLine), Without<BrushSizeSliderButton>>
 ) {
     let mut globals = globals_query.single_mut();
     let relative_cursor_slider = relative_cursor_slider_query.single();
     let relative_cursor_button = relative_cursor_button_query.single();
     let (mut style, mut color, mut border_color) = button.single_mut();
+    let (mut line_color, _) = line.single_mut();
     for (interaction, _) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
@@ -370,17 +372,19 @@ pub fn brush_size_slider_interactions(
                 }
             }
             Interaction::Hovered => {
+                *line_color = BASIC_BUTTON_HOVER_BORDER_COLOR.into();
                 if relative_cursor_button.mouse_over() {
                     *color = BASIC_BUTTON_HOVER_BORDER_COLOR.into();
                     border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
                 } else {
-                    *color = BASIC_BUTTON_BORDER_COLOR.into();
-                    border_color.0 = BASIC_BUTTON_BORDER_COLOR;
+                    *color = SLIDER_BUTTON_COLOR.into();
+                    border_color.0 = SLIDER_BUTTON_COLOR;
                 }
             }
             Interaction::None => {
-                *color = BASIC_BUTTON_BORDER_COLOR.into();
-                border_color.0 = BASIC_BUTTON_BORDER_COLOR;
+                *line_color = BASIC_BUTTON_BORDER_COLOR.into();
+                *color = SLIDER_BUTTON_COLOR.into();
+                border_color.0 = SLIDER_BUTTON_COLOR;
             }
         }
     }
