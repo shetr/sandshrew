@@ -517,7 +517,7 @@ fn brush_size_slider(
     globals: &GameGlobals,
 ) {
     let button_offset = SLIDER_BUTTON_SIZE + SLIDER_BUTTON_BORDER * 2. + SLIDER_PADDING * 2.;
-    parent.spawn((NodeBundle {
+    parent.spawn((ButtonBundle {
         style: Style {
             width: Val::Px((globals.max_brush_size * 4) as f32 + button_offset),
             // TODO: padding + button size + button border
@@ -531,7 +531,7 @@ fn brush_size_slider(
         ..default()
     }, BrushSizeSlider, RelativeCursorPosition::default()))
     .with_children(|parent| {
-        parent.spawn((ButtonBundle {
+        parent.spawn((NodeBundle {
             style: Style {
                 width: Val::Px(SLIDER_BUTTON_SIZE),
                 height: Val::Px(SLIDER_BUTTON_SIZE),
@@ -543,7 +543,7 @@ fn brush_size_slider(
             border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
             background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
             ..default()
-        }, BrushSizeSliderButton
+        }, BrushSizeSliderButton, RelativeCursorPosition::default()
         ));
     });
 }

@@ -63,7 +63,7 @@ pub fn run_sandshrew_app() {
             replace_solids_button_interactions,
             top_gass_leak_button_interactions,
             brush_size_mouse_scroll,
-            brush_size_slider_button_interactions,
+            brush_size_slider_interactions,
             update_fps,
             update_cells,
             draw_to_out_img,
@@ -246,7 +246,9 @@ fn draw_to_out_img(mut images: ResMut<Assets<Image>>,
     let prev_cursor_pos = globals.prev_cursor_pos;
     let maybe_cursor_pos = get_out_img_cursor_pos(relative_cursor_position, &globals);
     if let Some(cursor_pos) = maybe_cursor_pos {
-        globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, prev_cursor_pos, globals.brush_type, globals.brush_size);
+        if mouse_over || globals.left_pressed_on_canvas || globals.right_pressed_on_canvas {
+            globals.display.draw_brush_edge(&globals.grid.cells, image, cursor_pos, prev_cursor_pos, globals.brush_type, globals.brush_size);
+        }
     }
 
     if globals.brush_type == BrushType::Circle || globals.brush_type == BrushType::Square {

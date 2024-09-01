@@ -334,29 +334,30 @@ pub fn brush_size_mouse_scroll(
     }
 }
 
-pub fn brush_size_slider_button_interactions(
+pub fn brush_size_slider_interactions(
     mut globals_query: Query<&mut GameGlobals>,
-    relative_cursor_position_query: Query<&RelativeCursorPosition, With<BrushSizeSlider>>,
+    relative_cursor_slider_query: Query<&RelativeCursorPosition, With<BrushSizeSlider>>,
+    relative_cursor_button_query: Query<&RelativeCursorPosition, With<BrushSizeSliderButton>>,
     mut brush_size_text_query: Query<&mut Text, With<BrushSizeText>>,
     mut interaction_query: Query<
         (
             &Interaction,
-            &mut BackgroundColor,
-            &mut BorderColor,
-            &mut Style,
-            &BrushSizeSliderButton
+            &BrushSizeSlider
         ),
         With<Button>,
-    >
+    >,
+    mut button: Query<(&mut Style, &mut BackgroundColor, &mut BorderColor), With<BrushSizeSliderButton>>
 ) {
     let mut globals = globals_query.single_mut();
-    let relative_cursor_position = relative_cursor_position_query.single();
-    for (interaction, mut color, mut border_color, mut style, _) in &mut interaction_query {
+    let relative_cursor_slider = relative_cursor_slider_query.single();
+    let relative_cursor_button = relative_cursor_button_query.single();
+    let (mut style, mut color, mut border_color) = button.single_mut();
+    for (interaction, _) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 *color = BASIC_BUTTON_SELECTED_BORDER_COLOR.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
-                if let Some(rel_cursor_position) = relative_cursor_position.normalized {
+                if let Some(rel_cursor_position) = relative_cursor_slider.normalized {
                     let offset = SLIDER_BUTTON_SIZE * 0.5 + SLIDER_BUTTON_BORDER + SLIDER_PADDING;
                     let button_offset = SLIDER_BUTTON_SIZE + SLIDER_BUTTON_BORDER * 2. + SLIDER_PADDING * 2.;
                     let slider_size = (globals.max_brush_size * 4) as f32 + button_offset;
@@ -369,8 +370,13 @@ pub fn brush_size_slider_button_interactions(
                 }
             }
             Interaction::Hovered => {
-                *color = BASIC_BUTTON_HOVER_BORDER_COLOR.into();
-                border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
+                if relative_cursor_button.mouse_over() {
+                    *color = BASIC_BUTTON_HOVER_BORDER_COLOR.into();
+                    border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
+                } else {
+                    *color = BASIC_BUTTON_BORDER_COLOR.into();
+                    border_color.0 = BASIC_BUTTON_BORDER_COLOR;
+                }
             }
             Interaction::None => {
                 *color = BASIC_BUTTON_BORDER_COLOR.into();
