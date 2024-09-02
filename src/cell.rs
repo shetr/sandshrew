@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use image::math;
 use rand::prelude::*;
 
 use enum_map::Enum;
@@ -273,10 +274,11 @@ pub enum CellColors
     CentricA { color: Color },
     Gradient { from: Color, to: Color },
     DurationGradient { from: Color, to: Color },
+    BackgroundGradient { from: Color, to: Color },
 }
 
 impl CellTypeProperties {
-    pub fn get_color_rgba(&self, color_scale: f32, timer: u16) -> Vec4
+    pub fn get_color_rgba(&self, color_scale: f32, timer: u16, pos: Vec2) -> Vec4
     {
         let dt = (timer as f32) / (self.timer as f32);
         match self.colors {
@@ -299,16 +301,20 @@ impl CellTypeProperties {
             CellColors::DurationGradient { from, to } => {
                 (from.to_linear().to_vec4() * (1.0 - dt) + to.to_linear().to_vec4() * dt) * color_scale
             },
+            CellColors::BackgroundGradient { from, to } => {
+                let t = pos.y.powi(2);
+                (from.to_linear().to_vec4() * (1.0 - t) + to.to_linear().to_vec4() * t) * color_scale
+            },
         }
     }
 
     pub fn get_default_color_scaled(&self, color_scale: f32) -> Color {
-        let rgba = self.get_color_rgba(color_scale, self.timer);
+        let rgba = self.get_color_rgba(color_scale, self.timer, Vec2::ZERO);
         LinearRgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }.into()
     }
 
     pub fn get_default_color(&self) -> Color {
-        let rgba = self.get_color_rgba(1.0, self.timer);
+        let rgba = self.get_color_rgba(1.0, self.timer, Vec2::ZERO);
         LinearRgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }.into()
     }
 

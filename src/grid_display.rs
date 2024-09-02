@@ -18,16 +18,17 @@ impl GridDisplay {
 
     pub fn display(&self, cells: &Vector2D<Cell>, cell_properties: &EnumMap<CellType, CellTypeProperties>, out_image: &mut Image)
     {
-        let background_color = cell_properties[CellType::Air].get_color_rgba(1.0, 0).xyz();
         for i in 0..cells.data.len() {
             let iv = cells.index_to_vec(i);
             let iv = IVec2 { x: iv.x, y: cells.sizes.y - iv.y - 1 };
+            let rel_pos = iv.as_vec2() / (cells.sizes - 1).as_vec2();
+            let background_color = cell_properties[CellType::Air].get_color_rgba(1.0, 0, rel_pos).xyz();
             let cell_type = cells[iv].cell_type;
             let color_scale = cells[iv].color_scale();
             let duration = cells[iv].get_timer();
-            let mut color = cell_properties[cell_type].get_color_rgba(color_scale, duration);
+            let mut color = cell_properties[cell_type].get_color_rgba(color_scale, duration, rel_pos);
             if cells[iv].is_on_fire() && cells[iv].uses_fire_color() {
-                color = cell_properties[CellType::Fire].get_color_rgba(color_scale, duration);
+                color = cell_properties[CellType::Fire].get_color_rgba(color_scale, duration, rel_pos);
             }
             let rgb = color.xyz();
             let a = color.w;
