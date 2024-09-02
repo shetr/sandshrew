@@ -23,8 +23,9 @@ pub const CELL_USE_FIRE_COLOR_BIT: u16 = 0x1000;
 pub const CELL_FLUID_SLIDE_BIT: u16 = 0x800;
 pub const CELL_FLUID_SLIDE_DIR_BIT: u16 = 0x400;
 pub const CELL_FLUID_SLIDE_BITS: u16 = CELL_FLUID_SLIDE_BIT | CELL_FLUID_SLIDE_DIR_BIT;
-pub const CELL_ON_FIRE_BIT: u16 = 0x200;
-pub const CELL_TIMER_BITS: u16 = 0x1FF;
+pub const CELL_POWDER_STUCK_BIT: u16 = 0x2;
+pub const CELL_ON_FIRE_BIT: u16 = 0x100;
+pub const CELL_TIMER_BITS: u16 = 0xFF;
 pub const CELL_MAX_TIMER: u16 = CELL_TIMER_BITS;
 
 pub type MoveUpdateBits = u16;
@@ -189,6 +190,14 @@ impl Cell {
 
     pub fn get_timer(&self) -> u16 {
         self.custom_data & CELL_TIMER_BITS
+    }
+
+    pub fn is_powder_stuck(&self) -> bool {
+        self.custom_data & CELL_POWDER_STUCK_BIT > 0
+    }
+
+    pub fn set_powder_stuck(&mut self, stuck: bool) {
+        self.custom_data = (if stuck { CELL_POWDER_STUCK_BIT } else { 0 }) | (self.custom_data & !CELL_POWDER_STUCK_BIT);
     }
 
     pub fn ignite(&mut self) {

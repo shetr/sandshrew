@@ -14,6 +14,7 @@ pub struct CellGrid
 {
     pub top_gass_leak: bool,
     pub powder_fall_prob: f32,
+    pub powder_liquid_stuck_prob: f32,
     pub liquid_fall_prob: f32,
     pub acid_reaction_prob: f32,
     pub neutralize_acid_prob: f32,
@@ -281,6 +282,7 @@ impl CellGrid
         if self.cells.is_in_range(bottom_pos) {
             if !self.cells[bottom_pos].is_solid() {
                 if self.rand_fallthrough(bottom_pos) {
+                    self.cells[pos].set_powder_stuck(false);
                     self.swap_cells(pos, bottom_pos);
                 }
                 return;
@@ -294,10 +296,11 @@ impl CellGrid
             let bottom_side_pos = pos + bottom_side_dir;
             if self.cells.is_in_range(bottom_side_pos) && !self.cells[bottom_side_pos].is_solid() {
                 if self.cells[bottom_side_pos].is_liquid() {
-                    // ensure more steep angles inside of a liquid
-                    let more_down_pos = bottom_side_pos + IVec2::new(0, -1);
-                    if self.cells.is_in_range(more_down_pos) && self.cells[more_down_pos].is_solid() {
+                    if self.cells[pos].is_powder_stuck() {
                         return;
+                    }
+                    if rand::thread_rng().gen::<f32>() < self.powder_liquid_stuck_prob {
+                        self.cells[pos].set_powder_stuck(true);
                     }
                 }
                 if self.rand_fallthrough(bottom_side_pos) {

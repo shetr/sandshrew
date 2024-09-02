@@ -10,6 +10,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
     CellGrid {
         top_gass_leak: true,
         powder_fall_prob: 0.95,
+        powder_liquid_stuck_prob: 0.05,
         liquid_fall_prob: 0.9,
         acid_reaction_prob: 0.05,
         neutralize_acid_prob: 0.3,
