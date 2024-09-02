@@ -509,23 +509,32 @@ impl CellGrid
     }
 
     fn update_ice(&mut self, pos: IVec2) {
-        if rand::thread_rng().gen::<f32>() > self.freeze_prob {
-            return;
-        }
-        let mut ys = [-1, 0, 1];
-        let mut xs = [-1, 0, 1];
-        ys.shuffle(&mut thread_rng());
-        xs.shuffle(&mut thread_rng());
-        for y in ys {
-            for x in xs {
-                let freeze_pos = pos + IVec2::new(x, y);
-                if x == 0 && y == 0 || !self.cells.is_in_range(freeze_pos) {
-                    continue;
-                }
-                if self.cells[freeze_pos].cell_type == CellType::Water {
-                    self.cells[freeze_pos] = self.new_cell(CellType::Ice, freeze_pos);
-                    break;
-                }
+        let mut offs = [
+            IVec2::new(-1, -1),
+            IVec2::new( 0, -1),
+            IVec2::new( 1, -1),
+            IVec2::new(-1,  0),
+            IVec2::new( 1,  0),
+            IVec2::new(-1,  1),
+            IVec2::new( 0,  1),
+            IVec2::new( 1,  1),
+        ];
+        offs.shuffle(&mut thread_rng());
+        let mut air_neirby = false;
+        for off in offs {
+            let freeze_pos = pos + off;
+            if !self.cells.is_in_range(freeze_pos) {
+                continue;
+            }
+            if self.cells[freeze_pos].cell_type == CellType::Air {
+                air_neirby = true;
+            }
+            let multiplier = if air_neirby { 10.0 } else { 1.0 };
+            if rand::thread_rng().gen::<f32>() > multiplier * self.freeze_prob {
+                continue;
+            }
+            if self.cells[freeze_pos].cell_type == CellType::Water {
+                self.cells[freeze_pos] = self.new_cell(CellType::Ice, freeze_pos);
             }
         }
     }
