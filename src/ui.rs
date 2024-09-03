@@ -38,6 +38,12 @@ pub struct ReplaceSolidsButton;
 #[derive(Component)]
 pub struct TopGassLeakButton;
 
+#[derive(Component)]
+pub struct ColorPalleteButton
+{
+    pub palette_num: usize
+}
+
 pub struct CellTypeButtonConfig
 {
     cell_type: CellType,
@@ -168,8 +174,6 @@ pub fn setup_ui(
     images: &mut ResMut<Assets<Image>>,
     globals: &GameGlobals,
 ) {
-    let buttons_config = &globals.buttons_config;
-    let cell_properties = &globals.grid.cell_properties;
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -211,55 +215,12 @@ pub fn setup_ui(
                     ..default()
                 })
                 .with_children(|parent| {
-                    parent.spawn(NodeBundle {
-                        style: Style {
-                            flex_direction: FlexDirection::Column,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            padding: SUBSECTION_PADDING,
-                            row_gap: SUBSECTION_ROW_GAP,
-                            ..default()
-                        },
-                        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
-                        ..default()
-                    })
-                    .with_children(|parent| {
-                        // text
-                        parent.spawn((
-                            TextBundle::from_section(
-                                "Material",
-                                TextStyle {
-                                    font: asset_server.load(TEXT_FONT),
-                                    font_size: 40.0,
-                                    color: TEXT_LIGHT,
-                                    ..default()
-                                },
-                            ),
-                            // Because this is a distinct label widget and
-                            // not button/list item text, this is necessary
-                            // for accessibility to treat the text accordingly.
-                            Label,
-                        ));
-                        // Buttons grid
-                        parent.spawn(NodeBundle {
-                            style: Style {
-                                display: Display::Grid,
-                                grid_template_columns: RepeatedGridTrack::flex(2, 1.0),
-                                //grid_template_rows: RepeatedGridTrack::flex(10, 1.0),
-                                row_gap: Val::Px(10.),
-                                column_gap: Val::Px(10.0),
-                                ..default()
-                            },
-                            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
-                            ..default()
-                        })
-                        .with_children(|parent| {
-                            // add buttons
-                            for button_config in buttons_config {
-                                add_cell_type_button(parent, &asset_server, cell_properties, button_config);
-                            }
-                        });
-                    });
+                    // Material buttons
+                    material_buttons(parent, asset_server, globals);
+                    // Brush type
+                    brush_type(parent, asset_server, images);
+                    // Brush size
+                    brush_size(parent, asset_server, globals);
                 });
             });
             // render cell grid image
@@ -333,10 +294,8 @@ pub fn setup_ui(
                     ..default()
                 })
                 .with_children(|parent| {
-                    // Brush type
-                    brush_type(parent, asset_server, images);
-                    // Brush size
-                    brush_size(parent, asset_server, globals);
+                    // Color palette
+                    color_palette_selection(parent, asset_server, globals);
                     // Toggle settings
                     toggle_settings(parent, asset_server);
                     // Save & Load buttons
@@ -405,8 +364,8 @@ fn brush_type(
         style: Style {
             flex_direction: FlexDirection::Column,
             width: Val::Percent(100.0),
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::FlexStart,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             padding: SUBSECTION_PADDING,
             row_gap: SUBSECTION_ROW_GAP,
             ..default()
@@ -482,8 +441,8 @@ fn brush_size(
         style: Style {
             flex_direction: FlexDirection::Column,
             width: Val::Percent(100.0),
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::FlexStart,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             padding: SUBSECTION_PADDING,
             row_gap: SUBSECTION_ROW_GAP,
             ..default()
@@ -578,6 +537,135 @@ fn brush_size_slider(
         }, BrushSizeSliderButton, RelativeCursorPosition::default()
         ));
     });
+}
+
+fn material_buttons(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    globals: &GameGlobals,
+) {
+    let buttons_config = &globals.buttons_config;
+    let cell_properties = &globals.grid.cell_properties;
+    parent.spawn(NodeBundle {
+        style: Style {
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            padding: SUBSECTION_PADDING,
+            row_gap: SUBSECTION_ROW_GAP,
+            ..default()
+        },
+        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        ..default()
+    })
+    .with_children(|parent| {
+        // text
+        parent.spawn((
+            TextBundle::from_section(
+                "Material",
+                TextStyle {
+                    font: asset_server.load(TEXT_FONT),
+                    font_size: 40.0,
+                    color: TEXT_LIGHT,
+                    ..default()
+                },
+            ),
+            // Because this is a distinct label widget and
+            // not button/list item text, this is necessary
+            // for accessibility to treat the text accordingly.
+            Label,
+        ));
+        // Buttons grid
+        parent.spawn(NodeBundle {
+            style: Style {
+                display: Display::Grid,
+                grid_template_columns: RepeatedGridTrack::flex(2, 1.0),
+                //grid_template_rows: RepeatedGridTrack::flex(10, 1.0),
+                row_gap: Val::Px(10.),
+                column_gap: Val::Px(10.0),
+                ..default()
+            },
+            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+            ..default()
+        })
+        .with_children(|parent| {
+            // add buttons
+            for button_config in buttons_config {
+                add_cell_type_button(parent, &asset_server, cell_properties, button_config);
+            }
+        });
+    });
+}
+
+fn color_palette_selection(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    globals: &GameGlobals,
+) {
+    parent.spawn(NodeBundle {
+        style: Style {
+            flex_direction: FlexDirection::Column,
+            width: Val::Percent(100.0),
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            padding: SUBSECTION_PADDING,
+            row_gap: SUBSECTION_ROW_GAP,
+            ..default()
+        },
+        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        ..default()
+    })
+    .with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            "Color palette",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 40.0,
+                color: TEXT_LIGHT,
+                ..default()
+            },
+        ));
+        parent.spawn(NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::FlexStart,
+                align_items: AlignItems::FlexStart,
+                column_gap: Val::Px(10.),
+                ..default()
+            },
+            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+            ..default()
+        })
+        .with_children(|parent| {
+            // buttons
+            for i in 0..globals.color_settings.len() {
+                add_color_palette_button(parent, asset_server, globals, i);
+            }
+        });
+    });
+}
+
+fn add_color_palette_button(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    globals: &GameGlobals,
+    palette_num: usize,
+) {
+    let palette_button_size = 64;
+    parent.spawn((ButtonBundle {
+        style: Style {
+            width: Val::Px(palette_button_size as f32),
+            height: Val::Px(palette_button_size as f32),
+            border: BUTTON_BORDER,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+        ..default()
+    }, ColorPalleteButton { palette_num }
+    ));
 }
 
 fn toggle_settings(

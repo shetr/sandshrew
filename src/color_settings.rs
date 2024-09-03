@@ -3,7 +3,7 @@ use enum_map::EnumMap;
 use enum_map::enum_map;
 use crate::cell::*;
 
-type ColorSettings = EnumMap<CellType, CellColors>;
+pub type ColorSettings = EnumMap<CellType, CellColors>;
 
 //pub fn base_colors_palette() -> ColorSettings {
 //    enum_map! {

@@ -26,7 +26,7 @@ use bevy::{
 #[cfg(not(target_arch = "wasm32"))]
 use winit::{window::Icon};
 
-use crate::{grid_config::*, input::*, ui::*, ui_control::*, utils::*};
+use crate::{color_settings::*, grid_config::*, input::*, ui::*, ui_control::*, utils::*};
 use crate::cell::*;
 use crate::cell_grid::*;
 use crate::grid_display::*;
@@ -58,6 +58,7 @@ pub fn run_sandshrew_app() {
             update_input,
             cell_type_button_interactions,
             brush_type_button_interactions,
+            color_pallete_button_interactions,
             save_button_interactions,
             load_button_interactions,
             replace_solids_button_interactions,
@@ -93,6 +94,8 @@ pub struct GameGlobals
     pub load_button_pressed: bool,
     pub grid: CellGrid,
     pub display: GridDisplay,
+    pub color_settings: Vec<ColorSettings>,
+    pub curr_color_setting: usize,
     pub place_cell_type: CellType,
     pub replace_solids: bool,
 }
@@ -159,6 +162,8 @@ fn setup(
         brush_edge_color: Srgba::new(1.0, 1.0, 1.0, 0.1).into(),
     };
 
+    let color_settings = vec![lospec500_palette(), cc_29_palette(), resurrect64_palette()];
+
     let globals = GameGlobals {
         render_image: img_handle.id(),
         buttons_config,
@@ -179,6 +184,8 @@ fn setup(
         load_button_pressed: false,
         grid,
         display,
+        color_settings,
+        curr_color_setting: 0,
         place_cell_type: CellType::Sand,
         replace_solids: false,
     };

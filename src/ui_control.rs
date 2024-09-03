@@ -1,7 +1,7 @@
 
 use bevy::{diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin}, input::mouse::MouseWheel, prelude::*, tasks::block_on, ui::RelativeCursorPosition};
 
-use crate::{cell::CellType, input::*, ui::*, utils::clamp, FpsDisplayTimer, GameGlobals};
+use crate::{cell::CellType, color_settings::ColorSettings, input::*, ui::*, utils::clamp, FpsDisplayTimer, GameGlobals};
 
 use rfd::AsyncFileDialog;
 
@@ -93,6 +93,57 @@ pub fn brush_type_button_interactions(
                 } else {
                     border_color.0 = BASIC_BUTTON_BORDER_COLOR;
                     //border_color.0 = cell_color;
+                }
+            }
+        }
+    }
+}
+
+pub fn set_color_palette(
+    globals: &mut GameGlobals,
+    palette_num: usize,
+) {
+    let palette = &globals.color_settings[palette_num];
+    for (cell_type, colors) in palette
+    {
+        globals.grid.cell_properties[cell_type].colors = colors.clone();
+    }
+}
+
+pub fn color_pallete_button_interactions(
+    mut globals_query: Query<&mut GameGlobals>,
+    mut interaction_query: Query<
+        (
+            &Interaction,
+            &mut BackgroundColor,
+            &mut BorderColor,
+            &ColorPalleteButton
+        ),
+        With<Button>,
+    >
+) {
+    let mut globals = globals_query.single_mut();
+    for (interaction, mut bg_color, mut border_color, palette_button) in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
+                if globals.curr_color_setting != palette_button.palette_num {
+                    set_color_palette(&mut globals, palette_button.palette_num);
+                    globals.curr_color_setting = palette_button.palette_num;
+                }
+            }
+            Interaction::Hovered => {
+                if globals.curr_color_setting == palette_button.palette_num {
+                    border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
+                } else {
+                    border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
+                }
+            }
+            Interaction::None => {
+                if globals.curr_color_setting == palette_button.palette_num {
+                    border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
+                } else {
+                    border_color.0 = BASIC_BUTTON_BORDER_COLOR;
                 }
             }
         }
