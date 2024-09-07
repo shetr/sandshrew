@@ -63,22 +63,19 @@ pub fn lospec500_palette() -> ColorSettings {
 pub fn cc_29_palette() -> ColorSettings {
     // most of the colors taken from https://lospec.com/palette-list/cc-29
     enum_map! {
-        CellType::Air => CellColors::CentricRGB { color: Srgba::hex("b8b5b9").unwrap().into() },
+        CellType::Air => CellColors::BackgroundGradient { from: Srgba::hex("b8b5b9").unwrap().into(), to: Srgba::hex("edc8c4").unwrap().into() },
         CellType::Smoke => CellColors::DurationGradient { from: LinearRgba::new(0.3, 0.3, 0.3, 0.35).into(), to: LinearRgba::new(0.1, 0.1, 0.1, 1.0).into() },
         CellType::FlammableGass => CellColors::CentricRGBA { color: Srgba::hex("b2b47e").unwrap().into() },
-        CellType::Fire => CellColors::Gradient { from: Srgba::hex("b45252").unwrap().into(), to: Srgba::hex("d3a068").unwrap().into() },
-        // TODO: tweak
-        CellType::Steam => CellColors::CentricRGB { color: Srgba::hex("b0a7b8").unwrap().into() },
+        CellType::Fire => CellColors::Gradient { from: Srgba::hex("b45252").unwrap().into(), to: Srgba::hex("ede19e").unwrap().into() },
+        CellType::Steam => CellColors::CentricRGB { color: Srgba::hex("f2f0e5").unwrap().with_alpha(0.3).into() },
         CellType::Water => CellColors::CentricRGB { color: Srgba::hex("4b80ca").unwrap().into() },
         CellType::Oil => CellColors::CentricRGB { color: Srgba::hex("7b7243").unwrap().into() },
         CellType::Acid => CellColors::CentricRGB { color: Srgba::hex("c2d368").unwrap().into() },
-        // TODO: tweak
-        CellType::Lava => CellColors::CentricRGB { color: Srgba::hex("7b7243").unwrap().into() },
+        CellType::Lava => CellColors::Gradient { from: Srgba::hex("b45252").unwrap().into(), to: Srgba::hex("d3a068").unwrap().into() },
         CellType::Stone => CellColors::CentricRGB { color: Srgba::hex("646365").unwrap().into() },
         CellType::Wood => CellColors::CentricRGB { color: Srgba::hex("a77b5b").unwrap().into() },
-        CellType::Glass => CellColors::CentricA { color: LinearRgba::new(0.95, 0.95, 0.9, 0.15).into() },
-        // TODO: tweak
-        CellType::Ice => CellColors::CentricA { color: LinearRgba::new(0.95, 0.95, 0.9, 0.1).into() },
+        CellType::Glass => CellColors::CentricA { color: LinearRgba::new(0.9, 0.9, 0.95, 0.25).into() },
+        CellType::Ice => CellColors::Gradient { from: Srgba::hex("4b80ca").unwrap().with_alpha(0.7).into(), to: Srgba::hex("4b80ca").unwrap().with_alpha(0.5).into() },
         CellType::Sand => CellColors::CentricRGB { color: Srgba::hex("ede19e").unwrap().into() },
         CellType::Coal => CellColors::CentricRGB { color: Srgba::hex("212123").unwrap().into() },
     }

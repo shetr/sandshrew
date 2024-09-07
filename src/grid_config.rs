@@ -98,7 +98,7 @@ pub fn get_default_cell_grid(img_size: u32) -> CellGrid
                 density: 2.0,
                 colors: colors[CellType::Water].clone(),
                 rand_color_pattern: RandColorPattern::None,
-                color_rand_radius: 0.05,
+                color_rand_radius: 0.02,
                 color_change_prob: 0.01,
                 movement_prob: 0.9,
                 fallthroug_prob: 0.3,
