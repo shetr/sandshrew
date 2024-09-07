@@ -439,16 +439,24 @@ impl CellGrid
                 if rand::thread_rng().gen::<f32>() > self.cell_properties[cell_type].ignite_prob {
                     continue;
                 }
-                if cell_type == CellType::Air {
-                    if self.cells[pos].cell_type != CellType::Fire && self.cells[pos].cell_type != CellType::Lava {
-                        self.cells[ignite_pos] = self.new_cell(CellType::Fire, ignite_pos);
-                    }
-                } else if cell_type == CellType::Water {
-                    self.cells[ignite_pos] = self.new_cell(CellType::Steam, ignite_pos);
-                } else if cell_type == CellType::Ice {
-                    self.cells[ignite_pos] = self.new_cell(CellType::Water, ignite_pos);
-                } else {
-                    self.cells[ignite_pos].ignite();
+                match cell_type {
+                    CellType::Air => {
+                        if self.cells[pos].cell_type != CellType::Fire && self.cells[pos].cell_type != CellType::Lava {
+                            self.cells[ignite_pos] = self.new_cell(CellType::Fire, ignite_pos);
+                        }
+                    },
+                    CellType::Water => {
+                        self.cells[ignite_pos] = self.new_cell(CellType::Steam, ignite_pos);
+                    },
+                    CellType::Ice => {
+                        self.cells[ignite_pos] = self.new_cell(CellType::Water, ignite_pos);
+                    },
+                    CellType::Sand => {
+                        self.cells[ignite_pos] = self.new_cell(CellType::Glass, ignite_pos);
+                    },
+                    _ => {
+                        self.cells[ignite_pos].ignite();
+                    },
                 }
             }
         }
