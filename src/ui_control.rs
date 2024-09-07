@@ -20,16 +20,17 @@ pub fn cell_type_button_interactions(
     let mut globals = globals_query.single_mut();
     for (interaction, mut color, mut border_color, cell_type) in &mut interaction_query {
         let background_color = globals.grid.cell_properties[CellType::Air].get_default_color();
+        let color_radius = globals.grid.cell_properties[*cell_type].color_rand_radius;
         match *interaction {
             Interaction::Pressed => {
-                let cell_color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.5);
+                let cell_color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.0 + color_radius);
                 let cell_color = background_color.mix(&cell_color, cell_color.alpha());
                 *color = cell_color.into();
                 border_color.0 = CELL_BUTTON_SELECTED_BORDER_COLOR;
                 globals.place_cell_type = *cell_type;
             }
             Interaction::Hovered => {
-                let cell_color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.25);
+                let cell_color = globals.grid.cell_properties[*cell_type].get_default_color_scaled(1.0 + 0.5 * color_radius);
                 let cell_color = background_color.mix(&cell_color, cell_color.alpha());
                 *color = cell_color.into();
                 if globals.place_cell_type == *cell_type {
