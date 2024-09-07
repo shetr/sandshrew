@@ -451,9 +451,6 @@ impl CellGrid
                     CellType::Ice => {
                         self.cells[ignite_pos] = self.new_cell(CellType::Water, ignite_pos);
                     },
-                    CellType::Sand => {
-                        self.cells[ignite_pos] = self.new_cell(CellType::Glass, ignite_pos);
-                    },
                     _ => {
                         self.cells[ignite_pos].ignite();
                     },
