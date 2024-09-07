@@ -286,11 +286,11 @@ pub enum CellColors
     BackgroundGradient { from: Color, to: Color },
 }
 
-impl CellTypeProperties {
-    pub fn get_color_rgba(&self, color_scale: f32, timer: u16, pos: Vec2) -> Vec4
+impl CellColors {
+    pub fn get_color_rgba(&self, color_scale: f32, timer: u16, pos: Vec2, color_rand_radius: f32, max_timer: u16) -> Vec4
     {
-        let dt = (timer as f32) / (self.timer as f32);
-        match self.colors {
+        let dt: f32 = (timer as f32) / (max_timer as f32);
+        match self {
             CellColors::CentricRGB { color } => {
                 let rgb = color.to_linear().to_vec3() * color_scale;
                 Vec4::new(rgb.x, rgb.y, rgb.z, color.alpha())
@@ -304,7 +304,7 @@ impl CellTypeProperties {
                 rgba
             },
             CellColors::Gradient { from, to } => {
-                let t = self.color_scale_to_t(color_scale);
+                let t = self.color_scale_to_t(color_scale, color_rand_radius);
                 from.to_linear().to_vec4() * (1.0 - t) + to.to_linear().to_vec4() * t
             },
             CellColors::DurationGradient { from, to } => {
@@ -315,6 +315,24 @@ impl CellTypeProperties {
                 (from.to_linear().to_vec4() * (1.0 - t) + to.to_linear().to_vec4() * t) * color_scale
             },
         }
+    }
+    
+    fn color_scale_to_t(&self, color_scale: f32, color_rand_radius: f32) -> f32 {
+        let min_scale = 1.0 - color_rand_radius;
+        let max_scale = 1.0 + color_rand_radius;
+        (color_scale - min_scale) / (max_scale - min_scale)
+    }
+}
+
+impl CellTypeProperties {
+    pub fn get_color_rgba(&self, color_scale: f32, timer: u16, pos: Vec2) -> Vec4
+    {
+        self.colors.get_color_rgba(color_scale, timer, pos, self.color_rand_radius, self.timer)
+    }
+
+    pub fn get_color_rgba_custom(&self, color_scale: f32, timer: u16, pos: Vec2, colors: CellColors) -> Vec4
+    {
+        colors.get_color_rgba(color_scale, timer, pos, self.color_rand_radius, self.timer)
     }
 
     pub fn get_default_color_scaled(&self, color_scale: f32) -> Color {
@@ -327,9 +345,8 @@ impl CellTypeProperties {
         LinearRgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }.into()
     }
 
-    fn color_scale_to_t(&self, color_scale: f32) -> f32 {
-        let min_scale = 1.0 - self.color_rand_radius;
-        let max_scale = 1.0 + self.color_rand_radius;
-        (color_scale - min_scale) / (max_scale - min_scale)
+    pub fn get_default_color_custom(&self, colors: CellColors) -> Color {
+        let rgba = colors.get_color_rgba(1.0, self.timer, Vec2::ZERO, self.color_rand_radius, self.timer);
+        LinearRgba { red: rgba.x, green: rgba.y, blue: rgba.z, alpha: rgba.w }.into()
     }
 }

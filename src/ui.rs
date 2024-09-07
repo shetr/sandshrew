@@ -3,6 +3,7 @@ use bevy::render::globals;
 use bevy::{prelude::*, ui::RelativeCursorPosition};
 use enum_map::{Enum, EnumMap};
 
+use crate::color_settings::color_palette_button_image;
 use crate::utils::*;
 use crate::{cell::*, GameGlobals};
 use crate::brush_icons::*;
@@ -46,8 +47,8 @@ pub struct ColorPalleteButton
 
 pub struct CellTypeButtonConfig
 {
-    cell_type: CellType,
-    name: String,
+    pub cell_type: CellType,
+    pub name: String,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Enum, Component)]
@@ -88,7 +89,8 @@ pub const CELL_BUTTON_TEXT_COLOR: Color = TEXT_DIMM;
 
 pub const SECTION_PADDING: UiRect = UiRect::all(Val::Px(15.));
 pub const SUBSECTION_PADDING: UiRect = UiRect::all(Val::Px(10.));
-pub const BUTTON_BORDER: UiRect = UiRect::all(Val::Px(3.0));
+pub const BUTTON_BORDER_SIZE: f32 = 3.0;
+pub const BUTTON_BORDER: UiRect = UiRect::all(Val::Px(BUTTON_BORDER_SIZE));
 
 pub const SECTION_ROW_GAP: Val = Val::Px(10.);
 pub const SUBSECTION_ROW_GAP: Val = Val::Px(10.);
@@ -295,7 +297,7 @@ pub fn setup_ui(
                 })
                 .with_children(|parent| {
                     // Color palette
-                    color_palette_selection(parent, asset_server, globals);
+                    color_palette_selection(parent, asset_server, globals, images);
                     // Toggle settings
                     toggle_settings(parent, asset_server);
                     // Save & Load buttons
@@ -601,13 +603,14 @@ fn color_palette_selection(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
     globals: &GameGlobals,
+    images: &mut ResMut<Assets<Image>>,
 ) {
     parent.spawn(NodeBundle {
         style: Style {
             flex_direction: FlexDirection::Column,
             width: Val::Percent(100.0),
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::FlexStart,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             padding: SUBSECTION_PADDING,
             row_gap: SUBSECTION_ROW_GAP,
             ..default()
@@ -639,7 +642,7 @@ fn color_palette_selection(
         .with_children(|parent| {
             // buttons
             for i in 0..globals.color_settings.len() {
-                add_color_palette_button(parent, asset_server, globals, i);
+                add_color_palette_button(parent, asset_server, globals, images, i);
             }
         });
     });
@@ -649,20 +652,30 @@ fn add_color_palette_button(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
     globals: &GameGlobals,
+    images: &mut ResMut<Assets<Image>>,
     palette_num: usize,
 ) {
-    let palette_button_size = 64;
+    let gap_size = 4;
+    let color_size = 16;
+    let grid_size = UVec2::new(4, 3);
+    let palette = &globals.color_settings[palette_num];
+    let cell_properties = &globals.grid.cell_properties;
+    let cell_types = get_cell_type_buttons_config();
+    let img = color_palette_button_image(palette, &cell_types, cell_properties, grid_size, color_size, gap_size);
+    let button_size = UVec2::new(img.width(), img.height()).as_vec2();
+    let img_handle = images.add(img);
+
     parent.spawn((ButtonBundle {
         style: Style {
-            width: Val::Px(palette_button_size as f32),
-            height: Val::Px(palette_button_size as f32),
+            width: Val::Px(button_size.x),
+            height: Val::Px(button_size.y),
             border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             ..default()
         },
         border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+        image: UiImage::new(img_handle),
         ..default()
     }, ColorPalleteButton { palette_num }
     ));
@@ -676,8 +689,8 @@ fn toggle_settings(
         style: Style {
             flex_direction: FlexDirection::Column,
             width: Val::Percent(100.0),
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::FlexStart,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             padding: SUBSECTION_PADDING,
             row_gap: SUBSECTION_ROW_GAP,
             ..default()
@@ -759,8 +772,8 @@ fn save_and_load_buttons(
         style: Style {
             flex_direction: FlexDirection::Column,
             width: Val::Percent(100.0),
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::FlexStart,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             padding: SUBSECTION_PADDING,
             row_gap: SUBSECTION_ROW_GAP,
             ..default()
@@ -781,8 +794,8 @@ fn save_and_load_buttons(
         parent.spawn(NodeBundle {
             style: Style {
                 flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::FlexStart,
-                align_items: AlignItems::FlexStart,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 column_gap: Val::Px(10.),
                 ..default()
             },
@@ -862,15 +875,30 @@ fn controls_help(
         ..default()
     })
     .with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            "Controls",
-            TextStyle {
-                font: asset_server.load(TEXT_FONT),
-                font_size: 40.0,
-                color: TEXT_LIGHT,
+        parent.spawn(NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::Column,
+                width: Val::Percent(100.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                padding: SUBSECTION_PADDING,
+                row_gap: SUBSECTION_ROW_GAP,
                 ..default()
             },
-        ));
+            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+            ..default()
+        })
+        .with_children(|parent| {
+            parent.spawn(TextBundle::from_section(
+                "Controls",
+                TextStyle {
+                    font: asset_server.load(TEXT_FONT),
+                    font_size: 40.0,
+                    color: TEXT_LIGHT,
+                    ..default()
+                },
+            ));
+        });
     
         parent.spawn(TextBundle::from_section(
             "Mouse Left - add material",

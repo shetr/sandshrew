@@ -158,6 +158,17 @@ pub fn fill_img_color(color: Color, out_image: &mut Image)
     }
 }
 
+pub fn fill_sub_img_color(color: Color, out_image: &mut Image, from: UVec2, to: UVec2)
+{
+    let from = from.clamp(UVec2::ZERO, out_image.size());
+    let to = to.clamp(UVec2::ZERO, out_image.size());
+    for y in from.y..to.y {
+        for x in from.x..to.x {
+            set_img_color(UVec2::new(x, y), color, out_image);
+        }
+    }
+}
+
 pub fn set_img_color(pos: UVec2, color: Color, out_image: &mut Image)
 {
     let i = (pos.x + pos.y * out_image.size().x) as usize;

@@ -1,7 +1,12 @@
 use bevy::prelude::*;
+use bevy::render::render_asset::*;
+use bevy::render::render_resource::*;
+use bevy::render::texture::*;
 use enum_map::EnumMap;
 use enum_map::enum_map;
 use crate::cell::*;
+use crate::ui::*;
+use crate::utils::*;
 
 pub type ColorSettings = EnumMap<CellType, CellColors>;
 
@@ -100,4 +105,48 @@ pub fn resurrect64_palette() -> ColorSettings {
         CellType::Sand => CellColors::CentricRGB { color: Srgba::hex("fbff86").unwrap().into() },
         CellType::Coal => CellColors::CentricRGB { color: Srgba::hex("3e3546").unwrap().into() },
     }
+}
+
+pub fn color_palette_button_image(
+    palette: &ColorSettings,
+    cell_types: &Vec<CellTypeButtonConfig>,
+    cell_properties: &EnumMap<CellType, CellTypeProperties>,
+    grid_size: UVec2,
+    color_size: u32,
+    gap_size: u32
+) -> Image
+{
+    let img_size = (grid_size + 3) * gap_size + grid_size * color_size;
+    let mut img = Image::new(
+        Extent3d { width: img_size.x, height: img_size.y, depth_or_array_layers: 1 }, 
+        TextureDimension::D2,
+        vec![255u8; (img_size.x * img_size.y * 4) as usize],
+        TextureFormat::Rgba8Unorm,
+        RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD
+    );
+
+    img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
+        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        ..default()
+    });
+    
+    let background_color = cell_properties[CellType::Air].get_default_color_custom(palette[CellType::Air].clone());
+
+    fill_img_color(BASIC_BUTTON_BACKGROUND_COLOR, &mut img);
+
+    for y in 0..grid_size.y {
+        for x in 0..grid_size.x {
+            let grid_pos = UVec2::new(x, y);
+            let from = (grid_pos + 2) * gap_size + grid_pos * color_size;
+            let to = from + color_size;
+            let i = (x + y * grid_size.x) as usize;
+            let cell_type = cell_types[i].cell_type;
+            let cell_colors = palette[cell_type].clone();
+            let color = cell_properties[cell_type].get_default_color_custom(cell_colors);
+            let color = background_color.mix(&color, color.alpha());
+            fill_sub_img_color(color, &mut img, from, to);
+        }
+    }
+    
+    img
 }
