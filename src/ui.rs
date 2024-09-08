@@ -100,6 +100,8 @@ pub const SLIDER_BORDER: f32 = 3.;
 pub const SLIDER_PADDING: f32 = 5.;
 pub const SLIDER_BUTTON_BORDER: f32 = 3.;
 
+pub const SLIDER_SIZE_MUL: i32 = 4;
+
 pub const SLIDER_BUTTON_COLOR: Color = Color::rgb(0.35, 0.35, 0.35);
 
 pub fn get_cell_type_buttons_config() -> Vec<CellTypeButtonConfig>
@@ -480,7 +482,7 @@ fn brush_size_slider(
     let button_offset = SLIDER_BUTTON_SIZE + SLIDER_BUTTON_BORDER * 2. + SLIDER_PADDING * 2.;
     parent.spawn((ButtonBundle {
         style: Style {
-            width: Val::Px((globals.max_brush_size * 4) as f32 + button_offset),
+            width: Val::Px((globals.max_brush_size * SLIDER_SIZE_MUL) as f32 + button_offset),
             // TODO: padding + button size + button border
             height: Val::Px(button_offset),
             border: UiRect::all(Val::Px(SLIDER_BORDER)),

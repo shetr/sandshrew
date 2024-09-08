@@ -350,7 +350,7 @@ pub fn update_brush_size_slider_value(
 )
 {
     let button_offset = SLIDER_BUTTON_SIZE + SLIDER_BUTTON_BORDER * 2. + SLIDER_PADDING * 2.;
-    let slider_size = (globals.max_brush_size * 4) as f32 + button_offset;
+    let slider_size = (globals.max_brush_size * SLIDER_SIZE_MUL) as f32 + button_offset;
     let min = 0.;
     let max = slider_size - button_offset;
     let value = clamp(size_normalized * max, min, max);
@@ -414,7 +414,7 @@ pub fn brush_size_slider_interactions(
                 if let Some(rel_cursor_position) = relative_cursor_slider.normalized {
                     let offset = SLIDER_BUTTON_SIZE * 0.5 + SLIDER_BUTTON_BORDER + SLIDER_PADDING;
                     let button_offset = SLIDER_BUTTON_SIZE + SLIDER_BUTTON_BORDER * 2. + SLIDER_PADDING * 2.;
-                    let slider_size = (globals.max_brush_size * 4) as f32 + button_offset;
+                    let slider_size = (globals.max_brush_size * SLIDER_SIZE_MUL) as f32 + button_offset;
                     let min = 0.;
                     let max = slider_size - button_offset;
                     let value = clamp(rel_cursor_position.x * slider_size - offset, min, max);
