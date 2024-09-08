@@ -217,12 +217,12 @@ pub fn setup_ui(
                     ..default()
                 })
                 .with_children(|parent| {
-                    // Material buttons
-                    material_buttons(parent, asset_server, globals);
                     // Brush type
                     brush_type(parent, asset_server, images);
                     // Brush size
                     brush_size(parent, asset_server, globals);
+                    // Material buttons
+                    material_buttons(parent, asset_server, globals);
                 });
             });
             // render cell grid image
@@ -376,15 +376,6 @@ fn brush_type(
         ..default()
     })
     .with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            "Brush type",
-            TextStyle {
-                font: asset_server.load(TEXT_FONT),
-                font_size: 40.0,
-                color: TEXT_LIGHT,
-                ..default()
-            },
-        ));
         parent.spawn(NodeBundle {
             style: Style {
                 flex_direction: FlexDirection::Row,
@@ -453,15 +444,6 @@ fn brush_size(
         ..default()
     })
     .with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            "Brush size",
-            TextStyle {
-                font: asset_server.load(TEXT_FONT),
-                font_size: 40.0,
-                color: TEXT_LIGHT,
-                ..default()
-            },
-        ));
 
         brush_size_slider(parent, asset_server, globals);
 
@@ -561,22 +543,6 @@ fn material_buttons(
         ..default()
     })
     .with_children(|parent| {
-        // text
-        parent.spawn((
-            TextBundle::from_section(
-                "Material",
-                TextStyle {
-                    font: asset_server.load(TEXT_FONT),
-                    font_size: 40.0,
-                    color: TEXT_LIGHT,
-                    ..default()
-                },
-            ),
-            // Because this is a distinct label widget and
-            // not button/list item text, this is necessary
-            // for accessibility to treat the text accordingly.
-            Label,
-        ));
         // Buttons grid
         parent.spawn(NodeBundle {
             style: Style {
