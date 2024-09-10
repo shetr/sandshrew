@@ -45,6 +45,25 @@ pub struct ColorPalleteButton
     pub palette_num: usize
 }
 
+#[derive(Component)]
+pub struct StartStopButton
+{
+    pub pressed: bool
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum UpdateSpeed {
+    Normal,
+    Slow,
+    Fast,
+}
+
+#[derive(Component)]
+pub struct SpeedButton
+{
+    pub speed: UpdateSpeed
+}
+
 pub struct CellTypeButtonConfig
 {
     pub cell_type: CellType,
@@ -219,6 +238,8 @@ pub fn setup_ui(
                     ..default()
                 })
                 .with_children(|parent| {
+                    // Simulation control
+                    simulation_control(parent, asset_server, globals, images);
                     // Brush type
                     brush_type(parent, asset_server, images);
                     // Brush size
@@ -355,6 +376,111 @@ fn fps_counter(
                 ),
             ]),
             FpsText,
+        ));
+    });
+}
+
+fn simulation_control(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    globals: &GameGlobals,
+    images: &mut ResMut<Assets<Image>>,
+) {
+    parent.spawn(NodeBundle {
+        style: Style {
+            flex_direction: FlexDirection::Column,
+            width: Val::Percent(100.0),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            padding: SUBSECTION_PADDING,
+            row_gap: SUBSECTION_ROW_GAP,
+            ..default()
+        },
+        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        ..default()
+    })
+    .with_children(|parent| {
+        parent.spawn(NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::FlexStart,
+                align_items: AlignItems::FlexStart,
+                column_gap: Val::Px(10.),
+                ..default()
+            },
+            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+            ..default()
+        })
+        .with_children(|parent| {
+            // buttons
+            stop_start_button(parent, asset_server, globals, images);
+            speed_button(parent, asset_server, UpdateSpeed::Slow, "0.5");
+            speed_button(parent, asset_server, UpdateSpeed::Normal, "1");
+            speed_button(parent, asset_server, UpdateSpeed::Fast, "2");
+        });
+    });
+}
+
+fn stop_start_button(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    globals: &GameGlobals,
+    images: &mut ResMut<Assets<Image>>,
+) {
+    let button_size = 64;
+    parent.spawn((ButtonBundle {
+        style: Style {
+            width: Val::Px(button_size as f32),
+            height: Val::Px(button_size as f32),
+            border: BUTTON_BORDER,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+        ..default()
+    }, StartStopButton { pressed: false }
+    )).with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            "||",
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 30.0,
+                color: BASIC_BUTTON_TEXT_COLOR,
+            },
+        ));
+    });
+}
+
+fn speed_button(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    speed: UpdateSpeed,
+    text: &str
+) {
+    let button_size = 64;
+    parent.spawn((ButtonBundle {
+        style: Style {
+            width: Val::Px(button_size as f32),
+            height: Val::Px(button_size as f32),
+            border: BUTTON_BORDER,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
+        ..default()
+    }, SpeedButton { speed }
+    )).with_children(|parent| {
+        parent.spawn(TextBundle::from_section(
+            text,
+            TextStyle {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 30.0,
+                color: BASIC_BUTTON_TEXT_COLOR,
+            },
         ));
     });
 }
@@ -929,7 +1055,7 @@ fn add_cell_type_button(
             &button_config.name,
             TextStyle {
                 font: asset_server.load(TEXT_FONT),
-                font_size: 20.0,
+                font_size: 30.0,
                 color: text_color,
             },
         ));

@@ -56,6 +56,8 @@ pub fn run_sandshrew_app() {
         .add_systems(Update, (
             set_window_icon,
             update_input,
+            start_stop_button_interactions,
+            speed_button_interactions,
             cell_type_button_interactions,
             brush_type_button_interactions,
             color_pallete_button_interactions,
@@ -98,6 +100,8 @@ pub struct GameGlobals
     pub curr_color_setting: usize,
     pub place_cell_type: CellType,
     pub replace_solids: bool,
+    pub paused: bool,
+    pub speed: UpdateSpeed,
 }
 
 #[derive(Component)]
@@ -188,6 +192,8 @@ fn setup(
         curr_color_setting: 0,
         place_cell_type: CellType::Sand,
         replace_solids: false,
+        paused: false,
+        speed: UpdateSpeed::Normal,
     };
     
     setup_ui(&mut commands, &asset_server, out_tex_size, img_handle, &mut images, &globals);

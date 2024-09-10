@@ -54,6 +54,85 @@ pub fn cell_type_button_interactions(
     }
 }
 
+pub fn start_stop_button_interactions(
+    mut globals_query: Query<&mut GameGlobals>,
+    mut interaction_query: Query<
+        (
+            &Interaction,
+            &mut BackgroundColor,
+            &mut BorderColor,
+            &Children,
+            &mut StartStopButton
+        ),
+        With<Button>,
+    >,
+    mut text_query: Query<&mut Text>,
+) {
+    let mut globals = globals_query.single_mut();
+    for (interaction, mut color, mut border_color, children, mut button) in &mut interaction_query {
+        let mut text = text_query.get_mut(children[0]).unwrap();
+        match *interaction {
+            Interaction::Pressed => {
+                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
+                border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
+                if !button.pressed {
+                    button.pressed = true;
+                    globals.paused = !globals.paused;
+                    if globals.paused {
+                        text.sections[0].value = ">".to_string();
+                    } else {
+                        text.sections[0].value = "||".to_string();
+                    }
+                }
+            }
+            Interaction::Hovered => {
+                button.pressed = false;
+                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
+                border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
+            }
+            Interaction::None => {
+                button.pressed = false;
+                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                border_color.0 = BASIC_BUTTON_BORDER_COLOR;
+            }
+        }
+    }
+}
+
+pub fn speed_button_interactions(
+    mut globals_query: Query<&mut GameGlobals>,
+    mut interaction_query: Query<
+        (
+            &Interaction,
+            &mut BackgroundColor,
+            &mut BorderColor,
+            &SpeedButton
+        ),
+        With<Button>,
+    >
+) {
+    let mut globals = globals_query.single_mut();
+    for (interaction, mut color, mut border_color, button) in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
+                globals.speed = button.speed;
+            }
+            Interaction::Hovered => {
+                *color = BASIC_BUTTON_HOVER_BACKGROUND_COLOR.into();
+                border_color.0 = BASIC_BUTTON_HOVER_BORDER_COLOR;
+            }
+            Interaction::None => {
+                *color = BASIC_BUTTON_BACKGROUND_COLOR.into();
+                border_color.0 = BASIC_BUTTON_BORDER_COLOR;
+            }
+        }
+        if globals.speed == button.speed {
+            border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
+        }
+    }
+}
+
 pub fn brush_type_button_interactions(
     mut globals_query: Query<&mut GameGlobals>,
     mut interaction_query: Query<
