@@ -148,7 +148,7 @@ impl CellGrid
         dda_thick(pos_from, pos_to, size, &mut set_cell);
     }
 
-    pub fn update(&mut self, frame_num: usize)
+    pub fn update(&mut self, even_update_num: bool)
     {
         for y in 0..self.cells.sizes.y {
             for x in 0..self.cells.sizes.x {
@@ -158,7 +158,7 @@ impl CellGrid
         }
 
         for y in (0..self.cells.sizes.y).rev() {
-            let x_range: Box<dyn Iterator<Item=i32>> = if frame_num % 2 == 0 { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
+            let x_range: Box<dyn Iterator<Item=i32>> = if even_update_num { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
             for x in x_range {
                 let pos = IVec2::new(x, y);
                 if self.cells[pos].is_gass() {
@@ -167,7 +167,7 @@ impl CellGrid
             }
         }
         for y in 0..self.cells.sizes.y {
-            let x_range: Box<dyn Iterator<Item=i32>> = if frame_num % 2 == 0 { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
+            let x_range: Box<dyn Iterator<Item=i32>> = if even_update_num { Box::new(0..self.cells.sizes.x)  } else { Box::new((0..self.cells.sizes.x).rev()) };
             for x in x_range {
                 let pos = IVec2::new(x, y);
                 if !self.cells[pos].is_gass() {

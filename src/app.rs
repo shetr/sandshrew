@@ -233,14 +233,31 @@ fn set_window_icon() {
 fn update_cells(mut globals_query: Query<&mut GameGlobals>)
 {
     let mut globals = globals_query.single_mut();
-    let slow_update = 1;
-
-    if globals.frame_num % slow_update == 0
-    {
-        let frame_num = globals.frame_num;
-        globals.grid.update(frame_num / slow_update);
-    
+    if globals.paused {
+        return;
     }
+
+    let speed = globals.speed;
+    let frame_num = globals.frame_num;
+    let mut call_update = |update_num: usize| {
+        globals.grid.update(update_num % 2 == 0);
+    };
+
+    match speed {
+        UpdateSpeed::Normal => {
+            call_update(frame_num);
+        },
+        UpdateSpeed::Slow => {
+            if frame_num % 2 == 0 {
+                call_update(frame_num / 2);
+            }
+        },
+        UpdateSpeed::Fast => {
+            call_update(frame_num * 2);
+            call_update(frame_num * 2 + 1);
+        },
+    }
+
     globals.frame_num += 1;
 }
 
