@@ -17,7 +17,7 @@ pub fn circle_brush_icon(img_size: u32) -> Image
 {
     let half_size = (img_size as i32) / 2;
     let center = IVec2::new(half_size, half_size);
-    let radius = ((half_size as f32) * 0.5) as i32;
+    let radius = ((half_size as f32) * 0.6) as i32;
     let mut img = Image::new(
         Extent3d { width: img_size, height: img_size, depth_or_array_layers: 1 }, 
         TextureDimension::D2,
@@ -49,7 +49,7 @@ pub fn square_brush_icon(img_size: u32) -> Image
 {
     let half_size = (img_size) / 2;
     let center = UVec2::new(half_size, half_size);
-    let radius = ((half_size as f32) * 0.5) as u32;
+    let radius = ((half_size as f32) * 0.6) as u32;
     let from = center - radius;
     let to = center + radius;
     let mut img = Image::new(

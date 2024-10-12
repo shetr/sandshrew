@@ -114,7 +114,9 @@ pub const BUTTON_BORDER: UiRect = UiRect::all(Val::Px(BUTTON_BORDER_SIZE));
 pub const SECTION_ROW_GAP: Val = Val::Px(10.);
 pub const SUBSECTION_ROW_GAP: Val = Val::Px(10.);
 
-pub const SLIDER_BUTTON_SIZE: f32 = 32.;
+pub const SQUARE_BUTTON_SIZE: u32 = 70;
+
+pub const SLIDER_BUTTON_SIZE: f32 = 38.;
 pub const SLIDER_BORDER: f32 = 3.;
 pub const SLIDER_PADDING: f32 = 5.;
 pub const SLIDER_BUTTON_BORDER: f32 = 3.;
@@ -427,11 +429,10 @@ fn stop_start_button(
     globals: &GameGlobals,
     images: &mut ResMut<Assets<Image>>,
 ) {
-    let button_size = 64;
     parent.spawn((ButtonBundle {
         style: Style {
-            width: Val::Px(button_size as f32),
-            height: Val::Px(button_size as f32),
+            width: Val::Px(SQUARE_BUTTON_SIZE as f32),
+            height: Val::Px(SQUARE_BUTTON_SIZE as f32),
             border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
@@ -459,11 +460,10 @@ fn speed_button(
     speed: UpdateSpeed,
     text: &str
 ) {
-    let button_size = 64;
     parent.spawn((ButtonBundle {
         style: Style {
-            width: Val::Px(button_size as f32),
-            height: Val::Px(button_size as f32),
+            width: Val::Px(SQUARE_BUTTON_SIZE as f32),
+            height: Val::Px(SQUARE_BUTTON_SIZE as f32),
             border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
@@ -531,16 +531,15 @@ fn add_brush_type_button(
     images: &mut ResMut<Assets<Image>>,
     brush_type: BrushType,
 ) {
-    let brush_button_size = 64;
-    let img = brush_icon(brush_type, brush_button_size / 2);
+    let img = brush_icon(brush_type, SQUARE_BUTTON_SIZE / 2);
     let img_handle = images.add(img);
     let basic_tint: Color = LinearRgba::from_vec4(
         BASIC_BUTTON_BACKGROUND_COLOR.to_linear().to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.to_linear().to_vec4()
     ).into();
     parent.spawn((ButtonBundle {
         style: Style {
-            width: Val::Px(brush_button_size as f32),
-            height: Val::Px(brush_button_size as f32),
+            width: Val::Px(SQUARE_BUTTON_SIZE as f32),
+            height: Val::Px(SQUARE_BUTTON_SIZE as f32),
             border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
