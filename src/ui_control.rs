@@ -79,9 +79,9 @@ pub fn start_stop_button_interactions(
                     button.pressed = true;
                     globals.paused = !globals.paused;
                     if globals.paused {
-                        text.sections[0].value = ">".to_string();
+                        text.0 = ">".to_string();
                     } else {
-                        text.sections[0].value = "||".to_string();
+                        text.0 = "||".to_string();
                     }
                 }
             }
@@ -138,7 +138,7 @@ pub fn brush_type_button_interactions(
     mut interaction_query: Query<
         (
             &Interaction,
-            &mut UiImage,
+            &mut ImageNode,
             &mut BorderColor,
             &BrushType
         ),
@@ -412,7 +412,7 @@ pub fn top_gass_leak_button_interactions(
 pub fn init_brush_size_slider_value(
     globals_query: Query<&GameGlobals>,
     mut brush_size_text_query: Query<&mut Text, With<BrushSizeText>>,
-    mut slider_style_query: Query<&mut Style, With<BrushSizeSliderButton>>
+    mut slider_style_query: Query<&mut Node, With<BrushSizeSliderButton>>
 )
 {
     let globals = globals_query.single();
@@ -424,7 +424,7 @@ pub fn init_brush_size_slider_value(
 pub fn update_brush_size_slider_value(
     size_normalized: f32,
     globals: &GameGlobals,
-    slider_style: &mut Style,
+    slider_style: &mut Node,
     brush_size_text_query: &mut Query<&mut Text, With<BrushSizeText>>,
 )
 {
@@ -437,7 +437,7 @@ pub fn update_brush_size_slider_value(
     slider_style.left = Val::Px(pos);
 
     for mut text in brush_size_text_query {
-        text.sections[0].value = format!("{:3} px", globals.brush_size * 2 + 1);
+        text.0 = format!("{:3} px", globals.brush_size * 2 + 1);
     }
 }
 
@@ -445,7 +445,7 @@ pub fn brush_size_mouse_scroll(
     mut globals_query: Query<&mut GameGlobals>,
     mut mouse_wheel_events: EventReader<MouseWheel>,
     mut brush_size_text_query: Query<&mut Text, With<BrushSizeText>>,
-    mut slider_style_query: Query<&mut Style, With<BrushSizeSliderButton>>
+    mut slider_style_query: Query<&mut Node, With<BrushSizeSliderButton>>
 )
 {
     let mut globals = globals_query.single_mut();
@@ -477,7 +477,7 @@ pub fn brush_size_slider_interactions(
         ),
         With<Button>,
     >,
-    mut button: Query<(&mut Style, &mut BackgroundColor, &mut BorderColor), With<BrushSizeSliderButton>>,
+    mut button: Query<(&mut Node, &mut BackgroundColor, &mut BorderColor), With<BrushSizeSliderButton>>,
     mut line: Query<(&mut BackgroundColor, &BrushSizeSliderLine), Without<BrushSizeSliderButton>>
 ) {
     let mut globals = globals_query.single_mut();
@@ -532,7 +532,7 @@ pub fn update_fps(
             if let Some(fps) = diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS) {
                 if let Some(value) = fps.smoothed() {
                     // Update the value of the second section
-                    text.sections[1].value = format!("{value:.0}");
+                    text.0 = format!("{value:.0}");
                 }
             }
         }

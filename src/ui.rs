@@ -200,45 +200,36 @@ pub fn setup_ui(
     globals: &GameGlobals,
 ) {
     commands
-        .spawn(NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                justify_content: JustifyContent::FlexStart,
-                align_items: AlignItems::FlexStart,
-                ..default()
-            },
+        .spawn(Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
             ..default()
         })
         .with_children(|parent| {
             // left vertical fill
-            parent.spawn(NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    flex_direction: FlexDirection::Row,
-                    justify_content: JustifyContent::FlexEnd,
-                    align_items: AlignItems::Center,
-                    padding: UiRect::all(Val::Px(10.)),
-                    ..default()
-                },
-                background_color: MAIN_BACKGROUND_COLOR.into(),
+            parent.spawn((Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::FlexEnd,
+                align_items: AlignItems::Center,
+                padding: UiRect::all(Val::Px(10.)),
                 ..default()
-            })
+            },
+            BackgroundColor(MAIN_BACKGROUND_COLOR)
+            ))
             .with_children(|parent| {
                 // left material buttons section
-                parent.spawn(NodeBundle {
-                    style: Style {
-                        flex_direction: FlexDirection::Column,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        padding: SECTION_PADDING,
-                        row_gap: Val::Px(10.),
-                        ..default()
-                    },
-                    background_color: SECTION_BACKGROUND_COLOR.into(),
+                parent.spawn((Node {
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    padding: SECTION_PADDING,
+                    row_gap: Val::Px(10.),
                     ..default()
-                })
+                }, BackgroundColor(SECTION_BACKGROUND_COLOR)))
                 .with_children(|parent| {
                     // Simulation control
                     simulation_control(parent, asset_server, globals, images);
@@ -251,41 +242,30 @@ pub fn setup_ui(
                 });
             });
             // render cell grid image
-            parent.spawn(NodeBundle {
-                style: Style {
-                    height: Val::Percent(100.0),
+            parent.spawn((Node {
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                padding: UiRect::horizontal(Val::Px(10.)),
+                ..default()
+            }, BackgroundColor(MAIN_BACKGROUND_COLOR))).with_children(|parent| {
+                parent.spawn((Node {
+                    //width: Val::Px((out_tex_size + 20) as f32),
                     flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
-                    padding: UiRect::horizontal(Val::Px(10.)),
+                    padding: SECTION_PADDING,
                     ..default()
-                },
-                background_color: MAIN_BACKGROUND_COLOR.into(),
-                ..default()
-            }).with_children(|parent| {
-                parent.spawn(NodeBundle {
-                    style: Style {
-                        //width: Val::Px((out_tex_size + 20) as f32),
-                        flex_direction: FlexDirection::Column,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        padding: SECTION_PADDING,
-                        ..default()
-                    },
-                    background_color: SECTION_BACKGROUND_COLOR.into(),
-                    ..default()
-                }).with_children(|parent| {
+                }, BackgroundColor(SECTION_BACKGROUND_COLOR))).with_children(|parent| {
                     parent.spawn((
-                        NodeBundle{
-                            style: Style {
-                                height: Val::Px(out_tex_size as f32),
-                                width: Val::Px(out_tex_size as f32),
-                                ..default()
-                            },
-                            background_color: Color::WHITE.into(),
+                        Node{
+                            height: Val::Px(out_tex_size as f32),
+                            width: Val::Px(out_tex_size as f32),
                             ..default()
                         },
-                        UiImage::new(img_handle.clone()),
+                        BackgroundColor(Color::WHITE),
+                        ImageNode::new(img_handle.clone()),
                         RelativeCursorPosition::default(),
                         DrawingCanvas,
                     ));
@@ -293,33 +273,25 @@ pub fn setup_ui(
             });
             
             // right vertical fill
-            parent.spawn(NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    flex_direction: FlexDirection::Row,
-                    justify_content: JustifyContent::FlexStart,
-                    align_items: AlignItems::Center,
-                    padding: UiRect::all(Val::Px(10.)),
-                    ..default()
-                },
-                background_color: MAIN_BACKGROUND_COLOR.into(),
+            parent.spawn((Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::FlexStart,
+                align_items: AlignItems::Center,
+                padding: UiRect::all(Val::Px(10.)),
                 ..default()
-            })
+            }, BackgroundColor(MAIN_BACKGROUND_COLOR)))
             .with_children(|parent| {
                 // right settings buttons
-                parent.spawn(NodeBundle {
-                    style: Style {
-                        flex_direction: FlexDirection::Column,
-                        justify_content: JustifyContent::FlexStart,
-                        align_items: AlignItems::FlexStart,
-                        padding: SECTION_PADDING,
-                        row_gap: SECTION_ROW_GAP,
-                        ..default()
-                    },
-                    background_color: SECTION_BACKGROUND_COLOR.into(),
+                parent.spawn((Node {
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::FlexStart,
+                    align_items: AlignItems::FlexStart,
+                    padding: SECTION_PADDING,
+                    row_gap: SECTION_ROW_GAP,
                     ..default()
-                })
+                }, BackgroundColor(SECTION_BACKGROUND_COLOR)))
                 .with_children(|parent| {
                     // Color palette
                     color_palette_selection(parent, asset_server, globals, images);
@@ -342,41 +314,33 @@ fn fps_counter(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-    parent.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Row,
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::FlexStart,
-            padding: SUBSECTION_PADDING,
-            row_gap: SUBSECTION_ROW_GAP,
-            ..default()
-        },
-        background_color: SECTION_BACKGROUND_COLOR.into(),
+    parent.spawn((Node {
+        flex_direction: FlexDirection::Row,
+        justify_content: JustifyContent::FlexStart,
+        align_items: AlignItems::FlexStart,
+        padding: SUBSECTION_PADDING,
+        row_gap: SUBSECTION_ROW_GAP,
         ..default()
-    })
+    }, BackgroundColor(SECTION_BACKGROUND_COLOR)))
     .with_children(|parent| {
         parent.spawn((
-            // Create a TextBundle that has a Text with a list of sections.
-            TextBundle::from_sections([
-                TextSection::new(
-                    "FPS: ",
-                    TextStyle {
-                        // This font is loaded and will be used instead of the default font.
-                        font: asset_server.load(TEXT_FONT),
-                        font_size: 20.0,
-                        color: TEXT_DIMM,
-                        ..default()
-                    },
-                ),
-                TextSection::new(
-                    "60",
-                    TextStyle {
-                        font: asset_server.load(TEXT_FONT),
-                        font_size: 20.0,
-                        color: GOLD.into(),
-                    }
-                ),
-            ]),
+            Text::new("FPS: "),
+            TextFont {
+                // This font is loaded and will be used instead of the default font.
+                font: asset_server.load(TEXT_FONT),
+                font_size: 20.0,
+                ..default()
+            },
+            TextColor(TEXT_DIMM)
+        ));
+        parent.spawn((
+            Text::new("60"),
+            TextFont {
+                font: asset_server.load(TEXT_FONT),
+                font_size: 20.0,
+                ..default()
+            },
+            TextColor(GOLD.into()),
             FpsText,
         ));
     });
@@ -388,31 +352,23 @@ fn simulation_control(
     globals: &GameGlobals,
     images: &mut ResMut<Assets<Image>>,
 ) {
-    parent.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Column,
-            width: Val::Percent(100.0),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            padding: SUBSECTION_PADDING,
-            row_gap: SUBSECTION_ROW_GAP,
-            ..default()
-        },
-        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+    parent.spawn((Node {
+        flex_direction: FlexDirection::Column,
+        width: Val::Percent(100.0),
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        padding: SUBSECTION_PADDING,
+        row_gap: SUBSECTION_ROW_GAP,
         ..default()
-    })
+    }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
     .with_children(|parent| {
-        parent.spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::FlexStart,
-                align_items: AlignItems::FlexStart,
-                column_gap: Val::Px(10.),
-                ..default()
-            },
-            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        parent.spawn((Node {
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            column_gap: Val::Px(10.),
             ..default()
-        })
+        }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
         .with_children(|parent| {
             // buttons
             stop_start_button(parent, asset_server, globals, images);
@@ -429,8 +385,9 @@ fn stop_start_button(
     globals: &GameGlobals,
     images: &mut ResMut<Assets<Image>>,
 ) {
-    parent.spawn((ButtonBundle {
-        style: Style {
+    parent.spawn(( 
+        Button,
+        Node {
             width: Val::Px(SQUARE_BUTTON_SIZE as f32),
             height: Val::Px(SQUARE_BUTTON_SIZE as f32),
             border: BUTTON_BORDER,
@@ -438,18 +395,18 @@ fn stop_start_button(
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-        ..default()
-    }, StartStopButton { pressed: false }
+        BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        BackgroundColor(BASIC_BUTTON_BACKGROUND_COLOR),
+        StartStopButton { pressed: false }
     )).with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            "||",
-            TextStyle {
+        parent.spawn((
+            Text::new("||"),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 30.0,
-                color: BASIC_BUTTON_TEXT_COLOR,
+                ..default()
             },
+            TextColor(BASIC_BUTTON_TEXT_COLOR)
         ));
     });
 }
@@ -460,8 +417,9 @@ fn speed_button(
     speed: UpdateSpeed,
     text: &str
 ) {
-    parent.spawn((ButtonBundle {
-        style: Style {
+    parent.spawn((
+        Button,
+        Node {
             width: Val::Px(SQUARE_BUTTON_SIZE as f32),
             height: Val::Px(SQUARE_BUTTON_SIZE as f32),
             border: BUTTON_BORDER,
@@ -469,18 +427,18 @@ fn speed_button(
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-        ..default()
-    }, SpeedButton { speed }
+        BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        BackgroundColor(BASIC_BUTTON_BACKGROUND_COLOR),
+        SpeedButton { speed }
     )).with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            text,
-            TextStyle {
+        parent.spawn((
+            Text::new(text),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 30.0,
-                color: BASIC_BUTTON_TEXT_COLOR,
+                ..default()
             },
+            TextColor(BASIC_BUTTON_TEXT_COLOR)
         ));
     });
 }
@@ -490,31 +448,23 @@ fn brush_type(
     asset_server: &Res<AssetServer>,
     images: &mut ResMut<Assets<Image>>,
 ) {
-    parent.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Column,
-            width: Val::Percent(100.0),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            padding: SUBSECTION_PADDING,
-            row_gap: SUBSECTION_ROW_GAP,
-            ..default()
-        },
-        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+    parent.spawn((Node {
+        flex_direction: FlexDirection::Column,
+        width: Val::Percent(100.0),
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        padding: SUBSECTION_PADDING,
+        row_gap: SUBSECTION_ROW_GAP,
         ..default()
-    })
+    }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
     .with_children(|parent| {
-        parent.spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::FlexStart,
-                align_items: AlignItems::FlexStart,
-                column_gap: Val::Px(10.),
-                ..default()
-            },
-            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        parent.spawn((Node {
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            column_gap: Val::Px(10.),
             ..default()
-        })
+        }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
         .with_children(|parent| {
             // buttons
             add_brush_type_button(parent, asset_server, images, BrushType::Circle);
@@ -536,8 +486,9 @@ fn add_brush_type_button(
     let basic_tint: Color = LinearRgba::from_vec4(
         BASIC_BUTTON_BACKGROUND_COLOR.to_linear().to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.to_linear().to_vec4()
     ).into();
-    parent.spawn((ButtonBundle {
-        style: Style {
+    parent.spawn((
+        Button,
+        Node {
             width: Val::Px(SQUARE_BUTTON_SIZE as f32),
             height: Val::Px(SQUARE_BUTTON_SIZE as f32),
             border: BUTTON_BORDER,
@@ -545,10 +496,9 @@ fn add_brush_type_button(
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        image: UiImage::new(img_handle).with_color(basic_tint.into()),
-        ..default()
-    }, brush_type
+        BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        ImageNode::new(img_handle).with_color(basic_tint.into()),
+        brush_type
     ));
 }
 
@@ -557,43 +507,35 @@ fn brush_size(
     asset_server: &Res<AssetServer>,
     globals: &GameGlobals,
 ) {
-    parent.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Column,
-            width: Val::Percent(100.0),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            padding: SUBSECTION_PADDING,
-            row_gap: SUBSECTION_ROW_GAP,
-            ..default()
-        },
-        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+    parent.spawn((Node {
+        flex_direction: FlexDirection::Column,
+        width: Val::Percent(100.0),
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        padding: SUBSECTION_PADDING,
+        row_gap: SUBSECTION_ROW_GAP,
         ..default()
-    })
+    }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
     .with_children(|parent| {
 
         brush_size_slider(parent, asset_server, globals);
 
-        parent.spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Column,
-                width: Val::Percent(100.0),
-                align_items: AlignItems::FlexEnd,
-                padding: UiRect::right(Val::Px(10.0)),
-                ..default()
-            },
-            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        parent.spawn((Node {
+            flex_direction: FlexDirection::Column,
+            width: Val::Percent(100.0),
+            align_items: AlignItems::FlexEnd,
+            padding: UiRect::right(Val::Px(10.0)),
             ..default()
-        }).with_children(|parent| {
-            parent.spawn((TextBundle::from_section(
-                " 15 px",
-                TextStyle {
+        }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR))).with_children(|parent| {
+            parent.spawn((
+                Text::new(" 15 px"),
+                TextFont {
                     font: asset_server.load(TEXT_FONT),
                     font_size: 20.0,
-                    color: TEXT_DIMM,
                     ..default()
                 },
-            ), BrushSizeText
+                TextColor(TEXT_DIMM),
+                BrushSizeText
             ));
         });
     });
@@ -605,8 +547,9 @@ fn brush_size_slider(
     globals: &GameGlobals,
 ) {
     let button_offset = SLIDER_BUTTON_SIZE + SLIDER_BUTTON_BORDER * 2. + SLIDER_PADDING * 2.;
-    parent.spawn((ButtonBundle {
-        style: Style {
+    parent.spawn((
+        Button,
+        Node {
             width: Val::Px((globals.max_brush_size * SLIDER_SIZE_MUL) as f32 + button_offset),
             // TODO: padding + button size + button border
             height: Val::Px(button_offset),
@@ -616,36 +559,34 @@ fn brush_size_slider(
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-        ..default()
-    }, BrushSizeSlider, RelativeCursorPosition::default()))
-    .with_children(|parent| {
-        parent.spawn((NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Px(SLIDER_BORDER),
-                ..default()
-            },
-            background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-            z_index: ZIndex::Local(0),
+        BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        BackgroundColor(BASIC_BUTTON_BACKGROUND_COLOR),
+        BrushSizeSlider,
+        RelativeCursorPosition::default()
+    )).with_children(|parent| {
+        parent.spawn((
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Px(SLIDER_BORDER),
             ..default()
-        }, BrushSizeSliderLine
+        },
+        BackgroundColor(BASIC_BUTTON_BACKGROUND_COLOR),
+        ZIndex(0),
+        BrushSizeSliderLine
         ));
-        parent.spawn((NodeBundle {
-            style: Style {
-                width: Val::Px(SLIDER_BUTTON_SIZE),
-                height: Val::Px(SLIDER_BUTTON_SIZE),
-                border: UiRect::all(Val::Px(SLIDER_BUTTON_BORDER)),
-                position_type: PositionType::Absolute,
-                left: Val::Px(0.),
-                ..default()
-            },
-            border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-            background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-            z_index: ZIndex::Local(1),
+        parent.spawn((Node {
+            width: Val::Px(SLIDER_BUTTON_SIZE),
+            height: Val::Px(SLIDER_BUTTON_SIZE),
+            border: UiRect::all(Val::Px(SLIDER_BUTTON_BORDER)),
+            position_type: PositionType::Absolute,
+            left: Val::Px(0.),
             ..default()
-        }, BrushSizeSliderButton, RelativeCursorPosition::default()
+        }, 
+        BrushSizeSliderButton,
+        RelativeCursorPosition::default(),
+        BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        BackgroundColor(BASIC_BUTTON_BACKGROUND_COLOR),
+        ZIndex(1),
         ));
     });
 }
@@ -657,32 +598,24 @@ fn material_buttons(
 ) {
     let buttons_config = &globals.buttons_config;
     let cell_properties = &globals.grid.cell_properties;
-    parent.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Column,
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            padding: SUBSECTION_PADDING,
-            row_gap: SUBSECTION_ROW_GAP,
-            ..default()
-        },
-        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+    parent.spawn((Node {
+        flex_direction: FlexDirection::Column,
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        padding: SUBSECTION_PADDING,
+        row_gap: SUBSECTION_ROW_GAP,
         ..default()
-    })
+    }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
     .with_children(|parent| {
         // Buttons grid
-        parent.spawn(NodeBundle {
-            style: Style {
-                display: Display::Grid,
-                grid_template_columns: RepeatedGridTrack::flex(2, 1.0),
-                //grid_template_rows: RepeatedGridTrack::flex(10, 1.0),
-                row_gap: Val::Px(10.),
-                column_gap: Val::Px(10.0),
-                ..default()
-            },
-            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        parent.spawn((Node {
+            display: Display::Grid,
+            grid_template_columns: RepeatedGridTrack::flex(2, 1.0),
+            //grid_template_rows: RepeatedGridTrack::flex(10, 1.0),
+            row_gap: Val::Px(10.),
+            column_gap: Val::Px(10.0),
             ..default()
-        })
+        }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
         .with_children(|parent| {
             // add buttons
             for button_config in buttons_config {
@@ -698,40 +631,32 @@ fn color_palette_selection(
     globals: &GameGlobals,
     images: &mut ResMut<Assets<Image>>,
 ) {
-    parent.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Column,
-            width: Val::Percent(100.0),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            padding: SUBSECTION_PADDING,
-            row_gap: SUBSECTION_ROW_GAP,
-            ..default()
-        },
-        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+    parent.spawn((Node {
+        flex_direction: FlexDirection::Column,
+        width: Val::Percent(100.0),
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        padding: SUBSECTION_PADDING,
+        row_gap: SUBSECTION_ROW_GAP,
         ..default()
-    })
+    }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
     .with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            "Color palette",
-            TextStyle {
+        parent.spawn((
+            Text::new("Color palette"),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 40.0,
-                color: TEXT_LIGHT,
                 ..default()
             },
+            TextColor(TEXT_LIGHT)
         ));
-        parent.spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::FlexStart,
-                align_items: AlignItems::FlexStart,
-                column_gap: Val::Px(10.),
-                ..default()
-            },
-            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        parent.spawn((Node {
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::FlexStart,
+            align_items: AlignItems::FlexStart,
+            column_gap: Val::Px(10.),
             ..default()
-        })
+        }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
         .with_children(|parent| {
             // buttons
             for i in 0..globals.color_settings.len() {
@@ -758,8 +683,9 @@ fn add_color_palette_button(
     let button_size = UVec2::new(img.width(), img.height()).as_vec2();
     let img_handle = images.add(img);
 
-    parent.spawn((ButtonBundle {
-        style: Style {
+    parent.spawn((
+        Button,
+        Node {
             width: Val::Px(button_size.x),
             height: Val::Px(button_size.y),
             border: BUTTON_BORDER,
@@ -767,10 +693,9 @@ fn add_color_palette_button(
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        image: UiImage::new(img_handle),
-        ..default()
-    }, ColorPalleteButton { palette_num }
+        BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        ImageNode::new(img_handle),
+        ColorPalleteButton { palette_num }
     ));
 }
 
@@ -778,19 +703,15 @@ fn toggle_settings(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-    parent.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Column,
-            width: Val::Percent(100.0),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            padding: SUBSECTION_PADDING,
-            row_gap: SUBSECTION_ROW_GAP,
-            ..default()
-        },
-        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+    parent.spawn((Node {
+        flex_direction: FlexDirection::Column,
+        width: Val::Percent(100.0),
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        padding: SUBSECTION_PADDING,
+        row_gap: SUBSECTION_ROW_GAP,
         ..default()
-    })
+    }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
     .with_children(|parent| {
         replace_solids_button(parent, asset_server);
         top_gass_leak_button(parent, asset_server);
@@ -801,8 +722,9 @@ fn replace_solids_button(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-    parent.spawn((ButtonBundle {
-        style: Style {
+    parent.spawn((
+        Button,
+        Node {
             width: Val::Px(200.0),
             height: Val::Px(50.0),
             border: BUTTON_BORDER,
@@ -810,19 +732,19 @@ fn replace_solids_button(
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-        ..default()
-    }, ReplaceSolidsButton
+        BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        BackgroundColor(BASIC_BUTTON_BACKGROUND_COLOR),
+        ReplaceSolidsButton
     ))
     .with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            "Replace solids",
-            TextStyle {
+        parent.spawn((
+            Text::new("Replace solids"),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
-                color: BASIC_BUTTON_TEXT_COLOR,
+                ..default()
             },
+            TextColor(BASIC_BUTTON_TEXT_COLOR)
         ));
     });
 }
@@ -831,8 +753,9 @@ fn top_gass_leak_button(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-    parent.spawn((ButtonBundle {
-        style: Style {
+    parent.spawn((
+        Button,
+        Node {
             width: Val::Px(200.0),
             height: Val::Px(50.0),
             border: BUTTON_BORDER,
@@ -840,19 +763,19 @@ fn top_gass_leak_button(
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-        ..default()
-    }, TopGassLeakButton
+        BorderColor(BASIC_BUTTON_BORDER_COLOR),
+        BackgroundColor(BASIC_BUTTON_BACKGROUND_COLOR),
+        TopGassLeakButton
     ))
     .with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            "Top gass leak",
-            TextStyle {
+        parent.spawn((
+            Text::new("Top gass leak"),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
-                color: BASIC_BUTTON_TEXT_COLOR,
+                ..default()
             },
+            TextColor(BASIC_BUTTON_TEXT_COLOR)
         ));
     });
 }
@@ -861,44 +784,37 @@ fn save_and_load_buttons(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-    parent.spawn(NodeBundle {
-        style: Style {
-            flex_direction: FlexDirection::Column,
-            width: Val::Percent(100.0),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            padding: SUBSECTION_PADDING,
-            row_gap: SUBSECTION_ROW_GAP,
-            ..default()
-        },
-        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+    parent.spawn((Node {
+        flex_direction: FlexDirection::Column,
+        width: Val::Percent(100.0),
+        justify_content: JustifyContent::Center,
+        align_items: AlignItems::Center,
+        padding: SUBSECTION_PADDING,
+        row_gap: SUBSECTION_ROW_GAP,
         ..default()
-    })
+    }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
     .with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            "File",
-            TextStyle {
+        parent.spawn((
+            Text::new("File"),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 40.0,
-                color: TEXT_LIGHT,
                 ..default()
             },
+            TextColor(TEXT_LIGHT)
         ));
-        parent.spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                column_gap: Val::Px(10.),
-                ..default()
-            },
-            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
+        parent.spawn((Node {
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            column_gap: Val::Px(10.),
             ..default()
-        })
+        }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
         .with_children(|parent| {
             // Save Button
-            parent.spawn((ButtonBundle {
-                style: Style {
+            parent.spawn((
+                Button,
+                Node {
                     width: Val::Px(100.0),
                     height: Val::Px(50.0),
                     border: BUTTON_BORDER,
@@ -906,24 +822,25 @@ fn save_and_load_buttons(
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-                background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-                ..default()
-            }, SaveButton
+                BorderColor(BASIC_BUTTON_BORDER_COLOR),
+                BackgroundColor(BASIC_BUTTON_BACKGROUND_COLOR),
+                SaveButton
             ))
             .with_children(|parent| {
-                parent.spawn(TextBundle::from_section(
-                    "Save",
-                    TextStyle {
+                parent.spawn((
+                    Text::new("Save"),
+                    TextFont {
                         font: asset_server.load(TEXT_FONT),
                         font_size: 20.0,
-                        color: BASIC_BUTTON_TEXT_COLOR,
+                        ..default()
                     },
+                    TextColor(BASIC_BUTTON_TEXT_COLOR)
                 ));
             });
             // Load button
-            parent.spawn((ButtonBundle {
-                style: Style {
+            parent.spawn((
+                Button,
+                Node {
                     width: Val::Px(100.0),
                     height: Val::Px(50.0),
                     border: BUTTON_BORDER,
@@ -931,19 +848,19 @@ fn save_and_load_buttons(
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                border_color: BorderColor(BASIC_BUTTON_BORDER_COLOR),
-                background_color: BASIC_BUTTON_BACKGROUND_COLOR.into(),
-                ..default()
-            }, LoadButton
+                BorderColor(BASIC_BUTTON_BORDER_COLOR),
+                BackgroundColor(BASIC_BUTTON_BACKGROUND_COLOR),
+                LoadButton
             ))
             .with_children(|parent| {
-                parent.spawn(TextBundle::from_section(
-                    "Load",
-                    TextStyle {
+                parent.spawn((
+                    Text::new("Load"),
+                    TextFont {
                         font: asset_server.load(TEXT_FONT),
                         font_size: 20.0,
-                        color: BASIC_BUTTON_TEXT_COLOR,
+                        ..default()
                     },
+                    TextColor(BASIC_BUTTON_TEXT_COLOR)
                 ));
             });
         });
@@ -954,71 +871,63 @@ fn controls_help(
     parent: &mut ChildBuilder,
     asset_server: &Res<AssetServer>,
 ) {
-    parent.spawn(NodeBundle {
-        style: Style {
+    parent.spawn((Node {
+        flex_direction: FlexDirection::Column,
+        width: Val::Percent(100.0),
+        justify_content: JustifyContent::FlexStart,
+        align_items: AlignItems::FlexStart,
+        padding: SUBSECTION_PADDING,
+        row_gap: SUBSECTION_ROW_GAP,
+        ..default()
+    }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
+    .with_children(|parent| {
+        parent.spawn((Node {
             flex_direction: FlexDirection::Column,
             width: Val::Percent(100.0),
-            justify_content: JustifyContent::FlexStart,
-            align_items: AlignItems::FlexStart,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
             padding: SUBSECTION_PADDING,
             row_gap: SUBSECTION_ROW_GAP,
             ..default()
-        },
-        background_color: SUBSECTION_BACKGROUND_COLOR.into(),
-        ..default()
-    })
-    .with_children(|parent| {
-        parent.spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::Column,
-                width: Val::Percent(100.0),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                padding: SUBSECTION_PADDING,
-                row_gap: SUBSECTION_ROW_GAP,
-                ..default()
-            },
-            background_color: SUBSECTION_BACKGROUND_COLOR.into(),
-            ..default()
-        })
+        }, BackgroundColor(SUBSECTION_BACKGROUND_COLOR)))
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Controls",
-                TextStyle {
+            parent.spawn((
+                Text::new("Controls"),
+                TextFont {
                     font: asset_server.load(TEXT_FONT),
                     font_size: 40.0,
-                    color: TEXT_LIGHT,
                     ..default()
                 },
+                TextColor(TEXT_LIGHT)
             ));
         });
     
-        parent.spawn(TextBundle::from_section(
-            "Mouse Left - add material",
-            TextStyle {
+        parent.spawn((
+            Text::new("Mouse Left - add material"),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
-                color: TEXT_DIMM,
                 ..default()
             },
+            TextColor(TEXT_DIMM)
         ));
-        parent.spawn(TextBundle::from_section(
-            "Mouse Right - remove material",
-            TextStyle {
+        parent.spawn((
+            Text::new("Mouse Right - remove material"),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
-                color: TEXT_DIMM,
                 ..default()
             },
+            TextColor(TEXT_DIMM)
         ));
-        parent.spawn(TextBundle::from_section(
-            "Mouse Scroll - brush size",
-            TextStyle {
+        parent.spawn((
+            Text::new("Mouse Scroll - brush size"),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 20.0,
-                color: TEXT_DIMM,
                 ..default()
             },
+            TextColor(TEXT_DIMM)
         ));
     });
 }
@@ -1033,8 +942,9 @@ fn add_cell_type_button(
     let background_color = cell_properties[CellType::Air].get_default_color();
     let cell_color = background_color.mix(&cell_color, cell_color.alpha());
     let text_color = distant_color_black_white_no_alpha(cell_color);
-    parent.spawn((ButtonBundle {
-        style: Style {
+    parent.spawn((
+        Button,
+        Node {
             width: Val::Px(150.0),
             height: Val::Px(50.0),
             border: BUTTON_BORDER,
@@ -1044,19 +954,19 @@ fn add_cell_type_button(
             align_items: AlignItems::Center,
             ..default()
         },
-        border_color: BorderColor(CELL_BUTTON_BORDER_COLOR),
-        background_color: cell_color.into(),
-        ..default()
-    }, button_config.cell_type
+        BorderColor(CELL_BUTTON_BORDER_COLOR),
+        BackgroundColor(cell_color),
+        button_config.cell_type
     ))
     .with_children(|parent| {
-        parent.spawn(TextBundle::from_section(
-            &button_config.name,
-            TextStyle {
+        parent.spawn((
+            Text::new(&button_config.name),
+            TextFont {
                 font: asset_server.load(TEXT_FONT),
                 font_size: 30.0,
-                color: text_color,
+                ..default()
             },
+            TextColor(text_color)
         ));
     });
 }

@@ -218,7 +218,7 @@ impl CellGrid
     }
 
     fn update_color_cell_type(&mut self, pos: IVec2, cell_type: CellType) {
-        if rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].color_change_prob {
+        if rand::rng().random::<f32>() < self.cell_properties[cell_type].color_change_prob {
             self.cells[pos].color_offset = self.cell_properties[cell_type].gen_color_offset(pos);
         }
     }
@@ -271,11 +271,11 @@ impl CellGrid
     }
 
     fn rand_fallthrough(&self, pos: IVec2) -> bool {
-        rand::thread_rng().gen::<f32>() < self.cell_properties[self.cells[pos].cell_type].fallthroug_prob
+        rand::rng().random::<f32>() < self.cell_properties[self.cells[pos].cell_type].fallthroug_prob
     }
 
     fn update_powder(&mut self, pos: IVec2) {
-        if rand::thread_rng().gen::<f32>() > self.powder_fall_prob {
+        if rand::rng().random::<f32>() > self.powder_fall_prob {
             return;
         }
         let bottom_pos = pos + IVec2::new(0, -1);
@@ -287,7 +287,7 @@ impl CellGrid
                 }
                 return;
             }
-            if rand::thread_rng().gen::<f32>() > self.cell_properties[self.cells[pos].cell_type].movement_prob {
+            if rand::rng().random::<f32>() > self.cell_properties[self.cells[pos].cell_type].movement_prob {
                 return;
             }
             let bottom_left_dir = IVec2::new(-1, -1);
@@ -299,7 +299,7 @@ impl CellGrid
                     if self.cells[pos].is_powder_stuck() {
                         return;
                     }
-                    if rand::thread_rng().gen::<f32>() < self.powder_liquid_stuck_prob {
+                    if rand::rng().random::<f32>() < self.powder_liquid_stuck_prob {
                         self.cells[pos].set_powder_stuck(true);
                     }
                 }
@@ -326,7 +326,7 @@ impl CellGrid
         let fluid_type = self.cells[pos].cell_type;
         let move_dir = if is_liquid { -1 } else { 1 };
         // gass movement speed
-        if !is_liquid && rand::thread_rng().gen::<f32>() > self.cell_properties[fluid_type].movement_prob {
+        if !is_liquid && rand::rng().random::<f32>() > self.cell_properties[fluid_type].movement_prob {
             return;
         }
         // vertical
@@ -334,7 +334,7 @@ impl CellGrid
         if self.cells.is_in_range(vert_pos) {
             if !self.cells[vert_pos].is_solid() && self.compare_densities(self.cells[vert_pos].cell_type, fluid_type, is_liquid) {
                 // liquid fall speed
-                if is_liquid && rand::thread_rng().gen::<f32>() > self.liquid_fall_prob {
+                if is_liquid && rand::rng().random::<f32>() > self.liquid_fall_prob {
                     return;
                 }
                 if self.rand_fallthrough(vert_pos) {
@@ -347,13 +347,13 @@ impl CellGrid
             return;
         }
         // liquid movement speed
-        if is_liquid && rand::thread_rng().gen::<f32>() > self.cell_properties[fluid_type].movement_prob {
+        if is_liquid && rand::rng().random::<f32>() > self.cell_properties[fluid_type].movement_prob {
             return;
         }
         // diagonal
         let diag_left_pos = pos + IVec2::new(-1, move_dir);
         let diag_right_pos = pos + IVec2::new(1, move_dir);
-        let choose = rand::thread_rng().gen_range(0..2);
+        let choose = rand::rng().random_range(0..2);
         let side_pos = [diag_left_pos, diag_right_pos];
         if self.cells.is_in_range(side_pos[choose]) && !self.cells[side_pos[choose]].is_solid() && self.compare_densities(self.cells[side_pos[choose]].cell_type, fluid_type, is_liquid) {
             if self.rand_fallthrough(side_pos[choose]) {
@@ -387,12 +387,12 @@ impl CellGrid
     }
 
     fn update_acid(&mut self, pos: IVec2) {
-        if rand::thread_rng().gen::<f32>() > self.acid_reaction_prob {
+        if rand::rng().random::<f32>() > self.acid_reaction_prob {
             return;
         }
         let down_pos = pos + IVec2::new(0, -1);
         // neutralize with water
-        if rand::thread_rng().gen::<f32>() < self.neutralize_acid_prob {
+        if rand::rng().random::<f32>() < self.neutralize_acid_prob {
             if self.cells.is_in_range(down_pos) && self.cells[down_pos].cell_type == CellType::Water {
                 self.cells[pos] = self.new_cell(CellType::Water, pos);
                 return;
@@ -404,7 +404,7 @@ impl CellGrid
         let diag_left_pos = pos + IVec2::new(-1, -1);
         let diag_right_pos = pos + IVec2::new(1, -1);
         let side_pos = [down_pos, left_pos, right_pos, diag_left_pos, diag_right_pos];
-        let choose_pos = side_pos[rand::thread_rng().gen_range(0..side_pos.len())];
+        let choose_pos = side_pos[rand::rng().random_range(0..side_pos.len())];
         if self.cells.is_in_range(choose_pos) && self.cells[choose_pos].is_dissolvable() {
             if self.cells[choose_pos].cell_type == CellType::Water {
                 self.cells[pos] = self.new_cell(CellType::Smoke, pos);
@@ -436,7 +436,7 @@ impl CellGrid
                     continue;
                 }
                 let cell_type = self.cells[ignite_pos].cell_type;
-                if rand::thread_rng().gen::<f32>() > self.cell_properties[cell_type].ignite_prob {
+                if rand::rng().random::<f32>() > self.cell_properties[cell_type].ignite_prob {
                     continue;
                 }
                 match cell_type {
@@ -464,8 +464,8 @@ impl CellGrid
         let mut is_gass_neirby = false;
         if !self.cells[pos].was_ignited_this_frame() {
             // change color
-            if rand::thread_rng().gen::<f32>() < self.cell_properties[CellType::Fire].color_change_prob {
-                if rand::thread_rng().gen::<f32>() < self.cell_properties[cell_type].fire_color_prob {
+            if rand::rng().random::<f32>() < self.cell_properties[CellType::Fire].color_change_prob {
+                if rand::rng().random::<f32>() < self.cell_properties[cell_type].fire_color_prob {
                     self.cells[pos].use_fire_color();
                     self.cells[pos].color_offset = self.cell_properties[CellType::Fire].gen_color_offset(pos);
                 } else {
@@ -479,12 +479,12 @@ impl CellGrid
             is_gass_neirby = true;
         }
         // extinguish solids without gass neirby
-        if !self.cells[pos].is_gass() && !is_gass_neirby && rand::thread_rng().gen::<f32>() < self.fire_solid_extinguish_prob {
+        if !self.cells[pos].is_gass() && !is_gass_neirby && rand::rng().random::<f32>() < self.fire_solid_extinguish_prob {
             self.cells[pos].extinguish();
             return;
         }
         // decrease fire
-        if rand::thread_rng().gen::<f32>() > self.fire_decrease_prob {
+        if rand::rng().random::<f32>() > self.fire_decrease_prob {
             return;
         }
         let mut flame_timer = self.cells[pos].get_timer() as i16;
@@ -501,11 +501,11 @@ impl CellGrid
     }
 
     fn update_smoke(&mut self, pos: IVec2) {
-        if rand::thread_rng().gen::<f32>() < self.smoke_degradation_prob {
+        if rand::rng().random::<f32>() < self.smoke_degradation_prob {
             self.cells[pos] = Cell::default_air();
             return;
         }
-        if rand::thread_rng().gen::<f32>() > self.smoke_decrease_prob {
+        if rand::rng().random::<f32>() > self.smoke_decrease_prob {
             return;
         }
         let mut smoke_timer = self.cells[pos].get_timer() as i16;
@@ -527,7 +527,7 @@ impl CellGrid
             IVec2::new( 0,  1),
             IVec2::new( 1,  1),
         ];
-        offs.shuffle(&mut thread_rng());
+        offs.shuffle(&mut rand::rng());
         let mut air_neirby = false;
         for off in offs {
             let freeze_pos = pos + off;
@@ -538,7 +538,7 @@ impl CellGrid
                 air_neirby = true;
             }
             let multiplier = if air_neirby { 10.0 } else { 1.0 };
-            if rand::thread_rng().gen::<f32>() > multiplier * self.freeze_prob {
+            if rand::rng().random::<f32>() > multiplier * self.freeze_prob {
                 continue;
             }
             if self.cells[freeze_pos].cell_type == CellType::Water {
@@ -548,7 +548,7 @@ impl CellGrid
     }
 
     fn update_lava(&mut self, pos: IVec2) {
-        if rand::thread_rng().gen::<f32>() > self.lava_ignite_prob {
+        if rand::rng().random::<f32>() > self.lava_ignite_prob {
             return;
         }
         self.ignite_neighborhood(pos, &mut false);
@@ -558,12 +558,12 @@ impl CellGrid
         let up_pos = pos + IVec2::new(0, 1);
         let in_range = self.cells.is_in_range(up_pos);
         if in_range && self.cells[up_pos].cell_type == CellType::Ice {
-            if rand::thread_rng().gen::<f32>() > 3.0 * self.steam_liquify_prob {
+            if rand::rng().random::<f32>() > 3.0 * self.steam_liquify_prob {
                 return;
             }
             self.cells[pos] = self.new_cell(CellType::Water, pos);
         }
-        if rand::thread_rng().gen::<f32>() > self.steam_liquify_prob {
+        if rand::rng().random::<f32>() > self.steam_liquify_prob {
             return;
         }
         if in_range && self.cells[up_pos].is_solid() || !in_range && !self.top_gass_leak {
@@ -572,13 +572,13 @@ impl CellGrid
     }
 
     fn update_water(&mut self, pos: IVec2) {
-        if rand::thread_rng().gen::<f32>() > self.lava_cooldown_prob {
+        if rand::rng().random::<f32>() > self.lava_cooldown_prob {
             return;
         }
         let mut ys = [-1, 0, 1];
         let mut xs = [-1, 0, 1];
-        ys.shuffle(&mut thread_rng());
-        xs.shuffle(&mut thread_rng());
+        ys.shuffle(&mut rand::rng());
+        xs.shuffle(&mut rand::rng());
         for y in ys {
             for x in xs {
                 let lava_pos = pos + IVec2::new(x, y);

@@ -4,12 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rand = "0.8.5"
-bevy = "0.14.1"
+rand = "0.9.0"
+bevy = "0.15.1"
 enum-map = "2.7.3"
-winit = "0.30.5"
-rfd = "0.14.1"
-image = "0.24"
+winit = "0.30.8"
+rfd = "0.15.2"
+image = "0.25.5"
 
 # Enable a small amount of optimization in debug mode
 # [profile.dev]
@@ -36,4 +36,4 @@ lto = "fat"
 codegen-units = 1
 
 [build-dependencies]
-winresource = "0.1.17"
+winresource = "0.1.19"

@@ -1,7 +1,7 @@
+use bevy::image::*;
 use bevy::prelude::*;
 use bevy::render::render_asset::*;
 use bevy::render::render_resource::*;
-use bevy::render::texture::*;
 use enum_map::EnumMap;
 use enum_map::enum_map;
 use crate::cell::*;
@@ -126,7 +126,7 @@ pub fn color_palette_button_image(
     );
 
     img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
-        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        min_filter: bevy::image::ImageFilterMode::Nearest,
         ..default()
     });
     

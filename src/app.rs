@@ -12,11 +12,11 @@ use bevy::{
             Extent3d,
             ShaderRef,
             TextureDimension
-        },
-        texture::{
+        }},
+        image::{
             ImageSampler,
             ImageSamplerDescriptor
-        }}, sprite::{
+        }, sprite::{
             Material2d,
             Material2dPlugin,
             MaterialMesh2dBundle
@@ -140,7 +140,7 @@ fn setup(
     );
 
     img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
-        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        min_filter: bevy::image::ImageFilterMode::Nearest,
         ..default()
     });
 

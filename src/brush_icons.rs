@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::{render_asset::RenderAssetUsages, render_resource::{self, Extent3d, TextureDimension}, texture::{ImageSampler, ImageSamplerDescriptor}}};
+use bevy::{image::{ImageSampler, ImageSamplerDescriptor}, prelude::*, render::{render_asset::RenderAssetUsages, render_resource::{self, Extent3d, TextureDimension}}};
 
 use crate::utils::*;
 use crate::ui::*;
@@ -27,7 +27,7 @@ pub fn circle_brush_icon(img_size: u32) -> Image
     );
 
     img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
-        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        min_filter: bevy::image::ImageFilterMode::Nearest,
         ..default()
     });
 
@@ -61,7 +61,7 @@ pub fn square_brush_icon(img_size: u32) -> Image
     );
 
     img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
-        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        min_filter: bevy::image::ImageFilterMode::Nearest,
         ..default()
     });
 
@@ -95,7 +95,7 @@ pub fn line_round_brush_icon(img_size: u32) -> Image
     );
 
     img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
-        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        min_filter: bevy::image::ImageFilterMode::Nearest,
         ..default()
     });
 
@@ -132,7 +132,7 @@ pub fn line_sharp_brush_icon(img_size: u32) -> Image
     );
 
     img.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
-        min_filter: bevy::render::texture::ImageFilterMode::Nearest,
+        min_filter: bevy::image::ImageFilterMode::Nearest,
         ..default()
     });
 
