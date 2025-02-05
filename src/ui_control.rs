@@ -138,7 +138,6 @@ pub fn brush_type_button_interactions(
     mut interaction_query: Query<
         (
             &Interaction,
-            &mut ImageNode,
             &mut BorderColor,
             &BrushType
         ),
@@ -146,20 +145,18 @@ pub fn brush_type_button_interactions(
     >
 ) {
     let mut globals = globals_query.single_mut();
-    for (interaction, mut ui_image, mut border_color, brush_type) in &mut interaction_query {
+    for (interaction, mut border_color, brush_type) in &mut interaction_query {
         let basic_tint: Color = LinearRgba::from_vec4(
             BASIC_BUTTON_BACKGROUND_COLOR.to_linear().to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.to_linear().to_vec4()
         ).into();
         match *interaction {
             Interaction::Pressed => {
-                ui_image.color = Color::WHITE.into();
                 border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 globals.brush_type = *brush_type;
                 globals.prev_cursor_pos = None;
                 globals.prev_mouse_press = None;
             }
             Interaction::Hovered => {
-                ui_image.color = Color::WHITE.into();
                 if globals.brush_type == *brush_type {
                     border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 } else {
@@ -167,7 +164,6 @@ pub fn brush_type_button_interactions(
                 }
             }
             Interaction::None => {
-                ui_image.color = basic_tint.into();
                 if globals.brush_type == *brush_type {
                     border_color.0 = BASIC_BUTTON_SELECTED_BORDER_COLOR;
                 } else {

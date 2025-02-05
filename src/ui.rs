@@ -1,5 +1,6 @@
 use bevy::color::palettes::css::GOLD;
 use bevy::render::globals;
+use bevy::ui::widget::NodeImageMode;
 use bevy::{prelude::*, ui::RelativeCursorPosition};
 use enum_map::{Enum, EnumMap};
 
@@ -481,7 +482,7 @@ fn add_brush_type_button(
     images: &mut ResMut<Assets<Image>>,
     brush_type: BrushType,
 ) {
-    let img = brush_icon(brush_type, SQUARE_BUTTON_SIZE / 2);
+    let img = brush_icon(brush_type, SQUARE_BUTTON_SIZE / 2 - (BUTTON_BORDER_SIZE as u32));
     let img_handle = images.add(img);
     let basic_tint: Color = LinearRgba::from_vec4(
         BASIC_BUTTON_BACKGROUND_COLOR.to_linear().to_vec4() / BASIC_BUTTON_HOVER_BACKGROUND_COLOR.to_linear().to_vec4()
@@ -494,12 +495,19 @@ fn add_brush_type_button(
             border: BUTTON_BORDER,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
+            padding: UiRect::all(Val::Px(0.0)),
             ..default()
         },
+        ZIndex(1),
         BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        ImageNode::new(img_handle).with_color(basic_tint.into()),
         brush_type
-    ));
+    )).with_children(|parent| {
+        parent.spawn((
+            ImageNode::new(img_handle),
+            Transform::from_scale(Vec3 { x: 2.0, y: 2.0, z: 1.0 }),
+            ZIndex(0)
+        ));
+    });
 }
 
 fn brush_size(
@@ -686,17 +694,19 @@ fn add_color_palette_button(
     parent.spawn((
         Button,
         Node {
-            width: Val::Px(button_size.x),
-            height: Val::Px(button_size.y),
+            width: Val::Px(button_size.x + 2.0 * BUTTON_BORDER_SIZE),
+            height: Val::Px(button_size.y + 2.0 * BUTTON_BORDER_SIZE),
             border: BUTTON_BORDER,
+            padding: UiRect::all(Val::Px(0.0)),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             ..default()
         },
         BorderColor(BASIC_BUTTON_BORDER_COLOR),
-        ImageNode::new(img_handle),
         ColorPalleteButton { palette_num }
-    ));
+    )).with_children(|sub_parent| {
+        sub_parent.spawn(ImageNode::new(img_handle));
+    });
 }
 
 fn toggle_settings(
